@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Express 2013 for Windows Desktop
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "netool", "netool\netool.csproj", "{3A81ECAD-FDC9-4940-AE59-3019A62E7F3B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Netool", "netool\Netool.csproj", "{3A81ECAD-FDC9-4940-AE59-3019A62E7F3B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{BE24167B-4DCD-4E72-8603-4AAA040C538F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{3A81ECAD-FDC9-4940-AE59-3019A62E7F3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A81ECAD-FDC9-4940-AE59-3019A62E7F3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A81ECAD-FDC9-4940-AE59-3019A62E7F3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE24167B-4DCD-4E72-8603-4AAA040C538F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE24167B-4DCD-4E72-8603-4AAA040C538F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE24167B-4DCD-4E72-8603-4AAA040C538F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE24167B-4DCD-4E72-8603-4AAA040C538F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

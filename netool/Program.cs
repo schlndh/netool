@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace netool
+namespace Netool
 {
     static class Program
     {
@@ -16,7 +16,10 @@ namespace netool
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            var view = new MainView();
+            var model = new MainModel();
+            var controller = new MainController(view, model);
+            Application.Run(view);
         }
     }
 }
