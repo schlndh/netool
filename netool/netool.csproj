@@ -60,18 +60,78 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MainController.cs" />
-    <Compile Include="MainModel.cs" />
-    <Compile Include="MainView.cs">
+    <Compile Include="Controllers\ProxyController.cs" />
+    <Compile Include="Controllers\ClientController.cs" />
+    <Compile Include="Controllers\MainController.cs" />
+    <Compile Include="Controllers\ServerController.cs" />
+    <Compile Include="Dialogs\IPEndpointDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainView.Designer.cs">
+    <Compile Include="Dialogs\IPEndpointDialog.Designer.cs">
+      <DependentUpon>IPEndpointDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\TcpClientDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\TcpClientDialog.Designer.cs">
+      <DependentUpon>TcpClientDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\TcpServerDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\TcpServerDialog.Designer.cs">
+      <DependentUpon>TcpServerDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\MainModel.cs" />
+    <Compile Include="Network\DataFormats\ByteArray.cs" />
+    <Compile Include="Network\DefaultProxy.cs" />
+    <Compile Include="Network\Tcp\TcpClientFactory.cs" />
+    <Compile Include="Views\ProxyView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\ProxyView.Designer.cs">
+      <DependentUpon>ProxyView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ClientView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\ClientView.Designer.cs">
+      <DependentUpon>ClientView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MainView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\MainView.Designer.cs">
       <DependentUpon>MainView.cs</DependentUpon>
     </Compile>
+    <Compile Include="Network\Network.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SettingsFormat.cs" />
-    <EmbeddedResource Include="MainView.resx">
+    <Compile Include="Settings\SettingsFormat.cs" />
+    <Compile Include="Network\Tcp\TcpClient.cs" />
+    <Compile Include="Network\Tcp\TcpServer.cs" />
+    <Compile Include="Views\ServerView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\ServerView.Designer.cs">
+      <DependentUpon>ServerView.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Dialogs\IPEndpointDialog.resx">
+      <DependentUpon>IPEndpointDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\TcpClientDialog.resx">
+      <DependentUpon>TcpClientDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\TcpServerDialog.resx">
+      <DependentUpon>TcpServerDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\ProxyView.resx">
+      <DependentUpon>ProxyView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\ClientView.resx">
+      <DependentUpon>ClientView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\MainView.resx">
       <DependentUpon>MainView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -84,6 +144,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="Views\ServerView.resx">
+      <DependentUpon>ServerView.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -114,6 +177,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
