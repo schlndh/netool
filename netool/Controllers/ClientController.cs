@@ -34,19 +34,19 @@ namespace Netool.Controllers
         {
             client.Send(new ByteArray(ASCIIEncoding.ASCII.GetBytes(data)));
         }
-        public void OnConnectionCreated(object sender, ConnectionEventArgs e)
+        private void OnConnectionCreated(object sender, ConnectionEventArgs e)
         {
             view.LogMessage(String.Format("\r\n=== Connection created ({0}) ===\r\n", e.ID));
         }
-        public void OnConnectionClosed(object sender, ConnectionEventArgs e)
+        private void OnConnectionClosed(object sender, ConnectionEventArgs e)
         {
             view.LogMessage(String.Format("\r\n=== Connection closed ({0}) ===\r\n", e.ID));
         }
-        public void OnResponseReceived(object sender, DataEventAgrs e)
+        private void OnResponseReceived(object sender, DataEventAgrs e)
         {
             view.LogMessage(String.Format("\r\n=== Response received ({0}) ===\r\n{1}", e.ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
         }
-        public void OnRequestSent(object sender, DataEventAgrs e)
+        private void OnRequestSent(object sender, DataEventAgrs e)
         {
             view.LogMessage(String.Format("\r\n=== Request sent ({0}) ===\r\n{1}", e.ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
         }

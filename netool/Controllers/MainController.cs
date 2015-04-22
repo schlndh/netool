@@ -27,7 +27,7 @@ namespace Netool.Controllers
         /// </summary>
         public void Load()
         {
-            /*{
+            {
                 var server = new TcpServer(new TcpServerSettings { LocalEndPoint = new IPEndPoint(IPAddress.Loopback, 8081) });
                 var sview = new ServerView();
                 var cont = new ServerController(sview, server);
@@ -39,6 +39,16 @@ namespace Netool.Controllers
                 var server = new TcpServer(new TcpServerSettings { LocalEndPoint = new IPEndPoint(IPAddress.Loopback, 8080) });
                 var factory = new TcpClientFactory(new TcpClientFactorySettings { LocalIPAddress = IPAddress.Loopback, RemoteEndPoint = new IPEndPoint(IPAddress.Loopback, 8081) });
                 var proxy = new DefaultProxy(server, factory);
+                proxy.RequestModifier = delegate(string id, IByteArrayConvertible data)
+                {
+                    if (data.ToByteArray().Length > 10) return null;
+                    return new ByteArray(ASCIIEncoding.ASCII.GetBytes(ASCIIEncoding.ASCII.GetString(data.ToByteArray()).ToUpper()));
+                };
+                proxy.ResponseModifier = delegate(string id, IByteArrayConvertible data)
+                {
+                    if (data.ToByteArray().Length > 10) return null;
+                    return new ByteArray(ASCIIEncoding.ASCII.GetBytes(ASCIIEncoding.ASCII.GetString(data.ToByteArray()).ToLower()));
+                };
                 var pview = new ProxyView();
                 var cont = new ProxyController(pview, proxy);
                 pview.SetController(cont);
@@ -52,7 +62,7 @@ namespace Netool.Controllers
                 cview.SetController(cont);
                 view.AddPage("Client", cview);
                 cont.Start();
-            }*/
+            }
         }
         public void CreateServer()
         {

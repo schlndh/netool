@@ -18,7 +18,6 @@ namespace Netool.Network.Tcp
     {
         protected TcpClientSettings settings;
         protected Socket socket;
-        protected object state;
         protected volatile bool stopped = true;
 
         public event ConnectionCreatedHandler ConnectionCreated;
@@ -29,18 +28,19 @@ namespace Netool.Network.Tcp
         {
             this.settings = settings;
         }
-        public virtual void Start()
+        public void Start()
         {
             if(stopped)
             {
                 stopped = false;
                 socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+                socket.Bind(settings.LocalEndPoint);
                 socket.Connect(settings.RemoteEndPoint);
                 OnConnectionCreated();
                 scheduleNextReceive();
             }
         }
-        public virtual void Stop()
+        public void Stop()
         {
             if(!stopped)
             {
@@ -59,7 +59,7 @@ namespace Netool.Network.Tcp
                 OnConnectionClosed();
             } 
         }
-        public virtual void Send(IByteArrayConvertible request)
+        public void Send(IByteArrayConvertible request)
         {
             try 
             {
@@ -72,7 +72,7 @@ namespace Netool.Network.Tcp
             
             OnRequestSent(request);
         }
-        protected virtual void scheduleNextReceive()
+        private void scheduleNextReceive()
         {
             var s = new ReadStateObject(socket, 1024);
             try 
@@ -82,7 +82,7 @@ namespace Netool.Network.Tcp
             catch (ObjectDisposedException e) { }
             
         }
-        protected virtual void handleResponse(IAsyncResult ar)
+        private void handleResponse(IAsyncResult ar)
         {
             var s = (ReadStateObject)ar.AsyncState;
             int bytesRead = 0;
@@ -106,7 +106,7 @@ namespace Netool.Network.Tcp
                 Stop();
             }
         }
-        protected virtual IByteArrayConvertible processResponse(byte[] response, int length)
+        private IByteArrayConvertible processResponse(byte[] response, int length)
         {
             byte[] arr = new byte[length];
             Array.Copy(response,arr, length);
@@ -118,11 +118,11 @@ namespace Netool.Network.Tcp
         }
         protected virtual void OnRequestSent(IByteArrayConvertible request)
         {
-            if (RequestSent != null) RequestSent(this, new DataEventAgrs { ID = "", Data = request, State = state });
+            if (RequestSent != null) RequestSent(this, new DataEventAgrs { ID = "", Data = request, State = null });
         }
         protected virtual void OnResponseReceived(IByteArrayConvertible response)
         {
-            if (ResponseReceived != null) ResponseReceived(this, new DataEventAgrs { ID = "", Data = response, State = state });
+            if (ResponseReceived != null) ResponseReceived(this, new DataEventAgrs { ID = "", Data = response, State = null });
         }
         protected virtual void OnConnectionClosed()
         {

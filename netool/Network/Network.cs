@@ -20,9 +20,18 @@ namespace Netool.Network
     public delegate void ConnectionCreatedHandler(object sender, ConnectionEventArgs e);
     public delegate void RequestSentHandler(object sender, DataEventAgrs e);
     public delegate void RequestReceivedHandler(object sender, DataEventAgrs e);
+    public delegate void RequestDroppedHandler(object sender, DataEventAgrs e);
     public delegate void ResponseSentHandler(object sender, DataEventAgrs e);
     public delegate void ResponseReceivedHandler(object sender, DataEventAgrs e);
+    public delegate void ResponseDroppedHandler(object sender, DataEventAgrs e);
     public delegate void ConnectionClosedHandler(object sender, ConnectionEventArgs e);
+    /// <summary>
+    /// interface for request/response modification callbacks for proxy
+    /// </summary>
+    /// <param name="id">client id</param>
+    /// <param name="data"></param>
+    /// <returns>new data or null if request/response is to be dropped</returns>
+    public delegate IByteArrayConvertible DataModifier(string id, IByteArrayConvertible data);
     public interface IByteArrayConvertible
     {
         byte[] ToByteArray();
@@ -57,31 +66,15 @@ namespace Netool.Network
     {
         event ConnectionCreatedHandler ConnectionCreated;
         event RequestReceivedHandler RequestReceived;
+        event RequestSentHandler RequestSent;
+        event RequestDroppedHandler RequestDropped;
+        event ResponseReceivedHandler ResponseReceived;
         event ResponseSentHandler ResponseSent;
+        event ResponseDroppedHandler ResponseDropped;
         event ConnectionClosedHandler ConnectionClosed;
+        DataModifier RequestModifier { get; set; }
+        DataModifier ResponseModifier { get; set; }
         void Start();
         void Stop();
-    }
-    public static class SocketHelpers
-    {
-        public static byte[] ReceiveAllFromSocket(Socket socket, int bufferSize = 1024)
-        {
-            var buffers = new List<byte[]>();
-            int bytesRead = 0;
-            do
-            {
-                buffers.Add(new byte[bufferSize]);
-                bytesRead = socket.Receive(buffers[buffers.Count - 1]);
-            } while (socket.Available > 0 && bytesRead > 0);
-            // omit empty bytes in last buffer
-            int retLength = (buffers.Count - 1) * bufferSize + bytesRead;
-            byte[] ret = new byte[retLength];
-            for (int i = 0; i < buffers.Count - 1; ++i)
-            {
-                buffers[i].CopyTo(ret, bufferSize * i);
-            }
-            Array.Copy(buffers[buffers.Count - 1], 0, ret, (buffers.Count - 1) * bufferSize, bytesRead);
-            return ret;
-        }
     }
 }

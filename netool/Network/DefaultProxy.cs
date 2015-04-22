@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,12 +13,12 @@ namespace Netool.Network
         protected class ClientHandler
         {
             protected IClient client;
-            protected IServer server;
             protected string clientID;
-            public ClientHandler(string clientID, IClient client, IServer server)
+            public event ResponseReceivedHandler ResponseReceived;
+            public event ConnectionClosedHandler ConnectionClosed;
+            public ClientHandler(string clientID, IClient client)
             {
                 this.clientID = clientID;
-                this.server = server;
                 this.client = client;
                 this.client.ResponseReceived += responseReceivedHandler;
                 this.client.ConnectionClosed += connectionClosedHandler;
@@ -34,20 +34,29 @@ namespace Netool.Network
             }
             protected void responseReceivedHandler(object sender, DataEventAgrs args)
             {
-                server.Send(clientID, args.Data);
+                args.ID = clientID;
+                if (ResponseReceived != null) ResponseReceived(sender, args);
             }
             protected void connectionClosedHandler(object sender, ConnectionEventArgs args)
             {
-                server.CloseConnection(clientID);
+                args.ID = clientID;
+                if (ConnectionClosed != null) ConnectionClosed(sender, args);
                 client.Stop();
             }
         }
         public event ConnectionCreatedHandler ConnectionCreated;
         public event RequestReceivedHandler RequestReceived;
+        public event RequestSentHandler RequestSent;
+        public event RequestDroppedHandler RequestDropped;
         public event ResponseSentHandler ResponseSent;
+        public event ResponseReceivedHandler ResponseReceived;
+        public event ResponseDroppedHandler ResponseDropped;
         public event ConnectionClosedHandler ConnectionClosed;
 
-        protected Dictionary<string, ClientHandler> clientHandlers = new Dictionary<string, ClientHandler>();
+        public DataModifier RequestModifier { get; set; }
+        public DataModifier ResponseModifier { get; set; }
+
+        protected ConcurrentDictionary<string, ClientHandler> clientHandlers = new ConcurrentDictionary<string, ClientHandler>();
         protected IServer server;
         protected IClientFactory clientFactory;
         public DefaultProxy(IServer server, IClientFactory clientFactory)
@@ -60,7 +69,6 @@ namespace Netool.Network
             server.ConnectionCreated += connectionCreatedHandler;
             server.ConnectionClosed += connectionClosedHandler;
             server.RequestReceived += requestReceivedHandler;
-            server.ResponseSent += responseSentHandler;
             server.Start();
         }
         public virtual void Stop()
@@ -68,7 +76,6 @@ namespace Netool.Network
             server.ConnectionCreated -= connectionCreatedHandler;
             server.ConnectionClosed -= connectionClosedHandler;
             server.RequestReceived -= requestReceivedHandler;
-            server.ResponseSent -= responseSentHandler;
             foreach(var client in clientHandlers)
             {
                 client.Value.Stop();
@@ -77,17 +84,28 @@ namespace Netool.Network
             clientHandlers.Clear();
             server.Stop();
         }
-        protected virtual void requestReceivedHandler(object sender, DataEventAgrs args)
+        private void requestReceivedHandler(object sender, DataEventAgrs args)
         {
+            OnRequestReceived(args.ID, args.Data, args.State);
+            IByteArrayConvertible data = args.Data;
+            if(RequestModifier != null)
+            {
+                data = RequestModifier(args.ID, args.Data);
+                if (data == null)
+                {
+                    OnRequestDropped(args.ID, args.Data, args.State);
+                    return;
+                }
+            }
             ClientHandler handler;
             if (!clientHandlers.TryGetValue(args.ID, out handler))
             {
                 handler = createClientHandler(args.ID);
             }
-            OnRequestReceived(args.ID, args.Data, args.State);
-            handler.Send(args.Data);   
+            handler.Send(data);
+            OnRequestSent(args.ID, data, args.State);
         }
-        protected virtual void connectionCreatedHandler(object sender, ConnectionEventArgs args) 
+        private void connectionCreatedHandler(object sender, ConnectionEventArgs args) 
         {
             if (!clientHandlers.ContainsKey(args.ID))
             {
@@ -95,26 +113,45 @@ namespace Netool.Network
             }
             OnConnectionCreated(args.ID);
         }
-        protected virtual void connectionClosedHandler(object sender, ConnectionEventArgs args)
+        private void connectionClosedHandler(object sender, ConnectionEventArgs args)
         {
             ClientHandler handler;
             if (clientHandlers.TryGetValue(args.ID, out handler))
             {
                 handler.Stop();
-                clientHandlers.Remove(args.ID);
+                clientHandlers.TryRemove(args.ID, out handler);
             }
             OnConnectionClosed(args.ID);
         }
-        protected virtual void responseSentHandler(object sender, DataEventAgrs args)
-        {
-            OnResponseSent(args.ID, args.Data, args.State);
-        }
-        protected virtual ClientHandler createClientHandler(string clientID)
+        
+        private ClientHandler createClientHandler(string clientID)
         {
             var client = clientFactory.CreateClient();
-            var ret = new ClientHandler(clientID, client, server);
-            clientHandlers.Add(clientID, ret);
+            var ret = new ClientHandler(clientID, client);
+            ret.ResponseReceived += clientResponseReceivedHandler;
+            ret.ConnectionClosed += clientConnectionClosedHandler;
+            clientHandlers.TryAdd(clientID, ret);
             return ret;
+        }
+        private void clientResponseReceivedHandler(object sender, DataEventAgrs e)
+        {
+            OnResponseReceived(e.ID, e.Data, e.State);
+            IByteArrayConvertible data = e.Data;
+            if(ResponseModifier != null)
+            {
+                data = ResponseModifier(e.ID, e.Data);
+                if (data == null)
+                {
+                    OnResponseDropped(e.ID, e.Data, e.State);
+                    return;
+                }
+            }
+            server.Send(e.ID, data);
+            OnResponseSent(e.ID, data, e.State);
+        }
+        private void clientConnectionClosedHandler(object sender, ConnectionEventArgs e)
+        {
+            server.CloseConnection(e.ID);
         }
         protected virtual void OnConnectionCreated(string clientID)
         {
@@ -124,9 +161,25 @@ namespace Netool.Network
         {
             if (RequestReceived != null) RequestReceived(this, new DataEventAgrs { ID = clientID, Data = request, State = state });
         }
+        protected virtual void OnRequestSent(string clientID, IByteArrayConvertible request, object state)
+        {
+            if (RequestSent != null) RequestSent(this, new DataEventAgrs { ID = clientID, Data = request, State = state });
+        }
+        protected virtual void OnRequestDropped(string clientID, IByteArrayConvertible request, object state)
+        {
+            if (RequestDropped != null) RequestDropped(this, new DataEventAgrs { ID = clientID, Data = request, State = state });
+        }
+        protected virtual void OnResponseReceived(string clientID, IByteArrayConvertible response, object state)
+        {
+            if (ResponseReceived != null) ResponseReceived(this, new DataEventAgrs { ID = clientID, Data = response, State = state });
+        }
         protected virtual void OnResponseSent(string clientID, IByteArrayConvertible response, object state)
         {
             if (ResponseSent != null) ResponseSent(this, new DataEventAgrs { ID = clientID, Data = response, State = state });
+        }
+        protected virtual void OnResponseDropped(string clientID, IByteArrayConvertible response, object state)
+        {
+            if (ResponseDropped != null) ResponseDropped(this, new DataEventAgrs { ID = clientID, Data = response, State = state });
         }
         protected virtual void OnConnectionClosed(string clientID)
         {

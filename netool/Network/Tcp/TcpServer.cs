@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,12 +30,12 @@ namespace Netool.Network.Tcp
         protected class ClientData
         {
             public Socket Socket;
-            public object State;
         }       
         protected TcpServerSettings settings;
         protected Socket socket;
         protected volatile bool stopped = true;
-        protected Dictionary<string, ClientData> clients = new Dictionary<string, ClientData>();
+        protected ConcurrentDictionary<string, ClientData> clients = new ConcurrentDictionary<string, ClientData>();
+        public int ReceiveBufferSize { get; set;}
 
         public event ConnectionCreatedHandler ConnectionCreated;
         public event RequestReceivedHandler RequestReceived;
@@ -45,10 +45,10 @@ namespace Netool.Network.Tcp
         public TcpServer(TcpServerSettings settings)
         {
             this.settings = settings;
-            socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+            ReceiveBufferSize = 2048;
         }
 
-        public virtual void Stop()
+        public void Stop()
         {
             if(!stopped)
             {
@@ -70,7 +70,7 @@ namespace Netool.Network.Tcp
             }
         }
 
-        public virtual void Start()
+        public void Start()
         {
             if (stopped) 
             {
@@ -90,7 +90,7 @@ namespace Netool.Network.Tcp
             }
         }
 
-        public virtual void Send(string clientID, IByteArrayConvertible response)
+        public void Send(string clientID, IByteArrayConvertible response)
         {
             ClientData d;
             if (clients.TryGetValue(clientID, out d))
@@ -101,14 +101,14 @@ namespace Netool.Network.Tcp
                 }
                 catch(ObjectDisposedException e)
                 {
-                    clients.Remove(clientID);
+                    clients.TryRemove(clientID, out d);
                     return;
                 }
-                OnResponseSent(clientID, response, d.State);
+                OnResponseSent(clientID, response);
             }
             
         }
-        public virtual void CloseConnection(string clientID)
+        public void CloseConnection(string clientID)
         {
             ClientData d;
             if (clients.TryGetValue(clientID, out d))
@@ -123,10 +123,10 @@ namespace Netool.Network.Tcp
                 {
                     // already closed
                 }
-                clients.Remove(clientID);
+                clients.TryRemove(clientID, out d);
             }
         }
-        protected virtual void acceptRequest(IAsyncResult ar)
+        private void acceptRequest(IAsyncResult ar)
         {
             Socket client;
             Socket srv = (Socket)ar.AsyncState;
@@ -141,13 +141,13 @@ namespace Netool.Network.Tcp
                 return;
             }
             var id = getClientID(client);
-            clients.Add(id, new ClientData { Socket = client, State = null });
+            clients.TryAdd(id, new ClientData { Socket = client });
             OnConnectionCreated(id);
             scheduleNextReceive(client);
         }
-        protected virtual void scheduleNextReceive(Socket client)
+        private void scheduleNextReceive(Socket client)
         {
-            var s = new ReadStateObject(client, 1024);
+            var s = new ReadStateObject(client, ReceiveBufferSize);
             try 
             {
                 client.BeginReceive(s.Buffer, 0, s.Buffer.Length, SocketFlags.None, handleRequest, s);
@@ -156,7 +156,7 @@ namespace Netool.Network.Tcp
             { }
             
         }
-        protected virtual void handleRequest(IAsyncResult ar)
+        private void handleRequest(IAsyncResult ar)
         {
             var stateObject = (ReadStateObject)ar.AsyncState;
             Socket client = stateObject.Client;
@@ -173,13 +173,7 @@ namespace Netool.Network.Tcp
             {
                 string id = getClientID(client);
                 IByteArrayConvertible processed = processRequest(id, stateObject.Buffer, bytesRead);
-                object state = null;
-                ClientData d;
-                if (clients.TryGetValue(id, out d))
-                {
-                    state = d.State;
-                }
-                OnRequestReceived(id, processed, state);
+                OnRequestReceived(id, processed);
                 scheduleNextReceive(client);
             }
             else 
@@ -187,22 +181,15 @@ namespace Netool.Network.Tcp
                 CloseConnection(getClientID(client));
             }
         }
-        protected virtual IByteArrayConvertible processRequest(string id, byte[] data, int length)
+        private IByteArrayConvertible processRequest(string id, byte[] data, int length)
         {
             byte[] arr = new byte[length];
             Array.Copy(data,arr, length);
             return new ByteArray(arr);
         }
-        protected virtual void sendResponse(Socket client, IByteArrayConvertible data)
+        private void sendResponse(Socket client, IByteArrayConvertible data)
         {
             client.Send(data.ToByteArray());
-            object state = null;
-            ClientData d;
-            var id = getClientID(client);
-            if(clients.TryGetValue(id, out d))
-            {
-                state = d.State;
-            }
         }
         protected virtual string getClientID(Socket client)
         {
@@ -213,13 +200,13 @@ namespace Netool.Network.Tcp
         {
             if (ConnectionCreated != null) ConnectionCreated(this, new ConnectionEventArgs { ID = clientID });
         }
-        protected virtual void OnRequestReceived(string clientID, IByteArrayConvertible request, object state)
+        protected virtual void OnRequestReceived(string clientID, IByteArrayConvertible request)
         {
-            if (RequestReceived != null) RequestReceived(this, new DataEventAgrs{ID = clientID, Data = request, State = state});
+            if (RequestReceived != null) RequestReceived(this, new DataEventAgrs{ID = clientID, Data = request, State = null});
         }
-        protected virtual void OnResponseSent(string clientID, IByteArrayConvertible response, object state)
+        protected virtual void OnResponseSent(string clientID, IByteArrayConvertible response)
         {
-            if (ResponseSent != null) ResponseSent(this, new DataEventAgrs { ID = clientID, Data = response, State = state });
+            if (ResponseSent != null) ResponseSent(this, new DataEventAgrs { ID = clientID, Data = response, State = null });
         }
         protected virtual void OnConnectionClosed(string clientID)
         {
