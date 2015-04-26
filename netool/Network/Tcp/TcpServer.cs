@@ -10,11 +10,11 @@ using Netool.Settings;
 using Netool.Network.DataFormats;
 namespace Netool.Network.Tcp
 {
-    class ReadStateObject
+    class ReceiveStateObject
     {
         public Socket Client;
         public byte[] Buffer;
-        public ReadStateObject(Socket client, int bufferSize)
+        public ReceiveStateObject(Socket client, int bufferSize)
         {
             Client = client;
             Buffer = new byte[bufferSize];
@@ -25,7 +25,7 @@ namespace Netool.Network.Tcp
         public IPEndPoint LocalEndPoint;
         public int MaxConnections;
     }
-    public class TcpServer: IServer
+    public class TcpServer: BaseServer, IServer
     {
         protected class ClientData
         {
@@ -33,14 +33,9 @@ namespace Netool.Network.Tcp
         }       
         protected TcpServerSettings settings;
         protected Socket socket;
-        protected volatile bool stopped = true;
-        protected ConcurrentDictionary<string, ClientData> clients = new ConcurrentDictionary<string, ClientData>();
+        private volatile bool stopped = true;
+        private ConcurrentDictionary<string, ClientData> clients = new ConcurrentDictionary<string, ClientData>();
         public int ReceiveBufferSize { get; set;}
-
-        public event ConnectionCreatedHandler ConnectionCreated;
-        public event RequestReceivedHandler RequestReceived;
-        public event ResponseSentHandler ResponseSent;
-        public event ConnectionClosedHandler ConnectionClosed;
 
         public TcpServer(TcpServerSettings settings)
         {
@@ -62,7 +57,7 @@ namespace Netool.Network.Tcp
                         s.Close();
                         OnConnectionClosed(client.Key);
                     }
-                    catch (ObjectDisposedException e)
+                    catch (ObjectDisposedException)
                     { }
                 }
                 clients.Clear();
@@ -82,7 +77,7 @@ namespace Netool.Network.Tcp
                 {
                     socket.BeginAccept(new AsyncCallback(acceptRequest), socket);
                 }
-                catch (ObjectDisposedException e)
+                catch (ObjectDisposedException)
                 {
                     // socket closed
                     return;
@@ -99,7 +94,7 @@ namespace Netool.Network.Tcp
                 {
                     sendResponse(d.Socket, response);
                 }
-                catch(ObjectDisposedException e)
+                catch(ObjectDisposedException)
                 {
                     clients.TryRemove(clientID, out d);
                     return;
@@ -119,7 +114,7 @@ namespace Netool.Network.Tcp
                     d.Socket.Close();
                     OnConnectionClosed(clientID);
                 }
-                catch(ObjectDisposedException e)
+                catch(ObjectDisposedException)
                 {
                     // already closed
                 }
@@ -135,7 +130,7 @@ namespace Netool.Network.Tcp
                 client = srv.EndAccept(ar);
                 srv.BeginAccept(new AsyncCallback(acceptRequest), srv);
             }
-            catch (ObjectDisposedException e)
+            catch (ObjectDisposedException)
             {
                 // socket closed
                 return;
@@ -147,25 +142,25 @@ namespace Netool.Network.Tcp
         }
         private void scheduleNextReceive(Socket client)
         {
-            var s = new ReadStateObject(client, ReceiveBufferSize);
+            var s = new ReceiveStateObject(client, ReceiveBufferSize);
             try 
             {
                 client.BeginReceive(s.Buffer, 0, s.Buffer.Length, SocketFlags.None, handleRequest, s);
             }
-            catch(ObjectDisposedException e)
+            catch(ObjectDisposedException)
             { }
             
         }
         private void handleRequest(IAsyncResult ar)
         {
-            var stateObject = (ReadStateObject)ar.AsyncState;
+            var stateObject = (ReceiveStateObject)ar.AsyncState;
             Socket client = stateObject.Client;
             int bytesRead = 0;
             try
             {
                 bytesRead = client.EndReceive(ar);
             }
-            catch(ObjectDisposedException e)
+            catch(ObjectDisposedException)
             {
                 return;
             }
@@ -195,22 +190,6 @@ namespace Netool.Network.Tcp
         {
             // IPEndPoint correctly overrides ToString()
             return client.RemoteEndPoint.ToString();
-        }
-        protected virtual void OnConnectionCreated(string clientID)
-        {
-            if (ConnectionCreated != null) ConnectionCreated(this, new ConnectionEventArgs { ID = clientID });
-        }
-        protected virtual void OnRequestReceived(string clientID, IByteArrayConvertible request)
-        {
-            if (RequestReceived != null) RequestReceived(this, new DataEventAgrs{ID = clientID, Data = request, State = null});
-        }
-        protected virtual void OnResponseSent(string clientID, IByteArrayConvertible response)
-        {
-            if (ResponseSent != null) ResponseSent(this, new DataEventAgrs { ID = clientID, Data = response, State = null });
-        }
-        protected virtual void OnConnectionClosed(string clientID)
-        {
-            if (ConnectionClosed != null) ConnectionClosed(this, new ConnectionEventArgs { ID = clientID });
         }
     }
 }

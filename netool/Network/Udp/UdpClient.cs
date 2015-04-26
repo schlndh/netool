@@ -1,47 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
+﻿using Netool.Network.DataFormats;
+using System;
 using System.Net;
 using System.Net.Sockets;
-using Netool.Settings;
-using Netool.Network.DataFormats;
-namespace Netool.Network.Tcp
+
+namespace Netool.Network.Udp
 {
-    public class TcpClientSettings : BaseSettings
+    public class UdpClientSettings
     {
         public IPEndPoint LocalEndPoint;
         public IPEndPoint RemoteEndPoint;
     }
-    class TcpClient: BaseClient, IClient
+
+    public class UdpClient : BaseClient, IClient
     {
-        protected TcpClientSettings settings;
+        protected UdpClientSettings settings;
         protected Socket socket;
-        protected volatile bool stopped = true;
+        private volatile bool stopped = true;
 
         public int ReceiveBufferSize { get; set; }
 
-        public TcpClient(TcpClientSettings settings) 
+        public UdpClient(UdpClientSettings settings)
         {
             this.settings = settings;
             ReceiveBufferSize = 2048;
         }
+
         public void Start()
         {
-            if(stopped)
+            if (stopped)
             {
                 stopped = false;
-                socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+                socket = new Socket(SocketType.Dgram, ProtocolType.Udp);
                 socket.Bind(settings.LocalEndPoint);
-                socket.Connect(settings.RemoteEndPoint);
-                OnConnectionCreated();
                 scheduleNextReceive();
             }
         }
+
         public void Stop()
         {
-            if(!stopped)
+            if (!stopped)
             {
                 stopped = true;
                 try
@@ -49,66 +46,60 @@ namespace Netool.Network.Tcp
                     socket.Shutdown(SocketShutdown.Both);
                     socket.Close();
                 }
-                catch (ObjectDisposedException)
-                {
-                    // already closed
-                    return;
-                }
-
-                OnConnectionClosed();
-            } 
+                catch (ObjectDisposedException) { }
+            }
         }
+
         public void Send(IByteArrayConvertible request)
         {
-            try 
+            try
             {
-                socket.Send(request.ToByteArray());
+                socket.SendTo(request.ToByteArray(), settings.RemoteEndPoint);
             }
-            catch(ObjectDisposedException)
+            catch (ObjectDisposedException)
             {
                 return;
             }
-            
+
             OnRequestSent(request);
         }
+
         private void scheduleNextReceive()
         {
-            var s = new ReceiveStateObject(socket, ReceiveBufferSize);
-            try 
+            var s = new ReceiveStateObject(ReceiveBufferSize);
+            EndPoint ep = settings.RemoteEndPoint;
+            try
             {
-                socket.BeginReceive(s.Buffer, 0, s.Buffer.Length, SocketFlags.None, handleResponse, s);
+                socket.BeginReceiveFrom(s.Buffer, 0, s.Buffer.Length, SocketFlags.None, ref ep, handleResponse, s);
             }
             catch (ObjectDisposedException) { }
-            
         }
+
         private void handleResponse(IAsyncResult ar)
         {
             var s = (ReceiveStateObject)ar.AsyncState;
-            int bytesRead = 0;
-            try 
+            EndPoint ep = settings.RemoteEndPoint;
+            int bytesRead;
+            try
             {
-                bytesRead = socket.EndReceive(ar);
+                bytesRead = socket.EndReceiveFrom(ar, ref ep);
             }
-            catch(ObjectDisposedException)
+            catch (ObjectDisposedException)
             {
-                // closed
                 return;
             }
+            scheduleNextReceive();
             if (bytesRead > 0)
             {
                 var response = processResponse(s.Buffer, bytesRead);
                 OnResponseReceived(response);
-                scheduleNextReceive();
-            }
-            else 
-            {
-                Stop();
             }
         }
+
         private IByteArrayConvertible processResponse(byte[] response, int length)
         {
             byte[] arr = new byte[length];
-            Array.Copy(response,arr, length);
+            Array.Copy(response, arr, length);
             return new ByteArray(arr);
         }
     }

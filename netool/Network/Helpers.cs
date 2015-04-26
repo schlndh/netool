@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Net;
+
 namespace Netool.Network.Helpers
 {
     public static class IPEndPointParser
@@ -12,13 +9,13 @@ namespace Netool.Network.Helpers
         {
             if (string.IsNullOrWhiteSpace(str)) throw new FormatException("Invalid IPEndpoint string - empty string!");
             var i = str.LastIndexOf(':');
-            if(i >= 0)
+            if (i >= 0)
             {
                 // IPEndPoint.ToString() wraps IPv6 addresses in []
-                var ipstr = str.Substring(0, i).Replace("[","").Replace("]","");
+                var ipstr = str.Substring(0, i).Replace("[", "").Replace("]", "");
                 str.Substring(i + 1);
                 int port;
-                if(int.TryParse(str.Substring(i+1), out port) && port >= 0 && port < 65536)
+                if (int.TryParse(str.Substring(i + 1), out port) && port >= 0 && port < 65536)
                 {
                     return new IPEndPoint(IPAddress.Parse(ipstr), port);
                 }
@@ -32,6 +29,7 @@ namespace Netool.Network.Helpers
                 throw new FormatException("Invalid IPEndPoint string - no port number!");
             }
         }
+
         public static bool TryParse(string str, out IPEndPoint ep)
         {
             try
@@ -39,7 +37,7 @@ namespace Netool.Network.Helpers
                 ep = Parse(str);
                 return true;
             }
-            catch(FormatException)
+            catch (FormatException)
             {
                 ep = null;
                 return false;

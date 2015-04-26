@@ -83,9 +83,15 @@
       <DependentUpon>TcpServerDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\MainModel.cs" />
+    <Compile Include="Network\BaseClient.cs" />
+    <Compile Include="Network\BaseServer.cs" />
     <Compile Include="Network\DataFormats\ByteArray.cs" />
     <Compile Include="Network\DefaultProxy.cs" />
+    <Compile Include="Network\Helpers.cs" />
     <Compile Include="Network\Tcp\TcpClientFactory.cs" />
+    <Compile Include="Network\Udp\UdpClient.cs" />
+    <Compile Include="Network\Udp\UdpClientFactory.cs" />
+    <Compile Include="Network\Udp\UdpServer.cs" />
     <Compile Include="Views\ProxyView.cs">
       <SubType>Form</SubType>
     </Compile>
