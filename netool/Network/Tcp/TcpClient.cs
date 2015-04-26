@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
+﻿using Netool.Network.DataFormats;
+using Netool.Settings;
+using System;
 using System.Net;
 using System.Net.Sockets;
-using Netool.Settings;
-using Netool.Network.DataFormats;
+
 namespace Netool.Network.Tcp
 {
     public class TcpClientSettings : BaseSettings
@@ -14,7 +11,8 @@ namespace Netool.Network.Tcp
         public IPEndPoint LocalEndPoint;
         public IPEndPoint RemoteEndPoint;
     }
-    class TcpClient: BaseClient, IClient
+
+    internal class TcpClient : BaseClient, IClient
     {
         protected TcpClientSettings settings;
         protected Socket socket;
@@ -22,14 +20,15 @@ namespace Netool.Network.Tcp
 
         public int ReceiveBufferSize { get; set; }
 
-        public TcpClient(TcpClientSettings settings) 
+        public TcpClient(TcpClientSettings settings)
         {
             this.settings = settings;
             ReceiveBufferSize = 2048;
         }
+
         public void Start()
         {
-            if(stopped)
+            if (stopped)
             {
                 stopped = false;
                 socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
@@ -39,9 +38,10 @@ namespace Netool.Network.Tcp
                 scheduleNextReceive();
             }
         }
+
         public void Stop()
         {
-            if(!stopped)
+            if (!stopped)
             {
                 stopped = true;
                 try
@@ -56,40 +56,42 @@ namespace Netool.Network.Tcp
                 }
 
                 OnConnectionClosed();
-            } 
+            }
         }
+
         public void Send(IByteArrayConvertible request)
         {
-            try 
+            try
             {
                 socket.Send(request.ToByteArray());
             }
-            catch(ObjectDisposedException)
+            catch (ObjectDisposedException)
             {
                 return;
             }
-            
+
             OnRequestSent(request);
         }
+
         private void scheduleNextReceive()
         {
             var s = new ReceiveStateObject(socket, ReceiveBufferSize);
-            try 
+            try
             {
                 socket.BeginReceive(s.Buffer, 0, s.Buffer.Length, SocketFlags.None, handleResponse, s);
             }
             catch (ObjectDisposedException) { }
-            
         }
+
         private void handleResponse(IAsyncResult ar)
         {
             var s = (ReceiveStateObject)ar.AsyncState;
             int bytesRead = 0;
-            try 
+            try
             {
                 bytesRead = socket.EndReceive(ar);
             }
-            catch(ObjectDisposedException)
+            catch (ObjectDisposedException)
             {
                 // closed
                 return;
@@ -100,15 +102,16 @@ namespace Netool.Network.Tcp
                 OnResponseReceived(response);
                 scheduleNextReceive();
             }
-            else 
+            else
             {
                 Stop();
             }
         }
+
         private IByteArrayConvertible processResponse(byte[] response, int length)
         {
             byte[] arr = new byte[length];
-            Array.Copy(response,arr, length);
+            Array.Copy(response, arr, length);
             return new ByteArray(arr);
         }
     }
