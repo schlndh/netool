@@ -51,6 +51,7 @@ namespace Netool.Controllers
         private void OnRequestReceived(object sender, DataEventAgrs e)
         {
             view.LogMessage(String.Format("\r\n=== Request received ({0}) ===\r\n{1}", e.ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
+            view.AddClient(e.ID);
         }
         private void OnResponseSent(object sender, DataEventAgrs e)
         {

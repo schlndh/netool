@@ -27,7 +27,7 @@ namespace Netool.Views
         }
         public void AddClient(string id)
         {
-            clients.Invoke(new Action(() => clients.Items.Add(id)));
+            clients.Invoke(new Action(() => { if (!clients.Items.Contains(id))clients.Items.Add(id); }));
         }
         public void RemoveClient(string id)
         {

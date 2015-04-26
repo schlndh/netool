@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Net;
 using Netool.Network;
 using Netool.Network.Tcp;
+using Netool.Network.Udp;
 using Netool.Network.DataFormats;
 using Netool.Dialogs;
 using System.Windows.Forms;
@@ -32,7 +33,7 @@ namespace Netool.Controllers
                 var sview = new ServerView();
                 var cont = new ServerController(sview, server);
                 sview.SetController(cont);
-                view.AddPage("Server", sview);
+                view.AddPage("TCP Server", sview);
                 cont.Start();
             }
             {
@@ -52,7 +53,7 @@ namespace Netool.Controllers
                 var pview = new ProxyView();
                 var cont = new ProxyController(pview, proxy);
                 pview.SetController(cont);
-                view.AddPage("Proxy", pview);
+                view.AddPage("TCP Proxy", pview);
                 cont.Start();
             }
             {
@@ -60,7 +61,43 @@ namespace Netool.Controllers
                 var cview = new ClientView();
                 var cont = new ClientController(cview, client);
                 cview.SetController(cont);
-                view.AddPage("Client", cview);
+                view.AddPage("TCP Client", cview);
+                cont.Start();
+            }
+            {
+                var server = new UdpServer(new UdpServerSettings { LocalEndPoint = new IPEndPoint(IPAddress.Loopback, 7081) });
+                var sview = new ServerView();
+                var cont = new ServerController(sview, server);
+                sview.SetController(cont);
+                view.AddPage("UDP Server", sview);
+                cont.Start();
+            }
+            {
+                var server = new UdpServer(new UdpServerSettings { LocalEndPoint = new IPEndPoint(IPAddress.Loopback, 7080) });
+                var factory = new UdpClientFactory(new UdpClientFactorySettings { LocalIPAddress = IPAddress.Loopback, RemoteEndPoint = new IPEndPoint(IPAddress.Loopback, 7081) });
+                var proxy = new DefaultProxy(server, factory);
+                proxy.RequestModifier = delegate(string id, IByteArrayConvertible data)
+                {
+                    if (data.ToByteArray().Length > 10) return null;
+                    return new ByteArray(ASCIIEncoding.ASCII.GetBytes(ASCIIEncoding.ASCII.GetString(data.ToByteArray()).ToUpper()));
+                };
+                proxy.ResponseModifier = delegate(string id, IByteArrayConvertible data)
+                {
+                    if (data.ToByteArray().Length > 10) return null;
+                    return new ByteArray(ASCIIEncoding.ASCII.GetBytes(ASCIIEncoding.ASCII.GetString(data.ToByteArray()).ToLower()));
+                };
+                var pview = new ProxyView();
+                var cont = new ProxyController(pview, proxy);
+                pview.SetController(cont);
+                view.AddPage("UDP Proxy", pview);
+                cont.Start();
+            }
+            {
+                var client = new UdpClient(new UdpClientSettings { LocalEndPoint = new IPEndPoint(IPAddress.Loopback, 0), RemoteEndPoint = new IPEndPoint(IPAddress.Loopback, 7080) });
+                var cview = new ClientView();
+                var cont = new ClientController(cview, client);
+                cview.SetController(cont);
+                view.AddPage("UDP Client", cview);
                 cont.Start();
             }
         }
