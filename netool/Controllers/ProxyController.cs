@@ -16,14 +16,8 @@ namespace Netool.Controllers
         {
             this.view = view;
             this.proxy = proxy;
-            this.proxy.ConnectionCreated += OnConnectionCreated;
-            this.proxy.ConnectionClosed += OnConnectionClosed;
-            this.proxy.RequestReceived += OnRequestReceived;
-            this.proxy.RequestSent += OnRequestSent;
-            this.proxy.RequestDropped += OnRequestDropped;
-            this.proxy.ResponseReceived += OnResponseReceived;
-            this.proxy.ResponseSent += OnResponseSent;
-            this.proxy.ResponseDropped += OnResponseDropped;
+            this.proxy.ChannelCreated += OnConnectionCreated;
+            
         }
         public void Start()
         {
@@ -35,37 +29,44 @@ namespace Netool.Controllers
             proxy.Stop();
         }
 
-        private void OnConnectionCreated(object sender, ConnectionEventArgs e)
+        private void OnConnectionCreated(object sender, IProxyChannel c)
         {
-            view.LogMessage(String.Format("\r\n=== Connection created ({0}) ===\r\n", e.ID));
+            view.LogMessage(String.Format("\r\n=== Connection created ({0}) ===\r\n", c.ID));
+            c.ChannelClosed += OnConnectionClosed;
+            c.RequestReceived += OnRequestReceived;
+            c.RequestSent += OnRequestSent;
+            c.RequestDropped += OnRequestDropped;
+            c.ResponseReceived += OnResponseReceived;
+            c.ResponseSent += OnResponseSent;
+            c.ResponseDropped += OnResponseDropped;
         }
-        private void OnConnectionClosed(object sender, ConnectionEventArgs e)
+        private void OnConnectionClosed(object sender)
         {
-            view.LogMessage(String.Format("\r\n=== Connection closed ({0}) ===\r\n", e.ID));
+            view.LogMessage(String.Format("\r\n=== Connection closed ({0}) ===\r\n", ((IProxyChannel)sender).ID));
         }
         private void OnRequestReceived(object sender, DataEventAgrs e)
         {
-            view.LogMessage(String.Format("\r\n=== Request received ({0}) ===\r\n{1}", e.ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
+            view.LogMessage(String.Format("\r\n=== Request received ({0}) ===\r\n{1}", ((IProxyChannel)sender).ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
         }
         private void OnRequestSent(object sender, DataEventAgrs e)
         {
-            view.LogMessage(String.Format("\r\n=== Request sent ({0}) ===\r\n{1}", e.ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
+            view.LogMessage(String.Format("\r\n=== Request sent ({0}) ===\r\n{1}", ((IProxyChannel)sender).ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
         }
         private void OnRequestDropped(object sender, DataEventAgrs e)
         {
-            view.LogMessage(String.Format("\r\n=== Request dropped ({0}) ===\r\n{1}", e.ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
+            view.LogMessage(String.Format("\r\n=== Request dropped ({0}) ===\r\n{1}", ((IProxyChannel)sender).ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
         }
         private void OnResponseReceived(object sender, DataEventAgrs e)
         {
-            view.LogMessage(String.Format("\r\n=== Response received ({0}) ===\r\n{1}", e.ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
+            view.LogMessage(String.Format("\r\n=== Response received ({0}) ===\r\n{1}", ((IProxyChannel)sender).ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
         }
         private void OnResponseSent(object sender, DataEventAgrs e)
         {
-            view.LogMessage(String.Format("\r\n=== Response sent ({0}) ===\r\n{1}", e.ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
+            view.LogMessage(String.Format("\r\n=== Response sent ({0}) ===\r\n{1}", ((IProxyChannel)sender).ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
         }
         private void OnResponseDropped(object sender, DataEventAgrs e)
         {
-            view.LogMessage(String.Format("\r\n=== Response dropped ({0}) ===\r\n{1}", e.ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
+            view.LogMessage(String.Format("\r\n=== Response dropped ({0}) ===\r\n{1}", ((IProxyChannel)sender).ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
         }
     }
 }

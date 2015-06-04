@@ -3,6 +3,7 @@ using Netool.Network.Helpers;
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Collections.Concurrent;
 
 namespace Netool.Network.Udp
 {
@@ -21,13 +22,49 @@ namespace Netool.Network.Udp
         public IPEndPoint LocalEndPoint;
     }
 
-    public class UdpServer : BaseServer, IServer
+    public class UdpServerChannel : BaseServerChannel, IServerChannel
+    {
+        protected Socket socket;
+        protected EndPoint remoteEP;
+
+        public UdpServerChannel(Socket socket, EndPoint remoteEP)
+        {
+            this.socket = socket;
+            this.remoteEP = remoteEP;
+            id = remoteEP.ToString();
+        }
+
+        public void Close()
+        {
+            OnChannelClosed();
+        }
+
+        public void Send(IByteArrayConvertible response)
+        {
+            try
+            {
+                socket.SendTo(response.ToByteArray(), remoteEP);
+                OnResponseSent(response);
+            }
+            catch (ObjectDisposedException)
+            { }
+        }
+
+        public void InjectRequest(IByteArrayConvertible request)
+        {
+            OnRequestReceived(request);
+        }
+    }
+
+    public class UdpServer : IServer
     {
         protected UdpServerSettings settings;
         protected Socket socket;
         private volatile bool stopped = true;
-
+        private ConcurrentDictionary<string, UdpServerChannel> channels = new ConcurrentDictionary<string, UdpServerChannel>();
         public int ReceiveBufferSize { get; set; }
+
+        public event EventHandler<IServerChannel> ChannelCreated;
 
         public UdpServer(UdpServerSettings settings)
         {
@@ -60,6 +97,12 @@ namespace Netool.Network.Udp
             if (!stopped)
             {
                 stopped = true;
+                foreach (var channel in channels)
+                {
+                    channel.Value.ChannelClosed -= channelClosedHandler;
+                    channel.Value.Close();
+                }
+                channels.Clear();
                 try
                 {
                     socket.Shutdown(SocketShutdown.Both);
@@ -68,25 +111,6 @@ namespace Netool.Network.Udp
                 catch (ObjectDisposedException)
                 { }
             }
-        }
-
-        public void Send(string clientID, IByteArrayConvertible response)
-        {
-            IPEndPoint ep;
-            if (IPEndPointParser.TryParse(clientID, out ep))
-            {
-                try
-                {
-                    socket.SendTo(response.ToByteArray(), ep);
-                    OnResponseSent(clientID, response);
-                }
-                catch (ObjectDisposedException)
-                { }
-            }
-        }
-
-        public void CloseConnection(string clientID)
-        {
         }
 
         private void scheduleNextReceive()
@@ -123,7 +147,15 @@ namespace Netool.Network.Udp
             {
                 var id = getClientID(client);
                 var request = processRequest(id, s.Buffer, bytesRead);
-                OnRequestReceived(id, request);
+                UdpServerChannel channel;
+                if (!channels.TryGetValue(id, out channel))
+                {
+                    channel = new UdpServerChannel(socket, client);
+                    channel.ChannelClosed += channelClosedHandler;
+                    channels.TryAdd(id, channel);
+                    OnChannelCreated(channel);
+                }
+                channel.InjectRequest(request);
             }
         }
 
@@ -137,6 +169,29 @@ namespace Netool.Network.Udp
         private string getClientID(IPEndPoint ep)
         {
             return ep.ToString();
+        }
+
+        private void OnChannelCreated(IServerChannel channel)
+        {
+            if (ChannelCreated != null) ChannelCreated(this, channel);
+        }
+
+        private void channelClosedHandler(object channel)
+        {
+            UdpServerChannel c;
+            channels.TryRemove(((UdpServerChannel)channel).ID, out c);
+        }
+
+        public bool TryGetByID(string ID, out IServerChannel channel)
+        {
+            UdpServerChannel c;
+            if (channels.TryGetValue(ID, out c))
+            {
+                channel = c;
+                return true;
+            }
+            channel = null;
+            return false;
         }
     }
 }

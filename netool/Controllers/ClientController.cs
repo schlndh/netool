@@ -12,18 +12,16 @@ namespace Netool.Controllers
     {
         private ClientView view;
         private IClient client;
+        private IClientChannel channel;
         public ClientController(ClientView view, IClient client)
         {
             this.view = view;
             this.client = client;
-            this.client.ConnectionCreated += OnConnectionCreated;
-            this.client.ConnectionClosed += OnConnectionClosed;
-            this.client.ResponseReceived += OnResponseReceived;
-            this.client.RequestSent += OnRequestSent;
+            this.client.ChannelCreated += OnConnectionCreated;
         }
         public void Start()
         {
-            var t = new Thread(delegate() { client.Start(); });
+            var t = new Thread(delegate() { channel = client.Start(); });
             t.Start();
         }
         public void Stop()
@@ -32,23 +30,26 @@ namespace Netool.Controllers
         }
         public void Send(string data)
         {
-            client.Send(new ByteArray(ASCIIEncoding.ASCII.GetBytes(data)));
+            channel.Send(new ByteArray(ASCIIEncoding.ASCII.GetBytes(data)));
         }
-        private void OnConnectionCreated(object sender, ConnectionEventArgs e)
+        private void OnConnectionCreated(object sender, IClientChannel c)
         {
-            view.LogMessage(String.Format("\r\n=== Connection created ({0}) ===\r\n", e.ID));
+            view.LogMessage(String.Format("\r\n=== Connection created ({0}) ===\r\n", c.ID));
+            c.RequestSent += OnRequestSent;
+            c.ResponseReceived += OnResponseReceived;
+            c.ChannelClosed += OnConnectionClosed;
         }
-        private void OnConnectionClosed(object sender, ConnectionEventArgs e)
+        private void OnConnectionClosed(object sender)
         {
-            view.LogMessage(String.Format("\r\n=== Connection closed ({0}) ===\r\n", e.ID));
+            view.LogMessage(String.Format("\r\n=== Connection closed ({0}) ===\r\n", ((IClientChannel)sender).ID));
         }
         private void OnResponseReceived(object sender, DataEventAgrs e)
         {
-            view.LogMessage(String.Format("\r\n=== Response received ({0}) ===\r\n{1}", e.ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
+            view.LogMessage(String.Format("\r\n=== Response received ({0}) ===\r\n{1}", ((IClientChannel)sender).ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
         }
         private void OnRequestSent(object sender, DataEventAgrs e)
         {
-            view.LogMessage(String.Format("\r\n=== Request sent ({0}) ===\r\n{1}", e.ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
+            view.LogMessage(String.Format("\r\n=== Request sent ({0}) ===\r\n{1}", ((IClientChannel)sender).ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
         }
     }
 }

@@ -2,33 +2,26 @@
 
 namespace Netool.Network
 {
-    public class ConnectionEventArgs : EventArgs
-    {
-        public string ID;
-    }
-
-    public class DataEventAgrs : ConnectionEventArgs
+    public class DataEventAgrs : EventArgs
     {
         public IByteArrayConvertible Data;
         public object State;
     }
 
-    public delegate void ConnectionCreatedHandler(object sender, ConnectionEventArgs e);
     public delegate void RequestSentHandler(object sender, DataEventAgrs e);
     public delegate void RequestReceivedHandler(object sender, DataEventAgrs e);
     public delegate void RequestDroppedHandler(object sender, DataEventAgrs e);
     public delegate void ResponseSentHandler(object sender, DataEventAgrs e);
     public delegate void ResponseReceivedHandler(object sender, DataEventAgrs e);
     public delegate void ResponseDroppedHandler(object sender, DataEventAgrs e);
-    public delegate void ConnectionClosedHandler(object sender, ConnectionEventArgs e);
+    public delegate void ChannelClosedHandler(object sender);
 
     /// <summary>
-    /// interface for request/response modification callbacks for proxy
+    /// interface for request/response modification callbacks for proxy channels
     /// </summary>
-    /// <param name="id">client id</param>
     /// <param name="data"></param>
     /// <returns>new data or null if request/response is to be dropped</returns>
-    public delegate IByteArrayConvertible DataModifier(string id, IByteArrayConvertible data);
+    public delegate IByteArrayConvertible DataModifier(IByteArrayConvertible data);
 
     public interface IByteArrayConvertible
     {
@@ -42,49 +35,65 @@ namespace Netool.Network
 
     public interface IServer
     {
-        event ConnectionCreatedHandler ConnectionCreated;
-        event RequestReceivedHandler RequestReceived;
-        event ResponseSentHandler ResponseSent;
-        event ConnectionClosedHandler ConnectionClosed;
+        event EventHandler<IServerChannel> ChannelCreated;
 
         void Start();
-
         void Stop();
-
-        void Send(string clientID, IByteArrayConvertible response);
-
-        void CloseConnection(string clientID);
+        bool TryGetByID(string ID, out IServerChannel c);
     }
 
     public interface IClient
     {
-        event ConnectionCreatedHandler ConnectionCreated;
-        event RequestSentHandler RequestSent;
-        event ResponseReceivedHandler ResponseReceived;
-        event ConnectionClosedHandler ConnectionClosed;
+        event EventHandler<IClientChannel> ChannelCreated;
 
-        void Start();
-
+        IClientChannel Start();
         void Stop();
-
-        void Send(IByteArrayConvertible request);
     }
 
     public interface IProxy
     {
-        event ConnectionCreatedHandler ConnectionCreated;
+        event EventHandler<IProxyChannel> ChannelCreated;
+
+        void Start();
+        void Stop();
+        bool TryGetByID(string ID, out IProxyChannel c);
+    }
+
+    public interface IClientChannel
+    {
+        string ID { get; }
+        event RequestSentHandler RequestSent;
+        event ResponseReceivedHandler ResponseReceived;
+        event ChannelClosedHandler ChannelClosed;
+
+        void Send(IByteArrayConvertible request);
+        void Close();
+    }
+
+    public interface IServerChannel
+    {
+        string ID { get; }
+        event RequestReceivedHandler RequestReceived;
+        event ResponseSentHandler ResponseSent;
+        event ChannelClosedHandler ChannelClosed;
+
+        void Send(IByteArrayConvertible response);
+        void Close();
+    }
+
+    public interface IProxyChannel
+    {
+        string ID { get; }
         event RequestReceivedHandler RequestReceived;
         event RequestSentHandler RequestSent;
         event RequestDroppedHandler RequestDropped;
         event ResponseReceivedHandler ResponseReceived;
         event ResponseSentHandler ResponseSent;
         event ResponseDroppedHandler ResponseDropped;
-        event ConnectionClosedHandler ConnectionClosed;
+        event ChannelClosedHandler ChannelClosed;
         DataModifier RequestModifier { get; set; }
         DataModifier ResponseModifier { get; set; }
 
-        void Start();
-
-        void Stop();
+        void Close();
     }
 }

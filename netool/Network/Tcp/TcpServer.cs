@@ -25,7 +25,88 @@ namespace Netool.Network.Tcp
         public int MaxConnections;
     }
 
-    public class TcpServer : BaseServer, IServer
+    public class TcpServerChannel : BaseServerChannel, IServerChannel
+    {
+        protected Socket socket;
+        public int ReceiveBufferSize { get; set; }
+        public TcpServerChannel(Socket socket, int receiveBufferSize = 2048)
+        {
+            this.socket = socket;
+            id = socket.RemoteEndPoint.ToString();
+            ReceiveBufferSize = receiveBufferSize;
+            scheduleNextReceive();
+        }
+
+        private void scheduleNextReceive()
+        {
+            var s = new ReceiveStateObject(socket, ReceiveBufferSize);
+            try
+            {
+                socket.BeginReceive(s.Buffer, 0, s.Buffer.Length, SocketFlags.None, handleRequest, s);
+            }
+            catch (ObjectDisposedException)
+            { }
+        }
+
+        private void handleRequest(IAsyncResult ar)
+        {
+            var stateObject = (ReceiveStateObject)ar.AsyncState;
+            Socket client = stateObject.Client;
+            int bytesRead = 0;
+            try
+            {
+                bytesRead = client.EndReceive(ar);
+            }
+            catch (ObjectDisposedException)
+            {
+                return;
+            }
+            if (bytesRead > 0)
+            {
+                IByteArrayConvertible processed = processRequest(stateObject.Buffer, bytesRead);
+                OnRequestReceived(processed);
+                scheduleNextReceive();
+            }
+            else
+            {
+                Close();
+            }
+        }
+
+        private IByteArrayConvertible processRequest(byte[] data, int length)
+        {
+            byte[] arr = new byte[length];
+            Array.Copy(data, arr, length);
+            return new ByteArray(arr);
+        }
+
+        public void Send(IByteArrayConvertible response)
+        {
+            try
+            {
+                socket.Send(response.ToByteArray());
+            }
+            catch (ObjectDisposedException)
+            {
+                return;
+            }
+            OnResponseSent(response);
+        }
+        public void Close()
+        {
+            try
+            {
+                socket.Shutdown(SocketShutdown.Both);
+                socket.Close();
+                OnChannelClosed();
+            }
+            catch (ObjectDisposedException)
+            {
+                // already closed
+            }
+        }
+    }
+    public class TcpServer : IServer
     {
         protected class ClientData
         {
@@ -35,8 +116,10 @@ namespace Netool.Network.Tcp
         protected TcpServerSettings settings;
         protected Socket socket;
         private volatile bool stopped = true;
-        private ConcurrentDictionary<string, ClientData> clients = new ConcurrentDictionary<string, ClientData>();
+        private ConcurrentDictionary<string, IServerChannel> channels = new ConcurrentDictionary<string, IServerChannel>();
         public int ReceiveBufferSize { get; set; }
+
+        public event EventHandler<IServerChannel> ChannelCreated;
 
         public TcpServer(TcpServerSettings settings)
         {
@@ -49,19 +132,12 @@ namespace Netool.Network.Tcp
             if (!stopped)
             {
                 stopped = true;
-                foreach (var client in clients)
+                foreach (var channel in channels)
                 {
-                    var s = client.Value.Socket;
-                    try
-                    {
-                        s.Shutdown(SocketShutdown.Both);
-                        s.Close();
-                        OnConnectionClosed(client.Key);
-                    }
-                    catch (ObjectDisposedException)
-                    { }
+                    channel.Value.ChannelClosed -= channelClosedHandler;
+                    channel.Value.Close();
                 }
-                clients.Clear();
+                channels.Clear();
                 socket.Close();
             }
         }
@@ -86,43 +162,6 @@ namespace Netool.Network.Tcp
             }
         }
 
-        public void Send(string clientID, IByteArrayConvertible response)
-        {
-            ClientData d;
-            if (clients.TryGetValue(clientID, out d))
-            {
-                try
-                {
-                    sendResponse(d.Socket, response);
-                }
-                catch (ObjectDisposedException)
-                {
-                    clients.TryRemove(clientID, out d);
-                    return;
-                }
-                OnResponseSent(clientID, response);
-            }
-        }
-
-        public void CloseConnection(string clientID)
-        {
-            ClientData d;
-            if (clients.TryGetValue(clientID, out d))
-            {
-                try
-                {
-                    d.Socket.Shutdown(SocketShutdown.Both);
-                    d.Socket.Close();
-                    OnConnectionClosed(clientID);
-                }
-                catch (ObjectDisposedException)
-                {
-                    // already closed
-                }
-                clients.TryRemove(clientID, out d);
-            }
-        }
-
         private void acceptRequest(IAsyncResult ar)
         {
             Socket client;
@@ -137,65 +176,26 @@ namespace Netool.Network.Tcp
                 // socket closed
                 return;
             }
-            var id = getClientID(client);
-            clients.TryAdd(id, new ClientData { Socket = client });
-            OnConnectionCreated(id);
-            scheduleNextReceive(client);
+            var channel = new TcpServerChannel(client, ReceiveBufferSize);
+            channel.ChannelClosed += channelClosedHandler;
+            channels.TryAdd(channel.ID,channel);
+            OnChannelCreated(channel);
         }
 
-        private void scheduleNextReceive(Socket client)
+        private void OnChannelCreated(IServerChannel channel)
         {
-            var s = new ReceiveStateObject(client, ReceiveBufferSize);
-            try
-            {
-                client.BeginReceive(s.Buffer, 0, s.Buffer.Length, SocketFlags.None, handleRequest, s);
-            }
-            catch (ObjectDisposedException)
-            { }
+            if (ChannelCreated != null) ChannelCreated(this, channel);
         }
 
-        private void handleRequest(IAsyncResult ar)
+        private void channelClosedHandler(object channel)
         {
-            var stateObject = (ReceiveStateObject)ar.AsyncState;
-            Socket client = stateObject.Client;
-            int bytesRead = 0;
-            try
-            {
-                bytesRead = client.EndReceive(ar);
-            }
-            catch (ObjectDisposedException)
-            {
-                return;
-            }
-            if (bytesRead > 0)
-            {
-                string id = getClientID(client);
-                IByteArrayConvertible processed = processRequest(id, stateObject.Buffer, bytesRead);
-                OnRequestReceived(id, processed);
-                scheduleNextReceive(client);
-            }
-            else
-            {
-                CloseConnection(getClientID(client));
-            }
+            IServerChannel c;
+            channels.TryRemove(((IServerChannel)channel).ID, out c);
         }
 
-        private IByteArrayConvertible processRequest(string id, byte[] data, int length)
+        public bool TryGetByID(string ID, out IServerChannel c)
         {
-            byte[] arr = new byte[length];
-            Array.Copy(data, arr, length);
-            return new ByteArray(arr);
-        }
-
-        private void sendResponse(Socket client, IByteArrayConvertible data)
-        {
-            client.Send(data.ToByteArray());
-        }
-
-        protected virtual string getClientID(Socket client)
-        {
-            // IPEndPoint correctly overrides ToString()
-            return client.RemoteEndPoint.ToString();
+            return channels.TryGetValue(ID, out c);
         }
     }
 }

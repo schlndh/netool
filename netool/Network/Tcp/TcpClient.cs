@@ -12,67 +12,19 @@ namespace Netool.Network.Tcp
         public IPEndPoint RemoteEndPoint;
     }
 
-    internal class TcpClient : BaseClient, IClient
+    public class TcpClientChannel : BaseClientChannel, IClientChannel
     {
-        protected TcpClientSettings settings;
         protected Socket socket;
-        protected volatile bool stopped = true;
 
         public int ReceiveBufferSize { get; set; }
 
-        public TcpClient(TcpClientSettings settings)
+        public TcpClientChannel(Socket socket, int receiveBufferSize = 2048)
         {
-            this.settings = settings;
-            ReceiveBufferSize = 2048;
+            this.socket = socket;
+            id = socket.LocalEndPoint.ToString();
+            ReceiveBufferSize = receiveBufferSize;
+            scheduleNextReceive();
         }
-
-        public void Start()
-        {
-            if (stopped)
-            {
-                stopped = false;
-                socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-                socket.Bind(settings.LocalEndPoint);
-                socket.Connect(settings.RemoteEndPoint);
-                OnConnectionCreated();
-                scheduleNextReceive();
-            }
-        }
-
-        public void Stop()
-        {
-            if (!stopped)
-            {
-                stopped = true;
-                try
-                {
-                    socket.Shutdown(SocketShutdown.Both);
-                    socket.Close();
-                }
-                catch (ObjectDisposedException)
-                {
-                    // already closed
-                    return;
-                }
-
-                OnConnectionClosed();
-            }
-        }
-
-        public void Send(IByteArrayConvertible request)
-        {
-            try
-            {
-                socket.Send(request.ToByteArray());
-            }
-            catch (ObjectDisposedException)
-            {
-                return;
-            }
-
-            OnRequestSent(request);
-        }
-
         private void scheduleNextReceive()
         {
             var s = new ReceiveStateObject(socket, ReceiveBufferSize);
@@ -82,7 +34,6 @@ namespace Netool.Network.Tcp
             }
             catch (ObjectDisposedException) { }
         }
-
         private void handleResponse(IAsyncResult ar)
         {
             var s = (ReceiveStateObject)ar.AsyncState;
@@ -104,7 +55,7 @@ namespace Netool.Network.Tcp
             }
             else
             {
-                Stop();
+                Close();
             }
         }
 
@@ -113,6 +64,87 @@ namespace Netool.Network.Tcp
             byte[] arr = new byte[length];
             Array.Copy(response, arr, length);
             return new ByteArray(arr);
+        }
+
+        public void Send(IByteArrayConvertible request)
+        {
+            try
+            {
+                socket.Send(request.ToByteArray());
+            }
+            catch (ObjectDisposedException)
+            {
+                return;
+            }
+
+            OnRequestSent(request);
+        }
+        public void Close()
+        {
+            try
+            {
+                socket.Shutdown(SocketShutdown.Both);
+                socket.Close();
+            }
+            catch (ObjectDisposedException)
+            {
+                // already closed
+                return;
+            }
+
+            OnChannelClosed();
+        }
+    }
+    public class TcpClient : IClient
+    {
+        protected TcpClientSettings settings;
+        protected TcpClientChannel channel;
+        protected volatile bool stopped = true;
+
+        public event EventHandler<IClientChannel> ChannelCreated;
+
+        public int ReceiveBufferSize { get; set; }
+
+        public TcpClient(TcpClientSettings settings)
+        {
+            this.settings = settings;
+            ReceiveBufferSize = 2048;
+        }
+
+        public IClientChannel Start()
+        {
+            if (stopped)
+            {
+                stopped = false;
+                var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+                socket.Bind(settings.LocalEndPoint);
+                socket.Connect(settings.RemoteEndPoint);
+                channel = new TcpClientChannel(socket, ReceiveBufferSize);
+                channel.ChannelClosed += channelClosedHandler;
+                OnChannelCreated(channel);
+            }
+            return channel;
+        }
+
+        public void Stop()
+        {
+            if (!stopped)
+            {
+                stopped = true;
+                if (channel != null)
+                {
+                    channel.Close();
+                    channel = null;
+                }
+            }
+        }
+        private void OnChannelCreated(IClientChannel channel)
+        {
+            if (ChannelCreated != null) ChannelCreated(this, channel);
+        }
+        private void channelClosedHandler(object channel)
+        {
+            Stop();
         }
     }
 }
