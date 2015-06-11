@@ -34,11 +34,16 @@ namespace Netool.Network.Tcp
             this.socket = socket;
             id = socket.RemoteEndPoint.ToString();
             ReceiveBufferSize = receiveBufferSize;
-            scheduleNextReceive();
+            // don't call scheduleNextReceive right away, the ChannelCreated event must be raised first
         }
 
-        private void scheduleNextReceive()
+        /// <summary>
+        /// Never call this method directly unless when you're creating a object of this class manually,
+        /// then call it after raising a ChannelCreated event
+        /// </summary>
+        public void scheduleNextReceive()
         {
+            // this is purposefully using the private method naming convetion
             var s = new ReceiveStateObject(socket, ReceiveBufferSize);
             try
             {
@@ -180,6 +185,7 @@ namespace Netool.Network.Tcp
             channel.ChannelClosed += channelClosedHandler;
             channels.TryAdd(channel.ID,channel);
             OnChannelCreated(channel);
+            channel.scheduleNextReceive();
         }
 
         private void OnChannelCreated(IServerChannel channel)

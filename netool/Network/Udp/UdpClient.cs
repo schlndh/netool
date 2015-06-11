@@ -23,11 +23,16 @@ namespace Netool.Network.Udp
             this.remoteEP = remoteEP;
             id = remoteEP.ToString();
             ReceiveBufferSize = receiveBufferSize;
-            scheduleNextReceive();
+            // don't call scheduleNextReceive right away, the ChannelCreated event must be raised first
         }
 
-        private void scheduleNextReceive()
+        /// <summary>
+        /// Never call this method directly unless when you're creating a object of this class manually,
+        /// then call it after raising a ChannelCreated event
+        /// </summary>
+        public void scheduleNextReceive()
         {
+            // this is purposefully using the private method naming convetion
             var s = new ReceiveStateObject(ReceiveBufferSize);
             try
             {
@@ -113,6 +118,7 @@ namespace Netool.Network.Udp
                 channel = new UdpClientChannel(socket, settings.RemoteEndPoint, ReceiveBufferSize);
                 channel.ChannelClosed += channelClosedHandler;
                 OnChannelCreated(channel);
+                channel.scheduleNextReceive();
             }
             return channel;
         }
