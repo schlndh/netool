@@ -44,27 +44,27 @@ namespace Netool.Controllers
         {
             view.LogMessage(String.Format("\r\n=== Connection closed ({0}) ===\r\n", ((IProxyChannel)sender).ID));
         }
-        private void OnRequestReceived(object sender, DataEventAgrs e)
+        private void OnRequestReceived(object sender, DataEventArgs e)
         {
             view.LogMessage(String.Format("\r\n=== Request received ({0}) ===\r\n{1}", ((IProxyChannel)sender).ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
         }
-        private void OnRequestSent(object sender, DataEventAgrs e)
+        private void OnRequestSent(object sender, DataEventArgs e)
         {
             view.LogMessage(String.Format("\r\n=== Request sent ({0}) ===\r\n{1}", ((IProxyChannel)sender).ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
         }
-        private void OnRequestDropped(object sender, DataEventAgrs e)
+        private void OnRequestDropped(object sender, DataEventArgs e)
         {
             view.LogMessage(String.Format("\r\n=== Request dropped ({0}) ===\r\n{1}", ((IProxyChannel)sender).ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
         }
-        private void OnResponseReceived(object sender, DataEventAgrs e)
+        private void OnResponseReceived(object sender, DataEventArgs e)
         {
             view.LogMessage(String.Format("\r\n=== Response received ({0}) ===\r\n{1}", ((IProxyChannel)sender).ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
         }
-        private void OnResponseSent(object sender, DataEventAgrs e)
+        private void OnResponseSent(object sender, DataEventArgs e)
         {
             view.LogMessage(String.Format("\r\n=== Response sent ({0}) ===\r\n{1}", ((IProxyChannel)sender).ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
         }
-        private void OnResponseDropped(object sender, DataEventAgrs e)
+        private void OnResponseDropped(object sender, DataEventArgs e)
         {
             view.LogMessage(String.Format("\r\n=== Response dropped ({0}) ===\r\n{1}", ((IProxyChannel)sender).ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
         }

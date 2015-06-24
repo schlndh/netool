@@ -1,27 +1,19 @@
-﻿namespace Netool.Network
+﻿using System;
+namespace Netool.Network
 {
-    public class BaseClientChannel
+    public class BaseClientChannel : BaseChannel
     {
-        protected string id;
-        public string ID { get { return id; } }
-
         public event RequestSentHandler RequestSent;
         public event ResponseReceivedHandler ResponseReceived;
-        public event ChannelClosedHandler ChannelClosed;
 
-        protected virtual void OnRequestSent(IByteArrayConvertible request, object state = null)
+        protected virtual void OnRequestSent(IByteArrayConvertible request, ICloneable state = null)
         {
-            if (RequestSent != null) RequestSent(this, new DataEventAgrs { Data = request, State = state });
+            if (RequestSent != null) RequestSent(this, new DataEventArgs { Data = request, State = state });
         }
 
-        protected virtual void OnResponseReceived(IByteArrayConvertible response, object state = null)
+        protected virtual void OnResponseReceived(IByteArrayConvertible response, ICloneable state = null)
         {
-            if (ResponseReceived != null) ResponseReceived(this, new DataEventAgrs { Data = response, State = state });
-        }
-
-        protected virtual void OnChannelClosed()
-        {
-            if (ChannelClosed != null) ChannelClosed(this);
+            if (ResponseReceived != null) ResponseReceived(this, new DataEventArgs { Data = response, State = state });
         }
     }
 }

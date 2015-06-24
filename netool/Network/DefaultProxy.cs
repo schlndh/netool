@@ -1,8 +1,10 @@
-﻿using System.Collections.Concurrent;
+﻿using Netool.ChannelDrivers;
 using System;
+using System.Collections.Concurrent;
+
 namespace Netool.Network
 {
-    public class DefaultProxyChannel : IProxyChannel
+    public class DefaultProxyChannel : BaseChannel, IProxyChannel
     {
         protected IClientChannel clientChannel;
         protected IServerChannel serverChannel;
@@ -13,12 +15,12 @@ namespace Netool.Network
         public event ResponseSentHandler ResponseSent;
         public event ResponseReceivedHandler ResponseReceived;
         public event ResponseDroppedHandler ResponseDropped;
-        public event ChannelClosedHandler ChannelClosed;
 
         public DataModifier RequestModifier { get; set; }
         public DataModifier ResponseModifier { get; set; }
 
-        public string ID { get { return serverChannel.ID; } }
+        public new int ID { get { return serverChannel.ID; } }
+        public new string Name { get { return serverChannel.Name; } }
         private volatile bool closed = false;
 
         public DefaultProxyChannel(IClientChannel clChannel, IServerChannel srvChannel)
@@ -47,7 +49,7 @@ namespace Netool.Network
             }
         }
 
-        private void requestReceivedHandler(object sender, DataEventAgrs args)
+        private void requestReceivedHandler(object sender, DataEventArgs args)
         {
             OnRequestReceived(args.Data, args.State);
             IByteArrayConvertible data = args.Data;
@@ -64,7 +66,7 @@ namespace Netool.Network
             OnRequestSent(data, args.State);
         }
 
-        private void responseReceivedHandler(object sender, DataEventAgrs e)
+        private void responseReceivedHandler(object sender, DataEventArgs e)
         {
             OnResponseReceived(e.Data, e.State);
             IByteArrayConvertible data = e.Data;
@@ -81,48 +83,46 @@ namespace Netool.Network
             OnResponseSent(data, e.State);
         }
 
-        protected virtual void OnRequestReceived(IByteArrayConvertible request, object state)
+        protected virtual void OnRequestReceived(IByteArrayConvertible request, ICloneable state)
         {
-            if (RequestReceived != null) RequestReceived(this, new DataEventAgrs { Data = request, State = state });
+            if (RequestReceived != null) RequestReceived(this, new DataEventArgs { Data = request, State = state });
         }
 
-        protected virtual void OnRequestSent(IByteArrayConvertible request, object state)
+        protected virtual void OnRequestSent(IByteArrayConvertible request, ICloneable state)
         {
-            if (RequestSent != null) RequestSent(this, new DataEventAgrs { Data = request, State = state });
+            if (RequestSent != null) RequestSent(this, new DataEventArgs { Data = request, State = state });
         }
 
-        protected virtual void OnRequestDropped(IByteArrayConvertible request, object state)
+        protected virtual void OnRequestDropped(IByteArrayConvertible request, ICloneable state)
         {
-            if (RequestDropped != null) RequestDropped(this, new DataEventAgrs { Data = request, State = state });
+            if (RequestDropped != null) RequestDropped(this, new DataEventArgs { Data = request, State = state });
         }
 
-        protected virtual void OnResponseReceived(IByteArrayConvertible response, object state)
+        protected virtual void OnResponseReceived(IByteArrayConvertible response, ICloneable state)
         {
-            if (ResponseReceived != null) ResponseReceived(this, new DataEventAgrs { Data = response, State = state });
+            if (ResponseReceived != null) ResponseReceived(this, new DataEventArgs { Data = response, State = state });
         }
 
-        protected virtual void OnResponseSent(IByteArrayConvertible response, object state)
+        protected virtual void OnResponseSent(IByteArrayConvertible response, ICloneable state)
         {
-            if (ResponseSent != null) ResponseSent(this, new DataEventAgrs { Data = response, State = state });
+            if (ResponseSent != null) ResponseSent(this, new DataEventArgs { Data = response, State = state });
         }
 
-        protected virtual void OnResponseDropped(IByteArrayConvertible response, object state)
+        protected virtual void OnResponseDropped(IByteArrayConvertible response, ICloneable state)
         {
-            if (ResponseDropped != null) ResponseDropped(this, new DataEventAgrs { Data = response, State = state });
-        }
-
-        protected virtual void OnChannelClosed()
-        {
-            if (ChannelClosed != null) ChannelClosed(this);
+            if (ResponseDropped != null) ResponseDropped(this, new DataEventArgs { Data = response, State = state });
         }
     }
+
     public class DefaultProxy : IProxy
     {
         public event EventHandler<IProxyChannel> ChannelCreated;
 
-        protected ConcurrentDictionary<string, IProxyChannel> channels = new ConcurrentDictionary<string, IProxyChannel>();
+        protected ConcurrentDictionary<int, IProxyChannel> channels = new ConcurrentDictionary<int, IProxyChannel>();
         protected IServer server;
         protected IClientFactory clientFactory;
+
+        public bool IsStarted { get { return server.IsStarted; } }
 
         public DefaultProxy(IServer server, IClientFactory clientFactory)
         {
@@ -154,22 +154,18 @@ namespace Netool.Network
             pchannel.ChannelClosed += channelClosedHandler;
             channels.TryAdd(pchannel.ID, pchannel);
             OnChannelCreated(pchannel);
+            pchannel.raiseChannelReady();
         }
 
         private void channelClosedHandler(object channel)
         {
             IProxyChannel c;
-            channels.TryRemove(((IProxyChannel) channel).ID, out c);
+            channels.TryRemove(((IProxyChannel)channel).ID, out c);
         }
 
         protected virtual void OnChannelCreated(IProxyChannel channel)
         {
             if (ChannelCreated != null) ChannelCreated(this, channel);
-        }
-
-        public bool TryGetByID(string ID, out IProxyChannel channel)
-        {
-            return channels.TryGetValue(ID, out channel);
         }
     }
 }

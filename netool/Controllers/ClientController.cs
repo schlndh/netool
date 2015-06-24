@@ -43,11 +43,11 @@ namespace Netool.Controllers
         {
             view.LogMessage(String.Format("\r\n=== Connection closed ({0}) ===\r\n", ((IClientChannel)sender).ID));
         }
-        private void OnResponseReceived(object sender, DataEventAgrs e)
+        private void OnResponseReceived(object sender, DataEventArgs e)
         {
             view.LogMessage(String.Format("\r\n=== Response received ({0}) ===\r\n{1}", ((IClientChannel)sender).ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
         }
-        private void OnRequestSent(object sender, DataEventAgrs e)
+        private void OnRequestSent(object sender, DataEventArgs e)
         {
             view.LogMessage(String.Format("\r\n=== Request sent ({0}) ===\r\n{1}", ((IClientChannel)sender).ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
         }

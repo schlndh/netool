@@ -11,6 +11,8 @@ using Netool.Network.DataFormats;
 using Netool.Dialogs;
 using System.Windows.Forms;
 using Netool.Views;
+using Netool.Views.Instance;
+using Netool.ChannelDrivers;
 namespace Netool.Controllers
 {
     public class MainController
@@ -30,8 +32,10 @@ namespace Netool.Controllers
         {
             {
                 var server = new TcpServer(new TcpServerSettings { LocalEndPoint = new IPEndPoint(IPAddress.Loopback, 8081) });
-                var sview = new ServerView();
-                var cont = new ServerController(sview, server);
+                var sview = new DefaultServerView();
+                var cont = new DefaultServerController(sview, server);
+                cont.AddDriver(new ManualChannelDriver(1), 0);
+                cont.AddDriver(new DummyDriver(), 1);
                 sview.SetController(cont);
                 view.AddPage("TCP Server", sview);
                 cont.Start();
@@ -69,8 +73,10 @@ namespace Netool.Controllers
             }
             {
                 var server = new UdpServer(new UdpServerSettings { LocalEndPoint = new IPEndPoint(IPAddress.Loopback, 7081) });
-                var sview = new ServerView();
-                var cont = new ServerController(sview, server);
+                var sview = new DefaultServerView();
+                var cont = new DefaultServerController(sview, server);
+                cont.AddDriver(new ManualChannelDriver(1), 0);
+                cont.AddDriver(new DummyDriver(), 1);
                 sview.SetController(cont);
                 view.AddPage("UDP Server", sview);
                 cont.Start();
@@ -123,8 +129,8 @@ namespace Netool.Controllers
             {
                 var settings = dialog.Settings;
                 var server = new TcpServer(settings);
-                var sview = new ServerView();
-                var cont = new ServerController(sview, server);
+                var sview = new DefaultServerView();
+                var cont = new DefaultServerController(sview, server);
                 sview.SetController(cont);
                 view.AddPage("Server", sview);
                 cont.Start();

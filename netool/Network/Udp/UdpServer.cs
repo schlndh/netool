@@ -4,6 +4,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Collections.Concurrent;
+using System.Threading;
 
 namespace Netool.Network.Udp
 {
@@ -27,11 +28,12 @@ namespace Netool.Network.Udp
         protected Socket socket;
         protected EndPoint remoteEP;
 
-        public UdpServerChannel(Socket socket, EndPoint remoteEP)
+        public UdpServerChannel(Socket socket, EndPoint remoteEP, int id)
         {
             this.socket = socket;
             this.remoteEP = remoteEP;
-            id = remoteEP.ToString();
+            this.id = id;
+            name = remoteEP.ToString();
         }
 
         public void Close()
@@ -63,6 +65,8 @@ namespace Netool.Network.Udp
         private volatile bool stopped = true;
         private ConcurrentDictionary<string, UdpServerChannel> channels = new ConcurrentDictionary<string, UdpServerChannel>();
         public int ReceiveBufferSize { get; set; }
+        public bool IsStarted { get { return !stopped; } }
+        private int channelID = 0;
 
         public event EventHandler<IServerChannel> ChannelCreated;
 
@@ -150,10 +154,11 @@ namespace Netool.Network.Udp
                 UdpServerChannel channel;
                 if (!channels.TryGetValue(id, out channel))
                 {
-                    channel = new UdpServerChannel(socket, client);
+                    channel = new UdpServerChannel(socket, client, Interlocked.Increment(ref channelID));
                     channel.ChannelClosed += channelClosedHandler;
                     channels.TryAdd(id, channel);
                     OnChannelCreated(channel);
+                    channel.raiseChannelReady();
                 }
                 channel.InjectRequest(request);
             }
@@ -179,19 +184,7 @@ namespace Netool.Network.Udp
         private void channelClosedHandler(object channel)
         {
             UdpServerChannel c;
-            channels.TryRemove(((UdpServerChannel)channel).ID, out c);
-        }
-
-        public bool TryGetByID(string ID, out IServerChannel channel)
-        {
-            UdpServerChannel c;
-            if (channels.TryGetValue(ID, out c))
-            {
-                channel = c;
-                return true;
-            }
-            channel = null;
-            return false;
+            channels.TryRemove(((UdpServerChannel)channel).Name, out c);
         }
     }
 }

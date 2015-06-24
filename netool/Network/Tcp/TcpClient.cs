@@ -3,6 +3,7 @@ using Netool.Settings;
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace Netool.Network.Tcp
 {
@@ -18,10 +19,11 @@ namespace Netool.Network.Tcp
 
         public int ReceiveBufferSize { get; set; }
 
-        public TcpClientChannel(Socket socket, int receiveBufferSize = 2048)
+        public TcpClientChannel(Socket socket, int id, int receiveBufferSize = 2048)
         {
             this.socket = socket;
-            id = socket.LocalEndPoint.ToString();
+            this.id = id;
+            name = socket.LocalEndPoint.ToString();
             ReceiveBufferSize = receiveBufferSize;
             // don't call scheduleNextReceive right away, the ChannelCreated event must be raised first
         }
@@ -105,11 +107,13 @@ namespace Netool.Network.Tcp
     {
         protected TcpClientSettings settings;
         protected TcpClientChannel channel;
-        protected volatile bool stopped = true;
+        private volatile bool stopped = true;
+        private int channelID = 0;
 
         public event EventHandler<IClientChannel> ChannelCreated;
 
         public int ReceiveBufferSize { get; set; }
+        public bool IsStarted { get { return !stopped; } }
 
         public TcpClient(TcpClientSettings settings)
         {
@@ -125,9 +129,10 @@ namespace Netool.Network.Tcp
                 var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
                 socket.Bind(settings.LocalEndPoint);
                 socket.Connect(settings.RemoteEndPoint);
-                channel = new TcpClientChannel(socket, ReceiveBufferSize);
+                channel = new TcpClientChannel(socket, Interlocked.Increment(ref channelID), ReceiveBufferSize);
                 channel.ChannelClosed += channelClosedHandler;
                 OnChannelCreated(channel);
+                channel.raiseChannelReady();
                 channel.scheduleNextReceive();
             }
             return channel;

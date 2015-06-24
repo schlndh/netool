@@ -2,6 +2,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace Netool.Network.Udp
 {
@@ -17,11 +18,12 @@ namespace Netool.Network.Udp
         protected EndPoint remoteEP;
         public int ReceiveBufferSize { get; set; }
 
-        public UdpClientChannel(Socket socket, EndPoint remoteEP, int receiveBufferSize = 2048)
+        public UdpClientChannel(Socket socket, EndPoint remoteEP, int id, int receiveBufferSize = 2048)
         {
             this.socket = socket;
             this.remoteEP = remoteEP;
-            id = remoteEP.ToString();
+            this.id = id;
+            name = remoteEP.ToString();
             ReceiveBufferSize = receiveBufferSize;
             // don't call scheduleNextReceive right away, the ChannelCreated event must be raised first
         }
@@ -96,11 +98,13 @@ namespace Netool.Network.Udp
     public class UdpClient : IClient
     {
         protected UdpClientSettings settings;
-        private UdpClientChannel channel;
+        protected UdpClientChannel channel;
         private volatile bool stopped = true;
 
         public int ReceiveBufferSize { get; set; }
+        public bool IsStarted { get { return !stopped; } }
         public event EventHandler<IClientChannel> ChannelCreated;
+        private int channelID = 0;
 
         public UdpClient(UdpClientSettings settings)
         {
@@ -115,9 +119,10 @@ namespace Netool.Network.Udp
                 stopped = false;
                 var socket = new Socket(SocketType.Dgram, ProtocolType.Udp);
                 socket.Bind(settings.LocalEndPoint);
-                channel = new UdpClientChannel(socket, settings.RemoteEndPoint, ReceiveBufferSize);
+                channel = new UdpClientChannel(socket, settings.RemoteEndPoint, Interlocked.Increment(ref channelID), ReceiveBufferSize);
                 channel.ChannelClosed += channelClosedHandler;
                 OnChannelCreated(channel);
+                channel.raiseChannelReady();
                 channel.scheduleNextReceive();
             }
             return channel;

@@ -1,4 +1,5 @@
-﻿namespace Netool.Network.DataFormats
+﻿using System;
+namespace Netool.Network.DataFormats
 {
     public class ByteArray : IByteArrayConvertible
     {
@@ -12,6 +13,13 @@
         public byte[] ToByteArray()
         {
             return arr;
+        }
+
+        public object Clone()
+        {
+            byte[] narr = new byte[arr.Length];
+            Array.Copy(arr, narr, arr.Length);
+            return new ByteArray(narr);
         }
     }
 }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace Netool.Network.Tcp
 {
@@ -29,10 +30,11 @@ namespace Netool.Network.Tcp
     {
         protected Socket socket;
         public int ReceiveBufferSize { get; set; }
-        public TcpServerChannel(Socket socket, int receiveBufferSize = 2048)
+        public TcpServerChannel(Socket socket, int id, int receiveBufferSize = 2048)
         {
             this.socket = socket;
-            id = socket.RemoteEndPoint.ToString();
+            this.id = id;
+            name = socket.RemoteEndPoint.ToString();
             ReceiveBufferSize = receiveBufferSize;
             // don't call scheduleNextReceive right away, the ChannelCreated event must be raised first
         }
@@ -121,8 +123,10 @@ namespace Netool.Network.Tcp
         protected TcpServerSettings settings;
         protected Socket socket;
         private volatile bool stopped = true;
-        private ConcurrentDictionary<string, IServerChannel> channels = new ConcurrentDictionary<string, IServerChannel>();
+        private ConcurrentDictionary<int, IServerChannel> channels = new ConcurrentDictionary<int, IServerChannel>();
+        private int channelID = 0;
         public int ReceiveBufferSize { get; set; }
+        public bool IsStarted { get { return !stopped; } }
 
         public event EventHandler<IServerChannel> ChannelCreated;
 
@@ -181,10 +185,11 @@ namespace Netool.Network.Tcp
                 // socket closed
                 return;
             }
-            var channel = new TcpServerChannel(client, ReceiveBufferSize);
+            var channel = new TcpServerChannel(client, Interlocked.Increment(ref channelID), ReceiveBufferSize);
             channel.ChannelClosed += channelClosedHandler;
             channels.TryAdd(channel.ID,channel);
             OnChannelCreated(channel);
+            channel.raiseChannelReady();
             channel.scheduleNextReceive();
         }
 
@@ -197,11 +202,6 @@ namespace Netool.Network.Tcp
         {
             IServerChannel c;
             channels.TryRemove(((IServerChannel)channel).ID, out c);
-        }
-
-        public bool TryGetByID(string ID, out IServerChannel c)
-        {
-            return channels.TryGetValue(ID, out c);
         }
     }
 }
