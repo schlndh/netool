@@ -10,7 +10,7 @@ namespace Netool.ChannelDrivers
     internal class DummyDriver : IServerChannelDriver
     {
         public string ID { get { return "DummyDriver"; } }
-        public bool AllowManualControl { get { return true; } }
+        public bool AllowManualControl { get { return false; } }
         public bool CanAccept { get { return true; } }
 
         public void Handle(IServerChannel c)

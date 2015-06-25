@@ -21,6 +21,14 @@ namespace Netool.Views.Editor
             if (editorViewSelect.SelectedIndex < 0) editorViewSelect.SelectedIndex = 0;
         }
 
+        public void SetValue(Netool.Event val)
+        {
+            if(editorViewSelect.SelectedIndex > -1)
+            {
+                ((IEditorView)editorViewSelect.SelectedItem).SetValue(val);
+            }
+        }
+
         private void editorViewSelect_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (editorViewSelect.SelectedIndex > -1)

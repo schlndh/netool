@@ -28,20 +28,24 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.events = new System.Windows.Forms.ListView();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.typeLabel = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.idLabel = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.eventViewsSelect = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.eventViewPanel = new System.Windows.Forms.Panel();
             this.mainSplitContainer = new System.Windows.Forms.SplitContainer();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.typeLabel = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.idLabel = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
+            this.eventsContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.eventsEditMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel2.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mainSplitContainer)).BeginInit();
             this.mainSplitContainer.Panel1.SuspendLayout();
@@ -50,7 +54,7 @@
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
-            this.panel2.SuspendLayout();
+            this.eventsContextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // events
@@ -88,6 +92,54 @@
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(674, 145);
             this.tableLayoutPanel2.TabIndex = 1;
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.typeLabel);
+            this.panel2.Controls.Add(this.label2);
+            this.panel2.Controls.Add(this.idLabel);
+            this.panel2.Controls.Add(this.label3);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel2.Location = new System.Drawing.Point(3, 3);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(668, 34);
+            this.panel2.TabIndex = 3;
+            // 
+            // typeLabel
+            // 
+            this.typeLabel.AutoSize = true;
+            this.typeLabel.Location = new System.Drawing.Point(96, 4);
+            this.typeLabel.Name = "typeLabel";
+            this.typeLabel.Size = new System.Drawing.Size(10, 13);
+            this.typeLabel.TabIndex = 3;
+            this.typeLabel.Text = "-";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(55, 4);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(34, 13);
+            this.label2.TabIndex = 2;
+            this.label2.Text = "Type:";
+            // 
+            // idLabel
+            // 
+            this.idLabel.AutoSize = true;
+            this.idLabel.Location = new System.Drawing.Point(38, 4);
+            this.idLabel.Name = "idLabel";
+            this.idLabel.Size = new System.Drawing.Size(10, 13);
+            this.idLabel.TabIndex = 1;
+            this.idLabel.Text = "-";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(10, 4);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(21, 13);
+            this.label3.TabIndex = 0;
+            this.label3.Text = "ID:";
             // 
             // panel1
             // 
@@ -159,53 +211,19 @@
             this.splitContainer2.SplitterDistance = 121;
             this.splitContainer2.TabIndex = 0;
             // 
-            // panel2
+            // eventsContextMenu
             // 
-            this.panel2.Controls.Add(this.typeLabel);
-            this.panel2.Controls.Add(this.label2);
-            this.panel2.Controls.Add(this.idLabel);
-            this.panel2.Controls.Add(this.label3);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2.Location = new System.Drawing.Point(3, 3);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(668, 34);
-            this.panel2.TabIndex = 3;
+            this.eventsContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.eventsEditMenuItem});
+            this.eventsContextMenu.Name = "eventsContextMenu";
+            this.eventsContextMenu.Size = new System.Drawing.Size(95, 26);
             // 
-            // typeLabel
+            // eventsEditMenuItem
             // 
-            this.typeLabel.AutoSize = true;
-            this.typeLabel.Location = new System.Drawing.Point(96, 4);
-            this.typeLabel.Name = "typeLabel";
-            this.typeLabel.Size = new System.Drawing.Size(10, 13);
-            this.typeLabel.TabIndex = 3;
-            this.typeLabel.Text = "-";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(55, 4);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(34, 13);
-            this.label2.TabIndex = 2;
-            this.label2.Text = "Type:";
-            // 
-            // idLabel
-            // 
-            this.idLabel.AutoSize = true;
-            this.idLabel.Location = new System.Drawing.Point(38, 4);
-            this.idLabel.Name = "idLabel";
-            this.idLabel.Size = new System.Drawing.Size(10, 13);
-            this.idLabel.TabIndex = 1;
-            this.idLabel.Text = "-";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(10, 4);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(21, 13);
-            this.label3.TabIndex = 0;
-            this.label3.Text = "ID:";
+            this.eventsEditMenuItem.Name = "eventsEditMenuItem";
+            this.eventsEditMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.eventsEditMenuItem.Text = "Edit";
+            this.eventsEditMenuItem.Click += new System.EventHandler(this.editToolStripMenuItem_Click);
             // 
             // DefaultServerChannelView
             // 
@@ -217,6 +235,8 @@
             this.Text = "DefaultServerChannelView";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.DefaultServerChannelView_FormClosed);
             this.tableLayoutPanel2.ResumeLayout(false);
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.mainSplitContainer.Panel1.ResumeLayout(false);
@@ -226,8 +246,7 @@
             this.splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
-            this.panel2.ResumeLayout(false);
-            this.panel2.PerformLayout();
+            this.eventsContextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -247,5 +266,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label idLabel;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.ContextMenuStrip eventsContextMenu;
+        private System.Windows.Forms.ToolStripMenuItem eventsEditMenuItem;
     }
 }

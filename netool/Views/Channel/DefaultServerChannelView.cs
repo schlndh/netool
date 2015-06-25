@@ -26,6 +26,7 @@ namespace Netool.Views.Channel
         private int cacheStart = 0;
         private ItemFactory createItem;
         private IEventView currentViewForm = null;
+        private Editor.EditorMasterView editor = null;
 
         public DefaultServerChannelView(ChannelInfo info)
             : this(info, DefaultColumnFiller, DefaultItemFactory)
@@ -53,6 +54,8 @@ namespace Netool.Views.Channel
             mainSplitContainer.Panel2.Controls.Add(editor);
             editor.SendClicked += editorSendHandler;
             editor.CloseClicked += editorCloseHandler;
+            events.ContextMenuStrip = eventsContextMenu;
+            this.editor = editor;
         }
 
         public void AddEventView(IEventView v)
@@ -79,7 +82,7 @@ namespace Netool.Views.Channel
             }
             else
             {
-                e.Item = createItem(info.GetByPosition(e.ItemIndex).Value);
+                e.Item = createItem(getEventByPosition(e.ItemIndex));
             }
         }
 
@@ -112,7 +115,7 @@ namespace Netool.Views.Channel
                 eventViewPanel.Controls.Add(frm);
                 if(events.SelectedIndices.Count > 0)
                 {
-                    currentViewForm.Show(info.GetByPosition(events.SelectedIndices[0]).Value);
+                    currentViewForm.Show(getEventByPosition(events.SelectedIndices[0]));
                 }
             }
         }
@@ -123,7 +126,7 @@ namespace Netool.Views.Channel
             {
                 if (currentViewForm != null)
                 {
-                    var evt = info.GetByPosition(events.SelectedIndices[0]).Value;
+                    var evt = getEventByPosition(events.SelectedIndices[0]);
                     idLabel.Text = evt.ID.ToString();
                     typeLabel.Text = evt.Type.ToString();
                     currentViewForm.Show(evt);
@@ -156,6 +159,23 @@ namespace Netool.Views.Channel
         private void DefaultServerChannelView_FormClosed(object sender, FormClosedEventArgs e)
         {
             info.EventCountChanged -= eventCountChanged;
+        }
+
+        private void editToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var item = sender as ToolStripMenuItem;
+            if(item.Name == "eventsEditMenuItem")
+            {
+                if(editor != null && events.SelectedIndices.Count > 0)
+                {
+                    editor.SetValue(getEventByPosition(events.SelectedIndices[0]));
+                }
+            }
+        }
+
+        private Netool.Event getEventByPosition(int pos)
+        {
+            return info.GetByPosition(pos).Value;
         }
     }
 }

@@ -36,9 +36,16 @@ namespace Netool.Views.Editor
             return new ByteArray(((Be.Windows.Forms.DynamicByteProvider)data.ByteProvider).Bytes.ToArray());
         }
 
-        public void SetValue(IByteArrayConvertible val)
+        public void SetValue(Netool.Event val)
         {
-            data.ByteProvider = new Be.Windows.Forms.DynamicByteProvider(val.ToByteArray());
+            if(val.Data != null && val.Data.Data != null)
+            {
+                data.ByteProvider = new Be.Windows.Forms.DynamicByteProvider(val.Data.Data.ToByteArray());
+            }
+            else
+            {
+                Clear();
+            }
         }
     }
 }

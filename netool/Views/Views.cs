@@ -69,7 +69,7 @@ namespace Netool.Views
 
         IByteArrayConvertible GetValue();
 
-        void SetValue(IByteArrayConvertible v);
+        void SetValue(Netool.Event v);
 
         /// <summary>
         /// Get Form to display
