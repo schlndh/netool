@@ -144,10 +144,21 @@ namespace Netool.Views.Channel
 
         private void editorSendHandler(object sender, IByteArrayConvertible val)
         {
-            var channel = info.channel as IServerChannel;
-            if (channel != null)
+            IChannel channel = info.channel;
+            if(channel != null)
             {
-                channel.Send(val);
+                if (channel is IClientChannel)
+                {
+                    ((IClientChannel)channel).Send(val);
+                }
+                else if (channel is IServerChannel)
+                {
+                    ((IServerChannel)channel).Send(val);
+                }
+                /*else if (channel is IProxyChannel)
+                {
+                    ((IProxyChannel)channel).Send(val);
+                }*/
             }
         }
 

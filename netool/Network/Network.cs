@@ -43,6 +43,7 @@ namespace Netool.Network
     public interface IInstance
     {
         bool IsStarted { get; }
+        void Stop();
     }
 
     public interface IServer : IInstance
@@ -50,7 +51,6 @@ namespace Netool.Network
         event EventHandler<IServerChannel> ChannelCreated;
 
         void Start();
-        void Stop();
     }
 
     public interface IClient : IInstance
@@ -58,7 +58,6 @@ namespace Netool.Network
         event EventHandler<IClientChannel> ChannelCreated;
 
         IClientChannel Start();
-        void Stop();
     }
 
     public interface IProxy : IInstance
@@ -66,7 +65,6 @@ namespace Netool.Network
         event EventHandler<IProxyChannel> ChannelCreated;
 
         void Start();
-        void Stop();
     }
 
     /// <summary>
@@ -117,5 +115,24 @@ namespace Netool.Network
 
         void SendToServer(IByteArrayConvertible request);
         void SendToClient(IByteArrayConvertible response);
+    }
+
+    public static class IInstanceExtensions
+    {
+        public static void Start(this IInstance c)
+        {
+            if(c is IClient)
+            {
+                ((IClient)c).Start();
+            }
+            else if (c is IServer)
+            {
+                ((IServer)c).Start();
+            }
+            else if (c is IProxy)
+            {
+                ((IProxy)c).Start();
+            }
+        }
     }
 }

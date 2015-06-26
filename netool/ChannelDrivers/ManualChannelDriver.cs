@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace Netool.ChannelDrivers
 {
-    public class ManualChannelDriver : IServerChannelDriver, IProxyChannelDriver, IClientChannelDriver
+    public class ManualChannelDriver : IChannelDriver
     {
         private int capacity;
         private int activeChannels = 0;
@@ -16,22 +16,7 @@ namespace Netool.ChannelDrivers
             this.capacity = capacity;
         }
 
-        public void Handle(IServerChannel c)
-        {
-            handle(c);
-        }
-
-        public void Handle(IProxyChannel c)
-        {
-            handle(c);
-        }
-
-        public void Handle(IClientChannel c)
-        {
-            handle(c);
-        }
-
-        private void handle(IChannel c)
+        public void Handle(IChannel c)
         {
             Interlocked.Increment(ref activeChannels);
             c.ChannelClosed += channelClosedHandler;

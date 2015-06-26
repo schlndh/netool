@@ -13,20 +13,10 @@ namespace Netool.ChannelDrivers
         /// </summary>
         bool AllowManualControl { get; }
         string ID { get; }
-    }
-
-    public interface IServerChannelDriver : IChannelDriver
-    {
-        void Handle(IServerChannel c);
-    }
-
-    public interface IClientChannelDriver : IChannelDriver
-    {
-        void Handle(IClientChannel c);
-    }
-
-    public interface IProxyChannelDriver : IChannelDriver
-    {
-        void Handle(IProxyChannel c);
+        /// <summary>
+        /// Listen for events on channel and respond to them
+        /// </summary>
+        /// <param name="c">channel</param>
+        void Handle(IChannel c);
     }
 }

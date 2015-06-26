@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace Netool.Views.Instance
 {
-    public partial class DefaultServerView : Form, IServerView
+    public partial class DefaultInstanceView : Form, IInstanceView
     {
         public interface IDataRowFactory
         {
@@ -16,12 +16,12 @@ namespace Netool.Views.Instance
             /// </summary>
             /// <param name="row">row</param>
             /// <param name="c">channel</param>
-            void FillRow(DataRow row, IServerChannel c);
+            void FillRow(DataRow row, IChannel c);
         }
 
         public class DefaultDataRowFactory : IDataRowFactory
         {
-            public void FillRow(DataRow row, IServerChannel c)
+            public void FillRow(DataRow row, IChannel c)
             {
                 row["id"] = c.ID;
                 row["name"] = c.Name;
@@ -41,7 +41,7 @@ namespace Netool.Views.Instance
             return ret;
         }
 
-        private IServerController controller;
+        private IInstanceController controller;
         private IDataRowFactory rowFactory;
         private DataTable table;
         private List<int> rowIndexToID = new List<int>();
@@ -49,11 +49,11 @@ namespace Netool.Views.Instance
         /// <summary>
         /// Default view settings with default DataTable schema and corresponding row factory
         /// </summary>
-        public DefaultServerView()
-            : this(DefaultServerView.GetDefaultDataTable(), new DefaultDataRowFactory())
+        public DefaultInstanceView()
+            : this(DefaultInstanceView.GetDefaultDataTable(), new DefaultDataRowFactory())
         { }
 
-        public DefaultServerView(DataTable table, IDataRowFactory rowFactory)
+        public DefaultInstanceView(DataTable table, IDataRowFactory rowFactory)
         {
             InitializeComponent();
             this.table = table;
@@ -61,18 +61,18 @@ namespace Netool.Views.Instance
             this.channels.DataSource = table;
         }
 
-        public void SetController(IServerController c)
+        public void SetController(IInstanceController c)
         {
             controller = c;
         }
 
-        public void SetServer(IServer s)
+        public void SetInstance(IInstance s)
         {
             start.Enabled = s.IsStarted;
             stop.Enabled = !start.Enabled;
         }
 
-        public void AddChannel(IServerChannel c)
+        public void AddChannel(IChannel c)
         {
             channels.Invoke(new Action(() =>
             {

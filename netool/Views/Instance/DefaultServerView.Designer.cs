@@ -1,6 +1,6 @@
 ﻿namespace Netool.Views.Instance
 {
-    partial class DefaultServerView
+    partial class DefaultInstanceView
     {
         /// <summary>
         /// Required designer variable.

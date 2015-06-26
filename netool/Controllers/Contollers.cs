@@ -1,6 +1,6 @@
 ﻿namespace Netool.Controllers
 {
-    public interface IServerController
+    public interface IInstanceController
     {
         void Start();
 

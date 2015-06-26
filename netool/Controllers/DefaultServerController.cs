@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Netool.Controllers
 {
-    public class DefaultServerController : IServerController
+    public class DefaultInstanceController : IInstanceController
     {
         public interface IChannelViewFactory
         {
@@ -27,42 +27,57 @@ namespace Netool.Controllers
             }
         }
 
-        private IServerView view;
-        private IServer server;
-        private SortedList<int, IServerChannelDriver> drivers = new SortedList<int, IServerChannelDriver>();
+        private IInstanceView view;
+        private IInstance instance;
+        private SortedList<int, IChannelDriver> drivers = new SortedList<int, IChannelDriver>();
         private EventLogger logger;
         private IChannelViewFactory detailFactory;
         private RejectDriver rejectDriver = new RejectDriver();
 
-        public DefaultServerController(IServerView view, IServer server)
+        public DefaultInstanceController(IInstanceView view, IInstance server)
             : this(view, server, new DefaultChannelViewFactory(), new EventLogger())
         {
         }
 
-        public DefaultServerController(IServerView view, IServer server, IChannelViewFactory detailFactory)
+        public DefaultInstanceController(IInstanceView view, IInstance server, IChannelViewFactory detailFactory)
             : this(view, server, detailFactory, new EventLogger())
         {
         }
 
-        public DefaultServerController(IServerView view, IServer server, IChannelViewFactory detailFactory, EventLogger logger)
+        public DefaultInstanceController(IInstanceView view, IInstance server, IChannelViewFactory detailFactory, EventLogger logger)
         {
             this.view = view;
-            this.server = server;
-            view.SetServer(server);
-            this.server.ChannelCreated += handleConnectionCreated;
+            this.instance = server;
+            view.SetInstance(server);
+
+            if(this.instance is IClient)
+            {
+                ((IClient)this.instance).ChannelCreated += handleConnectionCreated;
+            }
+            else if (this.instance is IServer)
+            {
+                ((IServer)this.instance).ChannelCreated += handleConnectionCreated;
+            }
+            else if (this.instance is IProxy)
+            {
+                ((IProxy)this.instance).ChannelCreated += handleConnectionCreated;
+            }
+
             this.logger = logger;
             this.detailFactory = detailFactory;
         }
 
         public void Start()
         {
-            var t = new Thread(delegate() { server.Start(); });
+            var t = new Thread(delegate() {
+                instance.Start();
+            });
             t.Start();
         }
 
         public void Stop()
         {
-            server.Stop();
+            instance.Stop();
         }
 
         /// <summary>
@@ -70,7 +85,7 @@ namespace Netool.Controllers
         /// </summary>
         /// <param name="d">driver</param>
         /// <param name="order">lower number = higher priority</param>
-        public void AddDriver(IServerChannelDriver d, int order)
+        public void AddDriver(IChannelDriver d, int order)
         {
             drivers.Add(order, d);
         }
@@ -80,7 +95,7 @@ namespace Netool.Controllers
             detailFactory.CreateChannelView(logger.GetChannelInfo(id)).GetForm().Show();
         }
 
-        private void handleConnectionCreated(object sender, IServerChannel c)
+        private void handleConnectionCreated(object sender, IChannel c)
         {
             // must be registered before the driver, so that events are logged in proper order
             logger.AddChannel(c);

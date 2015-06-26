@@ -7,15 +7,26 @@ namespace Netool.ChannelDrivers
     /// <summary>
     /// Dummy driver for testing purposes
     /// </summary>
-    internal class DummyDriver : IServerChannelDriver
+    internal class DummyDriver : IChannelDriver
     {
         public string ID { get { return "DummyDriver"; } }
         public bool AllowManualControl { get { return false; } }
         public bool CanAccept(IChannel c) { return false; }
 
-        public void Handle(IServerChannel c)
+        public void Handle(IChannel c)
         {
-            c.RequestReceived += c_RequestReceived;
+            if(c is IServerChannel)
+            {
+                ((IServerChannel) c).RequestReceived += c_RequestReceived;
+            }
+            else if(c is IClientChannel)
+            {
+
+            }
+            else if(c is IProxyChannel)
+            {
+
+            }
         }
 
         private void c_RequestReceived(object sender, DataEventArgs e)

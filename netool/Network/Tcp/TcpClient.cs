@@ -134,6 +134,7 @@ namespace Netool.Network.Tcp
                 OnChannelCreated(channel);
                 channel.raiseChannelReady();
                 channel.scheduleNextReceive();
+
             }
             return channel;
         }
@@ -146,7 +147,6 @@ namespace Netool.Network.Tcp
                 if (channel != null)
                 {
                     channel.Close();
-                    channel = null;
                 }
             }
         }

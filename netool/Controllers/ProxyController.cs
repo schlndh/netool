@@ -17,7 +17,6 @@ namespace Netool.Controllers
             this.view = view;
             this.proxy = proxy;
             this.proxy.ChannelCreated += OnConnectionCreated;
-
         }
         public void Start()
         {

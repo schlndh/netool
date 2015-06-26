@@ -7,15 +7,15 @@ namespace Netool.Views
      * Important note: Most methods on views will be called from non-gui threads!
      */
 
-    public interface IServerView
+    public interface IInstanceView
     {
         /// <summary>
-        /// Sets view's server, for view to get additional information about the server
+        /// Sets view's instance, for view to get additional information about the instance
         /// </summary>
-        /// <param name="s">server</param>
-        void SetServer(IServer s);
+        /// <param name="i">instance</param>
+        void SetInstance(IInstance i);
 
-        void AddChannel(IServerChannel c);
+        void AddChannel(IChannel c);
 
         /// <summary>
         /// Get Form to display
