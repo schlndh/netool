@@ -13,12 +13,13 @@ namespace Netool.Views.Channel
         public static void DefaultColumnFiller(ListView.ColumnHeaderCollection c)
         {
             c.Add("ID");
+            c.Add("Time").Width = -2;
             c.Add("Type").Width = -2;
         }
 
         public static ListViewItem DefaultItemFactory(Netool.Event e)
         {
-            return new ListViewItem(new string[] { e.ID.ToString(), e.Type.ToString() });
+            return new ListViewItem(new string[] { e.ID.ToString(), e.Time.ToString("HH:mm:ss.ff"), e.Type.ToString() });
         }
 
         private ChannelInfo info;
@@ -129,6 +130,7 @@ namespace Netool.Views.Channel
                     var evt = getEventByPosition(events.SelectedIndices[0]);
                     idLabel.Text = evt.ID.ToString();
                     typeLabel.Text = evt.Type.ToString();
+                    timeLabel.Text = evt.Time.ToString("dd. MM. yyyy HH:mm:ss.ff");
                     currentViewForm.Show(evt);
                 }
             }
@@ -136,6 +138,7 @@ namespace Netool.Views.Channel
             {
                 idLabel.Text = "-";
                 typeLabel.Text = "-";
+                timeLabel.Text = "-";
             }
         }
 

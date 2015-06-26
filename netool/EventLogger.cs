@@ -17,12 +17,14 @@ namespace Netool
         public readonly int ID;
         public readonly EventType Type;
         public readonly DataEventArgs Data;
+        public readonly DateTime Time;
 
-        public Event(int id, EventType type, DataEventArgs data)
+        public Event(int id, EventType type, DataEventArgs data, DateTime time)
         {
             ID = id;
             Type = type;
             Data = data;
+            Time = time;
         }
     }
 
@@ -37,7 +39,7 @@ namespace Netool
         public ChannelInfo(IChannel channel)
         {
             this.channel = channel;
-            Events.AddLast(new Event(0, EventType.ChannelCreated, null));
+            Events.AddLast(new Event(0, EventType.ChannelCreated, null, DateTime.Now));
             channel.ChannelClosed += channelClosedHandler;
             if (channel is IClientChannel)
             {
@@ -132,7 +134,7 @@ namespace Netool
             }
             lock (Events)
             {
-                Events.AddLast(new Event(++eventID, type, nd));
+                Events.AddLast(new Event(++eventID, type, nd, DateTime.Now));
                 c = Events.Count;
             }
             OnEventCountChanged(c);
