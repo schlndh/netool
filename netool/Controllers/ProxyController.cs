@@ -17,7 +17,7 @@ namespace Netool.Controllers
             this.view = view;
             this.proxy = proxy;
             this.proxy.ChannelCreated += OnConnectionCreated;
-            
+
         }
         public void Start()
         {
@@ -35,10 +35,8 @@ namespace Netool.Controllers
             c.ChannelClosed += OnConnectionClosed;
             c.RequestReceived += OnRequestReceived;
             c.RequestSent += OnRequestSent;
-            c.RequestDropped += OnRequestDropped;
             c.ResponseReceived += OnResponseReceived;
             c.ResponseSent += OnResponseSent;
-            c.ResponseDropped += OnResponseDropped;
         }
         private void OnConnectionClosed(object sender)
         {
@@ -52,10 +50,6 @@ namespace Netool.Controllers
         {
             view.LogMessage(String.Format("\r\n=== Request sent ({0}) ===\r\n{1}", ((IProxyChannel)sender).ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
         }
-        private void OnRequestDropped(object sender, DataEventArgs e)
-        {
-            view.LogMessage(String.Format("\r\n=== Request dropped ({0}) ===\r\n{1}", ((IProxyChannel)sender).ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
-        }
         private void OnResponseReceived(object sender, DataEventArgs e)
         {
             view.LogMessage(String.Format("\r\n=== Response received ({0}) ===\r\n{1}", ((IProxyChannel)sender).ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
@@ -63,10 +57,6 @@ namespace Netool.Controllers
         private void OnResponseSent(object sender, DataEventArgs e)
         {
             view.LogMessage(String.Format("\r\n=== Response sent ({0}) ===\r\n{1}", ((IProxyChannel)sender).ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
-        }
-        private void OnResponseDropped(object sender, DataEventArgs e)
-        {
-            view.LogMessage(String.Format("\r\n=== Response dropped ({0}) ===\r\n{1}", ((IProxyChannel)sender).ID, ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray())));
         }
     }
 }

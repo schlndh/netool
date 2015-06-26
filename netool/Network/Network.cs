@@ -26,18 +26,9 @@ namespace Netool.Network
     public delegate void ChannelReadyHandler(object sender);
     public delegate void RequestSentHandler(object sender, DataEventArgs e);
     public delegate void RequestReceivedHandler(object sender, DataEventArgs e);
-    public delegate void RequestDroppedHandler(object sender, DataEventArgs e);
     public delegate void ResponseSentHandler(object sender, DataEventArgs e);
     public delegate void ResponseReceivedHandler(object sender, DataEventArgs e);
-    public delegate void ResponseDroppedHandler(object sender, DataEventArgs e);
     public delegate void ChannelClosedHandler(object sender);
-
-    /// <summary>
-    /// interface for request/response modification callbacks for proxy channels
-    /// </summary>
-    /// <param name="data"></param>
-    /// <returns>new data or null if request/response is to be dropped</returns>
-    public delegate IByteArrayConvertible DataModifier(IByteArrayConvertible data);
 
     public interface IByteArrayConvertible : ICloneable
     {
@@ -121,11 +112,10 @@ namespace Netool.Network
     {
         event RequestReceivedHandler RequestReceived;
         event RequestSentHandler RequestSent;
-        event RequestDroppedHandler RequestDropped;
         event ResponseReceivedHandler ResponseReceived;
         event ResponseSentHandler ResponseSent;
-        event ResponseDroppedHandler ResponseDropped;
-        DataModifier RequestModifier { get; set; }
-        DataModifier ResponseModifier { get; set; }
+
+        void SendToServer(IByteArrayConvertible request);
+        void SendToClient(IByteArrayConvertible response);
     }
 }

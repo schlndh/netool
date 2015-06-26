@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChannelDrivers\ChannelDrivers.cs" />
+    <Compile Include="ChannelDrivers\DefaultProxyDriver.cs" />
     <Compile Include="ChannelDrivers\ManualChannelDriver.cs" />
     <Compile Include="ChannelDrivers\RejectDriver.cs" />
     <Compile Include="ChannelDrivers\DummyDriver.cs" />

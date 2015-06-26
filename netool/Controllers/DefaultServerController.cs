@@ -87,7 +87,7 @@ namespace Netool.Controllers
             bool handled = false;
             foreach (var d in drivers.Values)
             {
-                if (d.CanAccept)
+                if (d.CanAccept(c))
                 {
                     d.Handle(c);
                     c.Driver = d;

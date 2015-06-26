@@ -8,8 +8,8 @@ namespace Netool
     public enum EventType
     {
         ChannelCreated, ChannelClosed,
-        RequestSent, RequestReceived, RequestDropped,
-        ResponseSent, ResponseReceived, ResponseDropped
+        RequestSent, RequestReceived,
+        ResponseSent, ResponseReceived
     }
 
     public class Event
@@ -56,8 +56,6 @@ namespace Netool
             else if (channel is IProxyChannel)
             {
                 var c = channel as IProxyChannel;
-                c.RequestDropped += requestDroppedHandler;
-                c.ResponseDropped += responseDroppedHandler;
                 c.RequestReceived += requestReceivedHandler;
                 c.ResponseSent += responseSentHandler;
                 c.RequestSent += requestSentHandler;
@@ -87,16 +85,6 @@ namespace Netool
                 curr = curr.Next;
             }
             return curr;
-        }
-
-        private void responseDroppedHandler(object sender, DataEventArgs e)
-        {
-            generalHandler(EventType.ResponseDropped, e);
-        }
-
-        private void requestDroppedHandler(object sender, DataEventArgs e)
-        {
-            generalHandler(EventType.RequestDropped, e);
         }
 
         private void responseSentHandler(object sender, DataEventArgs e)

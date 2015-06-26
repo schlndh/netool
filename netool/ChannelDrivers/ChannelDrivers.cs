@@ -7,7 +7,7 @@ namespace Netool.ChannelDrivers
         /// <summary>
         /// Indicates whether the driver is capable of handling another channel
         /// </summary>
-        bool CanAccept { get; }
+        bool CanAccept(IChannel c);
         /// <summary>
         /// This field is only used when new channel view is being created
         /// </summary>

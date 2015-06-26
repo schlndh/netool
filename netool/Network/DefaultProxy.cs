@@ -6,18 +6,19 @@ namespace Netool.Network
 {
     public class DefaultProxyChannel : BaseChannel, IProxyChannel
     {
+        /// <summary>
+        /// Channel from Proxy to Server
+        /// </summary>
         protected IClientChannel clientChannel;
+        /// <summary>
+        /// Channel from Proxy to Client
+        /// </summary>
         protected IServerChannel serverChannel;
 
         public event RequestReceivedHandler RequestReceived;
         public event RequestSentHandler RequestSent;
-        public event RequestDroppedHandler RequestDropped;
         public event ResponseSentHandler ResponseSent;
         public event ResponseReceivedHandler ResponseReceived;
-        public event ResponseDroppedHandler ResponseDropped;
-
-        public DataModifier RequestModifier { get; set; }
-        public DataModifier ResponseModifier { get; set; }
 
         public new int ID { get { return serverChannel.ID; } }
         public new string Name { get { return serverChannel.Name; } }
@@ -28,9 +29,21 @@ namespace Netool.Network
             clientChannel = clChannel;
             clientChannel.ChannelClosed += channelClosedHandler;
             clientChannel.ResponseReceived += responseReceivedHandler;
+            clientChannel.RequestSent += clientChannel_RequestSent;
             serverChannel = srvChannel;
             serverChannel.ChannelClosed += channelClosedHandler;
             serverChannel.RequestReceived += requestReceivedHandler;
+            serverChannel.ResponseSent += serverChannel_ResponseSent;
+        }
+
+        private void clientChannel_RequestSent(object sender, DataEventArgs e)
+        {
+            OnRequestSent(e.Data, e.State);
+        }
+
+        private void serverChannel_ResponseSent(object sender, DataEventArgs e)
+        {
+            OnResponseSent(e.Data, e.State);
         }
 
         private void channelClosedHandler(object sender)
@@ -49,38 +62,24 @@ namespace Netool.Network
             }
         }
 
+        public void SendToClient(IByteArrayConvertible data)
+        {
+            serverChannel.Send(data);
+        }
+
+        public void SendToServer(IByteArrayConvertible data)
+        {
+            clientChannel.Send(data);
+        }
+
         private void requestReceivedHandler(object sender, DataEventArgs args)
         {
             OnRequestReceived(args.Data, args.State);
-            IByteArrayConvertible data = args.Data;
-            if (RequestModifier != null)
-            {
-                data = RequestModifier(args.Data);
-                if (data == null)
-                {
-                    OnRequestDropped(args.Data, args.State);
-                    return;
-                }
-            }
-            clientChannel.Send(data);
-            OnRequestSent(data, args.State);
         }
 
         private void responseReceivedHandler(object sender, DataEventArgs e)
         {
             OnResponseReceived(e.Data, e.State);
-            IByteArrayConvertible data = e.Data;
-            if (ResponseModifier != null)
-            {
-                data = ResponseModifier(e.Data);
-                if (data == null)
-                {
-                    OnResponseDropped(e.Data, e.State);
-                    return;
-                }
-            }
-            serverChannel.Send(data);
-            OnResponseSent(data, e.State);
         }
 
         protected virtual void OnRequestReceived(IByteArrayConvertible request, ICloneable state)
@@ -93,11 +92,6 @@ namespace Netool.Network
             if (RequestSent != null) RequestSent(this, new DataEventArgs { Data = request, State = state });
         }
 
-        protected virtual void OnRequestDropped(IByteArrayConvertible request, ICloneable state)
-        {
-            if (RequestDropped != null) RequestDropped(this, new DataEventArgs { Data = request, State = state });
-        }
-
         protected virtual void OnResponseReceived(IByteArrayConvertible response, ICloneable state)
         {
             if (ResponseReceived != null) ResponseReceived(this, new DataEventArgs { Data = response, State = state });
@@ -106,11 +100,6 @@ namespace Netool.Network
         protected virtual void OnResponseSent(IByteArrayConvertible response, ICloneable state)
         {
             if (ResponseSent != null) ResponseSent(this, new DataEventArgs { Data = response, State = state });
-        }
-
-        protected virtual void OnResponseDropped(IByteArrayConvertible response, ICloneable state)
-        {
-            if (ResponseDropped != null) ResponseDropped(this, new DataEventArgs { Data = response, State = state });
         }
     }
 

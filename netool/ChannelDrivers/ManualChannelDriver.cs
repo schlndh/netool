@@ -7,7 +7,7 @@ namespace Netool.ChannelDrivers
     {
         private int capacity;
         private int activeChannels = 0;
-        public bool CanAccept { get { return capacity > activeChannels; } }
+        public bool CanAccept(IChannel c) { return capacity > activeChannels; }
         public bool AllowManualControl { get { return true; } }
         public string ID { get { return "Manual"; } }
 

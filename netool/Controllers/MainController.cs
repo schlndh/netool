@@ -44,19 +44,6 @@ namespace Netool.Controllers
                 var server = new TcpServer(new TcpServerSettings { LocalEndPoint = new IPEndPoint(IPAddress.Loopback, 8080) });
                 var factory = new TcpClientFactory(new TcpClientFactorySettings { LocalIPAddress = IPAddress.Loopback, RemoteEndPoint = new IPEndPoint(IPAddress.Loopback, 8081) });
                 var proxy = new DefaultProxy(server, factory);
-                proxy.ChannelCreated += delegate(object sender, IProxyChannel channel)
-                {
-                    channel.RequestModifier = delegate(IByteArrayConvertible data)
-                    {
-                        if (data.ToByteArray().Length > 10) return null;
-                        return new ByteArray(ASCIIEncoding.ASCII.GetBytes(ASCIIEncoding.ASCII.GetString(data.ToByteArray()).ToUpper()));
-                    };
-                    channel.ResponseModifier = delegate(IByteArrayConvertible data)
-                    {
-                        if (data.ToByteArray().Length > 10) return null;
-                        return new ByteArray(ASCIIEncoding.ASCII.GetBytes(ASCIIEncoding.ASCII.GetString(data.ToByteArray()).ToLower()));
-                    };
-                };
                 var pview = new ProxyView();
                 var cont = new ProxyController(pview, proxy);
                 pview.SetController(cont);
@@ -87,15 +74,15 @@ namespace Netool.Controllers
                 var proxy = new DefaultProxy(server, factory);
                 proxy.ChannelCreated += delegate(object sender, IProxyChannel channel)
                 {
-                    channel.RequestModifier = delegate(IByteArrayConvertible data)
+                    channel.RequestReceived += delegate(object s, DataEventArgs e)
                     {
-                        if (data.ToByteArray().Length > 10) return null;
-                        return new ByteArray(ASCIIEncoding.ASCII.GetBytes(ASCIIEncoding.ASCII.GetString(data.ToByteArray()).ToUpper()));
+                        if (e.Data != null && e.Data.ToByteArray().Length < 10)
+                            channel.SendToServer(new ByteArray(ASCIIEncoding.ASCII.GetBytes(ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray()).ToUpper())));
                     };
-                    channel.ResponseModifier = delegate(IByteArrayConvertible data)
+                    channel.ResponseReceived += delegate(object s, DataEventArgs e)
                     {
-                        if (data.ToByteArray().Length > 10) return null;
-                        return new ByteArray(ASCIIEncoding.ASCII.GetBytes(ASCIIEncoding.ASCII.GetString(data.ToByteArray()).ToLower()));
+                        if (e.Data != null && e.Data.ToByteArray().Length < 10)
+                            channel.SendToClient(new ByteArray(ASCIIEncoding.ASCII.GetBytes(ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray()).ToLower())));
                     };
                 };
                 var pview = new ProxyView();
