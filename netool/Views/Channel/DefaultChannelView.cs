@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace Netool.Views.Channel
 {
-    public partial class DefaultServerChannelView : Form, IChannelView
+    public partial class DefaultChannelView : Form, IChannelView
     {
         public delegate void ColumnFiller(ListView.ColumnHeaderCollection c);
         public delegate ListViewItem ItemFactory(Netool.Event e);
@@ -29,12 +29,12 @@ namespace Netool.Views.Channel
         private IEventView currentViewForm = null;
         private Editor.EditorMasterView editor = null;
 
-        public DefaultServerChannelView(ChannelInfo info)
+        public DefaultChannelView(ChannelInfo info)
             : this(info, DefaultColumnFiller, DefaultItemFactory)
         {
         }
 
-        public DefaultServerChannelView(ChannelInfo info, ColumnFiller filler, ItemFactory factory)
+        public DefaultChannelView(ChannelInfo info, ColumnFiller filler, ItemFactory factory)
         {
             InitializeComponent();
             this.info = info;
@@ -57,6 +57,10 @@ namespace Netool.Views.Channel
             editor.CloseClicked += editorCloseHandler;
             events.ContextMenuStrip = eventsContextMenu;
             this.editor = editor;
+            if(info.channel != null && info.channel is IProxyChannel)
+            {
+                this.editor.SetProxy(true);
+            }
         }
 
         public void AddEventView(IEventView v)
@@ -142,23 +146,30 @@ namespace Netool.Views.Channel
             }
         }
 
-        private void editorSendHandler(object sender, IByteArrayConvertible val)
+        private void editorSendHandler(object sender, Editor.EditorMasterView.SendEventArgs e)
         {
             IChannel channel = info.channel;
             if(channel != null)
             {
                 if (channel is IClientChannel)
                 {
-                    ((IClientChannel)channel).Send(val);
+                    ((IClientChannel)channel).Send(e.Data);
                 }
                 else if (channel is IServerChannel)
                 {
-                    ((IServerChannel)channel).Send(val);
+                    ((IServerChannel)channel).Send(e.Data);
                 }
-                /*else if (channel is IProxyChannel)
+                else if (channel is IProxyChannel)
                 {
-                    ((IProxyChannel)channel).Send(val);
-                }*/
+                    if(e.ToClient)
+                    {
+                        ((IProxyChannel)channel).SendToClient(e.Data);
+                    }
+                    else
+                    {
+                        ((IProxyChannel)channel).SendToServer(e.Data);
+                    }
+                }
             }
         }
 

@@ -30,8 +30,9 @@ namespace Netool.Controllers
         /// </summary>
         public void Load()
         {
-            var manualDriver = new ManualChannelDriver(2);
+            var manualDriver = new ManualChannelDriver(10);
             var dummyDriver = new DummyDriver();
+            var proxyDriver = new DefaultProxyDriver(true);
             {
                 var server = new TcpServer(new TcpServerSettings { LocalEndPoint = new IPEndPoint(IPAddress.Loopback, 8081) });
                 var sview = new DefaultInstanceView();
@@ -46,8 +47,9 @@ namespace Netool.Controllers
                 var server = new TcpServer(new TcpServerSettings { LocalEndPoint = new IPEndPoint(IPAddress.Loopback, 8080) });
                 var factory = new TcpClientFactory(new TcpClientFactorySettings { LocalIPAddress = IPAddress.Loopback, RemoteEndPoint = new IPEndPoint(IPAddress.Loopback, 8081) });
                 var proxy = new DefaultProxy(server, factory);
-                var pview = new ProxyView();
-                var cont = new ProxyController(pview, proxy);
+                var pview = new DefaultInstanceView();
+                var cont = new DefaultInstanceController(pview, proxy);
+                cont.AddDriver(proxyDriver, 0);
                 pview.SetController(cont);
                 view.AddPage("TCP Proxy", pview);
                 cont.Start();
@@ -76,21 +78,9 @@ namespace Netool.Controllers
                 var server = new UdpServer(new UdpServerSettings { LocalEndPoint = new IPEndPoint(IPAddress.Loopback, 7080) });
                 var factory = new UdpClientFactory(new UdpClientFactorySettings { LocalIPAddress = IPAddress.Loopback, RemoteEndPoint = new IPEndPoint(IPAddress.Loopback, 7081) });
                 var proxy = new DefaultProxy(server, factory);
-                proxy.ChannelCreated += delegate(object sender, IProxyChannel channel)
-                {
-                    channel.RequestReceived += delegate(object s, DataEventArgs e)
-                    {
-                        if (e.Data != null && e.Data.ToByteArray().Length < 10)
-                            channel.SendToServer(new ByteArray(ASCIIEncoding.ASCII.GetBytes(ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray()).ToUpper())));
-                    };
-                    channel.ResponseReceived += delegate(object s, DataEventArgs e)
-                    {
-                        if (e.Data != null && e.Data.ToByteArray().Length < 10)
-                            channel.SendToClient(new ByteArray(ASCIIEncoding.ASCII.GetBytes(ASCIIEncoding.ASCII.GetString(e.Data.ToByteArray()).ToLower())));
-                    };
-                };
-                var pview = new ProxyView();
-                var cont = new ProxyController(pview, proxy);
+                var pview = new DefaultInstanceView();
+                var cont = new DefaultInstanceController(pview, proxy);
+                cont.AddDriver(manualDriver, 0);
                 pview.SetController(cont);
                 view.AddPage("UDP Proxy", pview);
                 cont.Start();
@@ -118,7 +108,7 @@ namespace Netool.Controllers
         }
         public void CreateServer()
         {
-            var dialog = new TcpServerDialog();
+            /*var dialog = new TcpServerDialog();
             dialog.ShowDialog();
             if (dialog.DialogResult == DialogResult.OK)
             {
@@ -129,11 +119,11 @@ namespace Netool.Controllers
                 sview.SetController(cont);
                 view.AddPage("Server", sview);
                 cont.Start();
-            }
+            }*/
         }
         public void CreateClient()
         {
-            var dialog = new TcpClientDialog();
+            /*var dialog = new TcpClientDialog();
             dialog.ShowDialog();
             if (dialog.DialogResult == DialogResult.OK)
             {
@@ -144,11 +134,11 @@ namespace Netool.Controllers
                 cview.SetController(cont);
                 view.AddPage("Client", cview);
                 cont.Start();
-            }
+            }*/
         }
         public void CreateProxy()
         {
-            var sdialog = new TcpServerDialog();
+            /*var sdialog = new TcpServerDialog();
             sdialog.ShowDialog();
             TcpServer server;
             if(sdialog.DialogResult == DialogResult.OK)
@@ -173,7 +163,7 @@ namespace Netool.Controllers
                 pview.SetController(cont);
                 view.AddPage("Proxy", pview);
                 cont.Start();
-            }
+            }*/
         }
     }
 }

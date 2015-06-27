@@ -139,8 +139,7 @@ namespace Netool.Network.Udp
             if (!stopped)
             {
                 stopped = true;
-                channel.Close();
-                channel = null;
+                if(channel != null) channel.Close();
             }
         }
 

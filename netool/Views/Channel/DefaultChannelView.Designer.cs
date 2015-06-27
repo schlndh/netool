@@ -1,6 +1,6 @@
 ﻿namespace Netool.Views.Channel
 {
-    partial class DefaultServerChannelView
+    partial class DefaultChannelView
     {
         /// <summary>
         /// Required designer variable.

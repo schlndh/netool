@@ -11,7 +11,7 @@ namespace Netool.ChannelDrivers
     {
         public string ID { get { return "DummyDriver"; } }
         public bool AllowManualControl { get { return false; } }
-        public bool CanAccept(IChannel c) { return false; }
+        public bool CanAccept(IChannel c) { return true; }
 
         public void Handle(IChannel c)
         {

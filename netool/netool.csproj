@@ -69,8 +69,6 @@
     <Compile Include="ChannelDrivers\RejectDriver.cs" />
     <Compile Include="ChannelDrivers\DummyDriver.cs" />
     <Compile Include="Controllers\Contollers.cs" />
-    <Compile Include="Controllers\ProxyController.cs" />
-    <Compile Include="Controllers\ClientController.cs" />
     <Compile Include="Controllers\MainController.cs" />
     <Compile Include="Controllers\DefaultServerController.cs" />
     <Compile Include="Dialogs\IPEndpointDialog.cs">
@@ -105,11 +103,11 @@
     <Compile Include="Network\Udp\UdpServer.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Views\Channel\DefaultServerChannelView.cs">
+    <Compile Include="Views\Channel\DefaultChannelView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Views\Channel\DefaultServerChannelView.Designer.cs">
-      <DependentUpon>DefaultServerChannelView.cs</DependentUpon>
+    <Compile Include="Views\Channel\DefaultChannelView.Designer.cs">
+      <DependentUpon>DefaultChannelView.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\Editor\DefaultEditorMasterViewFactory.cs" />
     <Compile Include="Views\Editor\EditorMasterView.cs">
@@ -130,18 +128,6 @@
     <Compile Include="Views\Event\HexView.Designer.cs">
       <DependentUpon>HexView.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\Instance\ProxyView.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Views\Instance\ProxyView.Designer.cs">
-      <DependentUpon>ProxyView.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Instance\ClientView.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Views\Instance\ClientView.Designer.cs">
-      <DependentUpon>ClientView.cs</DependentUpon>
-    </Compile>
     <Compile Include="Views\MainView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -154,11 +140,11 @@
     <Compile Include="Settings\SettingsFormat.cs" />
     <Compile Include="Network\Tcp\TcpClient.cs" />
     <Compile Include="Network\Tcp\TcpServer.cs" />
-    <Compile Include="Views\Instance\DefaultServerView.cs">
+    <Compile Include="Views\Instance\DefaultInstanceView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Views\Instance\DefaultServerView.Designer.cs">
-      <DependentUpon>DefaultServerView.cs</DependentUpon>
+    <Compile Include="Views\Instance\DefaultInstanceView.Designer.cs">
+      <DependentUpon>DefaultInstanceView.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\Views.cs" />
     <EmbeddedResource Include="Dialogs\IPEndpointDialog.resx">
@@ -170,8 +156,8 @@
     <EmbeddedResource Include="Dialogs\TcpServerDialog.resx">
       <DependentUpon>TcpServerDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Views\Channel\DefaultServerChannelView.resx">
-      <DependentUpon>DefaultServerChannelView.cs</DependentUpon>
+    <EmbeddedResource Include="Views\Channel\DefaultChannelView.resx">
+      <DependentUpon>DefaultChannelView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Editor\EditorMasterView.resx">
       <DependentUpon>EditorMasterView.cs</DependentUpon>
@@ -181,12 +167,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Event\HexView.resx">
       <DependentUpon>HexView.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\Instance\ProxyView.resx">
-      <DependentUpon>ProxyView.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\Instance\ClientView.resx">
-      <DependentUpon>ClientView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\MainView.resx">
       <DependentUpon>MainView.cs</DependentUpon>
@@ -201,8 +181,8 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="Views\Instance\DefaultServerView.resx">
-      <DependentUpon>DefaultServerView.cs</DependentUpon>
+    <EmbeddedResource Include="Views\Instance\DefaultInstanceView.resx">
+      <DependentUpon>DefaultInstanceView.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

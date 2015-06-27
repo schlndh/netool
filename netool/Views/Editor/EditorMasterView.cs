@@ -6,13 +6,22 @@ namespace Netool.Views.Editor
 {
     public partial class EditorMasterView : Form
     {
+        public struct SendEventArgs
+        {
+            public IByteArrayConvertible Data;
+            /// <summary>
+            /// Indicates whether Data is to be sent to client or server, only matters for proxy
+            /// </summary>
+            public bool ToClient;
+        }
         public delegate void CloseClickedHandler(object sender);
-        public event EventHandler<IByteArrayConvertible> SendClicked;
+        public event EventHandler<SendEventArgs> SendClicked;
         public event CloseClickedHandler CloseClicked;
 
         public EditorMasterView()
         {
             InitializeComponent();
+            proxyFlowPanel.Visible = false;
         }
 
         public void AddEditor(IEditorView v)
@@ -27,6 +36,15 @@ namespace Netool.Views.Editor
             {
                 ((IEditorView)editorViewSelect.SelectedItem).SetValue(val);
             }
+        }
+
+        /// <summary>
+        /// Enables/disables special proxy controls
+        /// </summary>
+        /// <param name="proxy">is current channel proxy?</param>
+        public void SetProxy(bool proxy)
+        {
+            proxyFlowPanel.Visible = proxy;
         }
 
         private void editorViewSelect_SelectedIndexChanged(object sender, EventArgs e)
@@ -58,7 +76,7 @@ namespace Netool.Views.Editor
                 var val = ((IEditorView)editorViewSelect.SelectedItem).GetValue();
                 if (SendClicked != null)
                 {
-                    SendClicked(this, val);
+                    SendClicked(this, new SendEventArgs { Data = val, ToClient = proxyRadioClient.Checked});
                 }
             }
         }

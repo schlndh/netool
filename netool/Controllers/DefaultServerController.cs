@@ -17,7 +17,7 @@ namespace Netool.Controllers
         {
             public IChannelView CreateChannelView(ChannelInfo info)
             {
-                var v = new Views.Channel.DefaultServerChannelView(info);
+                var v = new Views.Channel.DefaultChannelView(info);
                 v.AddEventView(new Views.Event.HexView());
                 if (info.channel != null && info.channel.Driver != null && info.channel.Driver.AllowManualControl)
                 {
