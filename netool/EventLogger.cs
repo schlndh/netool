@@ -28,7 +28,7 @@ namespace Netool
         }
     }
 
-    public class ChannelInfo
+    public class ChannelLogger
     {
         public IChannel channel;
         private LinkedList<Event> Events = new LinkedList<Event>();
@@ -36,7 +36,7 @@ namespace Netool
 
         public event EventHandler<int> EventCountChanged;
 
-        public ChannelInfo(IChannel channel)
+        public ChannelLogger(IChannel channel)
         {
             this.channel = channel;
             Events.AddLast(new Event(0, EventType.ChannelCreated, null, DateTime.Now));
@@ -134,9 +134,9 @@ namespace Netool
         }
     }
 
-    public class EventLogger
+    public class InstanceLogger
     {
-        private ConcurrentDictionary<int, ChannelInfo> channelsInfo = new ConcurrentDictionary<int, ChannelInfo>();
+        private ConcurrentDictionary<int, ChannelLogger> channelsInfo = new ConcurrentDictionary<int, ChannelLogger>();
         private LinkedList<IChannel> channels = new LinkedList<IChannel>();
 
         public void AddChannel(IChannel channel)
@@ -145,14 +145,14 @@ namespace Netool
             {
                 channels.AddLast(channel);
             }
-            channelsInfo.TryAdd(channel.ID, new ChannelInfo(channel));
+            channelsInfo.TryAdd(channel.ID, new ChannelLogger(channel));
         }
 
-        public ChannelInfo GetChannelInfo(int id)
+        public ChannelLogger GetChannelLogger(int id)
         {
-            ChannelInfo info;
-            channelsInfo.TryGetValue(id, out info);
-            return info;
+            ChannelLogger logger;
+            channelsInfo.TryGetValue(id, out logger);
+            return logger;
         }
     }
 }

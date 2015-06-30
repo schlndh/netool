@@ -22,24 +22,24 @@ namespace Netool.Views.Channel
             return new ListViewItem(new string[] { e.ID.ToString(), e.Time.ToString("HH:mm:ss.ff"), e.Type.ToString() });
         }
 
-        private ChannelInfo info;
+        private ChannelLogger logger;
         private List<ListViewItem> cache = null;
         private int cacheStart = 0;
         private ItemFactory createItem;
         private IEventView currentViewForm = null;
         private Editor.EditorMasterView editor = null;
 
-        public DefaultChannelView(ChannelInfo info)
-            : this(info, DefaultColumnFiller, DefaultItemFactory)
+        public DefaultChannelView(ChannelLogger logger)
+            : this(logger, DefaultColumnFiller, DefaultItemFactory)
         {
         }
 
-        public DefaultChannelView(ChannelInfo info, ColumnFiller filler, ItemFactory factory)
+        public DefaultChannelView(ChannelLogger logger, ColumnFiller filler, ItemFactory factory)
         {
             InitializeComponent();
-            this.info = info;
-            this.events.VirtualListSize = info.GetEventCount();
-            this.info.EventCountChanged += eventCountChanged;
+            this.logger = logger;
+            this.events.VirtualListSize = logger.GetEventCount();
+            this.logger.EventCountChanged += eventCountChanged;
             filler(this.events.Columns);
             createItem = factory;
             mainSplitContainer.Panel2Collapsed = true;
@@ -57,7 +57,7 @@ namespace Netool.Views.Channel
             editor.CloseClicked += editorCloseHandler;
             events.ContextMenuStrip = eventsContextMenu;
             this.editor = editor;
-            if(info.channel != null && info.channel is IProxyChannel)
+            if(logger.channel != null && logger.channel is IProxyChannel)
             {
                 this.editor.SetProxy(true);
             }
@@ -97,7 +97,7 @@ namespace Netool.Views.Channel
             if (cache != null && cacheStart <= e.StartIndex && cache.Count > e.EndIndex - e.StartIndex) return;
             cache = new List<ListViewItem>(e.EndIndex - e.StartIndex + 1);
             cacheStart = e.StartIndex;
-            var node = info.GetByPosition(e.StartIndex);
+            var node = logger.GetByPosition(e.StartIndex);
             int i = 0;
             do
             {
@@ -148,7 +148,7 @@ namespace Netool.Views.Channel
 
         private void editorSendHandler(object sender, Editor.EditorMasterView.SendEventArgs e)
         {
-            IChannel channel = info.channel;
+            IChannel channel = logger.channel;
             if(channel != null)
             {
                 if (channel is IClientChannel)
@@ -175,15 +175,15 @@ namespace Netool.Views.Channel
 
         private void editorCloseHandler(object sender)
         {
-            if (info.channel != null)
+            if (logger.channel != null)
             {
-                info.channel.Close();
+                logger.channel.Close();
             }
         }
 
         private void DefaultServerChannelView_FormClosed(object sender, FormClosedEventArgs e)
         {
-            info.EventCountChanged -= eventCountChanged;
+            logger.EventCountChanged -= eventCountChanged;
         }
 
         private void editToolStripMenuItem_Click(object sender, EventArgs e)
@@ -200,7 +200,7 @@ namespace Netool.Views.Channel
 
         private Netool.Event getEventByPosition(int pos)
         {
-            return info.GetByPosition(pos).Value;
+            return logger.GetByPosition(pos).Value;
         }
     }
 }

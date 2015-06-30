@@ -10,16 +10,16 @@ namespace Netool.Controllers
     {
         public interface IChannelViewFactory
         {
-            IChannelView CreateChannelView(ChannelInfo info);
+            IChannelView CreateChannelView(ChannelLogger info);
         }
 
         public class DefaultChannelViewFactory : IChannelViewFactory
         {
-            public IChannelView CreateChannelView(ChannelInfo info)
+            public IChannelView CreateChannelView(ChannelLogger logger)
             {
-                var v = new Views.Channel.DefaultChannelView(info);
+                var v = new Views.Channel.DefaultChannelView(logger);
                 v.AddEventView(new Views.Event.HexView());
-                if (info.channel != null && info.channel.Driver != null && info.channel.Driver.AllowManualControl)
+                if (logger.channel != null && logger.channel.Driver != null && logger.channel.Driver.AllowManualControl)
                 {
                     v.AllowManualControl(new Views.Editor.DefaultEditorMasterViewFactory().Create());
                 }
@@ -30,21 +30,21 @@ namespace Netool.Controllers
         private IInstanceView view;
         private IInstance instance;
         private SortedList<int, IChannelDriver> drivers = new SortedList<int, IChannelDriver>();
-        private EventLogger logger;
+        private InstanceLogger logger;
         private IChannelViewFactory detailFactory;
         private RejectDriver rejectDriver = new RejectDriver();
 
         public DefaultInstanceController(IInstanceView view, IInstance server)
-            : this(view, server, new DefaultChannelViewFactory(), new EventLogger())
+            : this(view, server, new DefaultChannelViewFactory(), new InstanceLogger())
         {
         }
 
         public DefaultInstanceController(IInstanceView view, IInstance server, IChannelViewFactory detailFactory)
-            : this(view, server, detailFactory, new EventLogger())
+            : this(view, server, detailFactory, new InstanceLogger())
         {
         }
 
-        public DefaultInstanceController(IInstanceView view, IInstance server, IChannelViewFactory detailFactory, EventLogger logger)
+        public DefaultInstanceController(IInstanceView view, IInstance server, IChannelViewFactory detailFactory, InstanceLogger logger)
         {
             this.view = view;
             this.instance = server;
@@ -92,7 +92,7 @@ namespace Netool.Controllers
 
         public void ShowDetail(int id)
         {
-            detailFactory.CreateChannelView(logger.GetChannelInfo(id)).GetForm().Show();
+            detailFactory.CreateChannelView(logger.GetChannelLogger(id)).GetForm().Show();
         }
 
         private void handleConnectionCreated(object sender, IChannel c)
