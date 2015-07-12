@@ -2,6 +2,7 @@
 using Netool.ChannelDrivers;
 namespace Netool.Network
 {
+    [Serializable]
     public class DataEventArgs : EventArgs, ICloneable
     {
         public IByteArrayConvertible Data;
@@ -35,11 +36,17 @@ namespace Netool.Network
         byte[] ToByteArray();
     }
 
+    /// <summary>
+    /// Client factory interface for default proxy, must be serializable
+    /// </summary>
     public interface IClientFactory
     {
         IClient CreateClient();
     }
 
+    /// <summary>
+    /// Basic interface common for every instance, must be serializable
+    /// </summary>
     public interface IInstance
     {
         bool IsStarted { get; }
@@ -68,12 +75,12 @@ namespace Netool.Network
     }
 
     /// <summary>
-    /// All events on a channel must happen only after ChannelCreated event is completed
+    /// All events on a channel must happen only after ChannelCreated event is completed, must be serializable
     /// </summary>
     public interface IChannel
     {
         /// <summary>
-        /// ID uniquely identifying all current and past channels of parent instance
+        /// ID uniquely identifying all current and past channels of parent instance, must be consecutive
         /// </summary>
         int ID { get; }
         /// <summary>

@@ -1,7 +1,9 @@
 ﻿using Netool.Network;
+using System;
 
 namespace Netool.ChannelDrivers
 {
+    [Serializable]
     public class RejectDriver : IChannelDriver
     {
         public bool CanAccept(IChannel c) { return true; }

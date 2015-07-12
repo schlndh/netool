@@ -18,13 +18,16 @@ namespace Netool.Network.Udp
         }
     }
 
+    [Serializable]
     public class UdpServerSettings
     {
         public IPEndPoint LocalEndPoint;
     }
 
+    [Serializable]
     public class UdpServerChannel : BaseServerChannel, IServerChannel
     {
+        [NonSerialized]
         protected Socket socket;
         protected EndPoint remoteEP;
 
@@ -58,9 +61,11 @@ namespace Netool.Network.Udp
         }
     }
 
+    [Serializable]
     public class UdpServer : IServer
     {
         protected UdpServerSettings settings;
+        [NonSerialized]
         protected Socket socket;
         private volatile bool stopped = true;
         private ConcurrentDictionary<string, UdpServerChannel> channels = new ConcurrentDictionary<string, UdpServerChannel>();
@@ -68,6 +73,7 @@ namespace Netool.Network.Udp
         public bool IsStarted { get { return !stopped; } }
         private int channelID = 0;
 
+        [field: NonSerialized]
         public event EventHandler<IServerChannel> ChannelCreated;
 
         public UdpServer(UdpServerSettings settings)

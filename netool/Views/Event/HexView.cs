@@ -19,7 +19,7 @@ namespace Netool.Views.Event
             InitializeComponent();
         }
 
-        public void Show(Netool.Event e)
+        public void Show(Netool.Logging.Event e)
         {
             if(e.Data != null)
             {

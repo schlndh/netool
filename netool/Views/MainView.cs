@@ -52,5 +52,10 @@ namespace Netool
         {
             controller.CreateProxy();
         }
+
+        private void MainView_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            controller.Close();
+        }
     }
 }

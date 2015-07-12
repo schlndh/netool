@@ -1,4 +1,5 @@
 ﻿using Netool.ChannelDrivers;
+using Netool.Logging;
 using Netool.Network;
 using Netool.Views;
 using System.Collections.Generic;
@@ -34,21 +35,21 @@ namespace Netool.Controllers
         private IChannelViewFactory detailFactory;
         private RejectDriver rejectDriver = new RejectDriver();
 
-        public DefaultInstanceController(IInstanceView view, IInstance server)
-            : this(view, server, new DefaultChannelViewFactory(), new InstanceLogger())
+        public DefaultInstanceController(IInstanceView view, IInstance instance)
+            : this(view, instance, new DefaultChannelViewFactory(), new InstanceLogger())
         {
         }
 
-        public DefaultInstanceController(IInstanceView view, IInstance server, IChannelViewFactory detailFactory)
-            : this(view, server, detailFactory, new InstanceLogger())
+        public DefaultInstanceController(IInstanceView view, IInstance instance, IChannelViewFactory detailFactory)
+            : this(view, instance, detailFactory, new InstanceLogger())
         {
         }
 
-        public DefaultInstanceController(IInstanceView view, IInstance server, IChannelViewFactory detailFactory, InstanceLogger logger)
+        public DefaultInstanceController(IInstanceView view, IInstance instance, IChannelViewFactory detailFactory, InstanceLogger logger)
         {
             this.view = view;
-            this.instance = server;
-            view.SetInstance(server);
+            this.instance = instance;
+            view.SetInstance(instance);
 
             if(this.instance is IClient)
             {
@@ -64,11 +65,29 @@ namespace Netool.Controllers
             }
 
             this.logger = logger;
+            this.view.SetLogger(logger);
+            this.detailFactory = detailFactory;
+        }
+
+        /// <summary>
+        /// This constructor is used for loading communication from file
+        /// </summary>
+        /// <param name="view"></param>
+        /// <param name="logger"></param>
+        /// <param name="detailFactory"></param>
+        public DefaultInstanceController(IInstanceView view, InstanceLogger logger, IChannelViewFactory detailFactory)
+        {
+            this.view = view;
+            instance = logger.ReadInstanceData();
+            view.SetInstance(instance);
+            view.SetLogger(logger);
+            this.logger = logger;
             this.detailFactory = detailFactory;
         }
 
         public void Start()
         {
+            logger.Open();
             var t = new Thread(delegate() {
                 instance.Start();
             });
@@ -78,6 +97,8 @@ namespace Netool.Controllers
         public void Stop()
         {
             instance.Stop();
+            logger.WriteInstanceData(instance);
+            logger.Close();
         }
 
         /// <summary>
@@ -116,7 +137,6 @@ namespace Netool.Controllers
                 rejectDriver.Handle(c);
                 c.Driver = rejectDriver;
             }
-            view.AddChannel(c);
         }
     }
 }

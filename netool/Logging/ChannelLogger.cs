@@ -1,45 +1,33 @@
 ﻿using Netool.Network;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 
-namespace Netool
+namespace Netool.Logging
 {
-    public enum EventType
-    {
-        ChannelCreated, ChannelClosed,
-        RequestSent, RequestReceived,
-        ResponseSent, ResponseReceived
-    }
-
-    public class Event
-    {
-        public readonly int ID;
-        public readonly EventType Type;
-        public readonly DataEventArgs Data;
-        public readonly DateTime Time;
-
-        public Event(int id, EventType type, DataEventArgs data, DateTime time)
-        {
-            ID = id;
-            Type = type;
-            Data = data;
-            Time = time;
-        }
-    }
-
     public class ChannelLogger
     {
         public IChannel channel;
-        private LinkedList<Event> Events = new LinkedList<Event>();
-        private int eventID = 0;
+        private LinkedList<Event> events = new LinkedList<Event>();
+        private LinkedList<long> logPositions = new LinkedList<long>();
+        private int eventCount = 0;
+        private FileLog log;
+        private long hint = 0;
 
         public event EventHandler<int> EventCountChanged;
 
-        public ChannelLogger(IChannel channel)
+        /// <summary>
+        /// Normal constructor
+        /// </summary>
+        /// <param name="log"></param>
+        /// <param name="hint"></param>
+        /// <param name="channel"></param>
+        public ChannelLogger(FileLog log, long hint, IChannel channel)
         {
+            this.log = log;
+            this.hint = hint;
             this.channel = channel;
-            Events.AddLast(new Event(0, EventType.ChannelCreated, null, DateTime.Now));
+            generalHandler(EventType.ChannelCreated);
             channel.ChannelClosed += channelClosedHandler;
             if (channel is IClientChannel)
             {
@@ -63,24 +51,56 @@ namespace Netool
             }
         }
 
+        /// <summary>
+        /// Used with deserialized channels, doesn't bind any event handlers
+        /// </summary>
+        /// <param name="log"></param>
+        /// <param name="hint"></param>
+        /// <param name="channel"></param>
+        /// <param name="eventCount"></param>
+        public ChannelLogger(FileLog log, long hint, IChannel channel, int eventCount)
+        {
+            this.log = log;
+            this.hint = hint;
+            this.channel = channel;
+            this.eventCount = eventCount;
+            // temporary workaround - load all events
+            GetByID(eventCount);
+        }
+
         public int GetEventCount()
         {
-            lock (Events)
+            lock (events)
             {
-                return Events.Count;
+                return eventCount;
             }
         }
 
         /// <summary>
-        /// Get node by position
+        /// Get node by id
         /// </summary>
-        /// <param name="position">Position has to be lesser than count given by GetEventCount or by EventCountChanged event.
+        /// <param name="id">Position has to be <= count given by GetEventCount or by EventCountChanged event.
         /// This method DOESN'T check that.
         /// </param>
-        public LinkedListNode<Event> GetByPosition(int position)
+        public LinkedListNode<Event> GetByID(int id)
         {
-            var curr = Events.First;
-            while(position-- > 0)
+            lock (events)
+            {
+                if (events.Count < id)
+                {
+                    var reader = log.CreateReader();
+                    // read all channels between the last already read and the one requested
+                    var missing = reader.ReadEvents(hint, events.Count + 1, id - events.Count);
+                    foreach (var item in missing)
+                    {
+                        events.AddLast(item);
+                    }
+                    reader.Close();
+                }
+
+            }
+            var curr = events.First;
+            while (id-- > 1)
             {
                 curr = curr.Next;
             }
@@ -100,6 +120,7 @@ namespace Netool
         private void channelClosedHandler(object sender)
         {
             generalHandler(EventType.ChannelClosed);
+            log.WriteChannelData(hint, eventCount, channel);
         }
 
         private void responseReceivedHandler(object sender, DataEventArgs e)
@@ -114,45 +135,26 @@ namespace Netool
 
         private void generalHandler(EventType type, DataEventArgs data = null)
         {
+
             int c = 0;
             DataEventArgs nd = null;
-            if(data != null)
+            if (data != null)
             {
                 nd = (DataEventArgs)data.Clone();
             }
-            lock (Events)
+            Event e;
+            lock (events)
             {
-                Events.AddLast(new Event(++eventID, type, nd, DateTime.Now));
-                c = Events.Count;
+                e = events.AddLast(new Event(++eventCount, type, nd, DateTime.Now)).Value;
+                c = events.Count;
             }
+            log.LogEvent(hint, e);
             OnEventCountChanged(c);
         }
 
         private void OnEventCountChanged(int count)
         {
             if (EventCountChanged != null) EventCountChanged(this, count);
-        }
-    }
-
-    public class InstanceLogger
-    {
-        private ConcurrentDictionary<int, ChannelLogger> channelsInfo = new ConcurrentDictionary<int, ChannelLogger>();
-        private LinkedList<IChannel> channels = new LinkedList<IChannel>();
-
-        public void AddChannel(IChannel channel)
-        {
-            lock(channels)
-            {
-                channels.AddLast(channel);
-            }
-            channelsInfo.TryAdd(channel.ID, new ChannelLogger(channel));
-        }
-
-        public ChannelLogger GetChannelLogger(int id)
-        {
-            ChannelLogger logger;
-            channelsInfo.TryGetValue(id, out logger);
-            return logger;
         }
     }
 }

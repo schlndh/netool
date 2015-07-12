@@ -1,7 +1,10 @@
 ﻿using Netool.ChannelDrivers;
+using System;
+using System.Runtime.Serialization;
 
 namespace Netool.Network
 {
+    [Serializable]
     public abstract class BaseChannel
     {
         protected int id;
@@ -11,10 +14,17 @@ namespace Netool.Network
         protected IChannelDriver driver = null;
         public IChannelDriver Driver { get { return driver; } set { driver = value; } }
 
+        [field: NonSerialized]
         public event ChannelReadyHandler ChannelReady;
+        [field: NonSerialized]
         public event ChannelClosedHandler ChannelClosed;
 
         private bool channelReadyCalled = false;
+
+        /// <summary>
+        /// Indicates whether current channel was created through deserialization, which means that it's read-only.
+        /// </summary>
+        protected bool deserialized = false;
 
         protected virtual void OnChannelClosed()
         {
@@ -31,6 +41,12 @@ namespace Netool.Network
                 channelReadyCalled = true;
                 if (ChannelReady != null) ChannelReady(this);
             }
+        }
+
+        [OnDeserialized]
+        private void onDeserialized(StreamingContext c)
+        {
+            deserialized = true;
         }
     }
 }

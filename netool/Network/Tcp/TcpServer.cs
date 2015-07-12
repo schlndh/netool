@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Serialization;
 using System.Threading;
 
 namespace Netool.Network.Tcp
@@ -20,14 +21,17 @@ namespace Netool.Network.Tcp
         }
     }
 
+    [Serializable]
     public class TcpServerSettings : BaseSettings
     {
         public IPEndPoint LocalEndPoint;
         public int MaxConnections;
     }
 
+    [Serializable]
     public class TcpServerChannel : BaseServerChannel, IServerChannel
     {
+        [NonSerialized]
         protected Socket socket;
         public int ReceiveBufferSize { get; set; }
         public TcpServerChannel(Socket socket, int id, int receiveBufferSize = 2048)
@@ -113,6 +117,8 @@ namespace Netool.Network.Tcp
             }
         }
     }
+
+    [Serializable]
     public class TcpServer : IServer
     {
         protected class ClientData
@@ -121,6 +127,7 @@ namespace Netool.Network.Tcp
         }
 
         protected TcpServerSettings settings;
+        [NonSerialized]
         protected Socket socket;
         private volatile bool stopped = true;
         private ConcurrentDictionary<int, IServerChannel> channels = new ConcurrentDictionary<int, IServerChannel>();
@@ -128,6 +135,7 @@ namespace Netool.Network.Tcp
         public int ReceiveBufferSize { get; set; }
         public bool IsStarted { get { return !stopped; } }
 
+        [field: NonSerialized]
         public event EventHandler<IServerChannel> ChannelCreated;
 
         public TcpServer(TcpServerSettings settings)

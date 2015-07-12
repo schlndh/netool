@@ -1,6 +1,7 @@
 ﻿using System;
 namespace Netool.Network.DataFormats
 {
+    [Serializable]
     public class ByteArray : IByteArrayConvertible
     {
         private byte[] arr;

@@ -1,8 +1,10 @@
 ﻿using Netool.Network;
+using System;
 using System.Threading;
 
 namespace Netool.ChannelDrivers
 {
+    [Serializable]
     public class ManualChannelDriver : IChannelDriver
     {
         private int capacity;

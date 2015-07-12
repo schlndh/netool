@@ -6,14 +6,17 @@ using System.Threading;
 
 namespace Netool.Network.Udp
 {
+    [Serializable]
     public class UdpClientSettings
     {
         public IPEndPoint LocalEndPoint;
         public IPEndPoint RemoteEndPoint;
     }
 
+    [Serializable]
     public class UdpClientChannel : BaseClientChannel, IClientChannel
     {
+        [NonSerialized]
         protected Socket socket;
         protected EndPoint remoteEP;
         public int ReceiveBufferSize { get; set; }
@@ -95,6 +98,8 @@ namespace Netool.Network.Udp
             catch (ObjectDisposedException) { }
         }
     }
+
+    [Serializable]
     public class UdpClient : IClient
     {
         protected UdpClientSettings settings;
@@ -103,6 +108,7 @@ namespace Netool.Network.Udp
 
         public int ReceiveBufferSize { get; set; }
         public bool IsStarted { get { return !stopped; } }
+        [field: NonSerialized]
         public event EventHandler<IClientChannel> ChannelCreated;
         private int channelID = 0;
 

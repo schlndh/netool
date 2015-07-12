@@ -1,9 +1,12 @@
 ﻿using System;
 namespace Netool.Network
 {
+    [Serializable]
     public class BaseClientChannel : BaseChannel
     {
+        [field: NonSerialized]
         public event RequestSentHandler RequestSent;
+        [field: NonSerialized]
         public event ResponseReceivedHandler ResponseReceived;
 
         protected virtual void OnRequestSent(IByteArrayConvertible request, ICloneable state = null)

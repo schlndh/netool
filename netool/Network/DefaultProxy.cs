@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 
 namespace Netool.Network
 {
+    [Serializable]
     public class DefaultProxyChannel : BaseChannel, IProxyChannel
     {
         /// <summary>
@@ -15,9 +16,13 @@ namespace Netool.Network
         /// </summary>
         protected IServerChannel serverChannel;
 
+        [field: NonSerialized]
         public event RequestReceivedHandler RequestReceived;
+        [field: NonSerialized]
         public event RequestSentHandler RequestSent;
+        [field: NonSerialized]
         public event ResponseSentHandler ResponseSent;
+        [field: NonSerialized]
         public event ResponseReceivedHandler ResponseReceived;
 
         public new int ID { get { return serverChannel.ID; } }
@@ -103,8 +108,10 @@ namespace Netool.Network
         }
     }
 
+    [Serializable]
     public class DefaultProxy : IProxy
     {
+        [field: NonSerialized]
         public event EventHandler<IProxyChannel> ChannelCreated;
 
         protected ConcurrentDictionary<int, IProxyChannel> channels = new ConcurrentDictionary<int, IProxyChannel>();

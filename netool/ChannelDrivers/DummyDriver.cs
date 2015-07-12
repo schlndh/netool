@@ -1,5 +1,6 @@
 ﻿using Netool.Network;
 using Netool.Network.DataFormats;
+using System;
 using System.Threading;
 
 namespace Netool.ChannelDrivers
@@ -7,6 +8,7 @@ namespace Netool.ChannelDrivers
     /// <summary>
     /// Dummy driver for testing purposes
     /// </summary>
+    [Serializable]
     internal class DummyDriver : IChannelDriver
     {
         public string ID { get { return "DummyDriver"; } }

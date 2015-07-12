@@ -1,4 +1,5 @@
 ﻿using Netool.Controllers;
+using Netool.Logging;
 using Netool.Network;
 using System;
 using System.Collections.Generic;
@@ -9,56 +10,39 @@ namespace Netool.Views.Instance
 {
     public partial class DefaultInstanceView : Form, IInstanceView
     {
-        public interface IDataRowFactory
+        public delegate void ColumnFiller(ListView.ColumnHeaderCollection c);
+        public delegate ListViewItem ItemFactory(IChannel c);
+        private List<ListViewItem> cache = null;
+        private int cacheStart = 0;
+        private InstanceLogger logger;
+
+        public static void DefaultColumnFiller(ListView.ColumnHeaderCollection c)
         {
-            /// <summary>
-            /// Fill given Row with information about given channel
-            /// </summary>
-            /// <param name="row">row</param>
-            /// <param name="c">channel</param>
-            void FillRow(DataRow row, IChannel c);
+            c.Add("ID");
+            c.Add("Driver").Width = -2;
+            c.Add("Name").Width = -2;
         }
 
-        public class DefaultDataRowFactory : IDataRowFactory
+        public static ListViewItem DefaultItemFactory(IChannel c)
         {
-            public void FillRow(DataRow row, IChannel c)
-            {
-                row["id"] = c.ID;
-                row["name"] = c.Name;
-                if(c.Driver != null)
-                {
-                    row["driver"] = c.Driver.ID;
-                }
-            }
-        }
-
-        public static DataTable GetDefaultDataTable()
-        {
-            var ret = new DataTable();
-            ret.Columns.Add("id", typeof(int));
-            ret.Columns.Add("driver", typeof(string));
-            ret.Columns.Add("name", typeof(string));
-            return ret;
+            return new ListViewItem(new string[] { c.ID.ToString(), (c.Driver != null ? c.Driver.ID : "-"), c.Name });
         }
 
         private IInstanceController controller;
-        private IDataRowFactory rowFactory;
-        private DataTable table;
-        private List<int> rowIndexToID = new List<int>();
+        private ItemFactory createItem;
 
         /// <summary>
         /// Default view settings with default DataTable schema and corresponding row factory
         /// </summary>
         public DefaultInstanceView()
-            : this(DefaultInstanceView.GetDefaultDataTable(), new DefaultDataRowFactory())
+            : this(DefaultInstanceView.DefaultColumnFiller, DefaultInstanceView.DefaultItemFactory)
         { }
 
-        public DefaultInstanceView(DataTable table, IDataRowFactory rowFactory)
+        public DefaultInstanceView(ColumnFiller filler, ItemFactory rowFactory)
         {
             InitializeComponent();
-            this.table = table;
-            this.rowFactory = rowFactory;
-            this.channels.DataSource = table;
+            filler(this.channels.Columns);
+            this.createItem = rowFactory;
         }
 
         public void SetController(IInstanceController c)
@@ -72,14 +56,16 @@ namespace Netool.Views.Instance
             stop.Enabled = !start.Enabled;
         }
 
-        public void AddChannel(IChannel c)
+        public void SetLogger(InstanceLogger logger)
         {
-            channels.Invoke(new Action(() =>
-            {
-                var row = table.NewRow();
-                rowFactory.FillRow(row, c);
-                table.Rows.Add(row);
-            }));
+            this.logger = logger;
+            this.channels.VirtualListSize = logger.GetChannelCount();
+            logger.ChannelCountChanged += logger_ChannelCountChanged;
+        }
+
+        private void logger_ChannelCountChanged(object sender, int e)
+        {
+            this.channels.Invoke(new Action(() => this.channels.VirtualListSize = e));
         }
 
         public Form GetForm()
@@ -101,10 +87,48 @@ namespace Netool.Views.Instance
             stop.Enabled = true;
         }
 
-        private void channels_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        private void channels_DoubleClick(object sender, EventArgs e)
         {
-            int id = (int) this.channels.Rows[e.RowIndex].Cells["id"].Value;
-            controller.ShowDetail(id);
+            if(channels.SelectedIndices.Count > 0)
+            {
+                controller.ShowDetail(channels.SelectedIndices[0]+1);
+            }
+        }
+
+        private void channels_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
+        {
+            if(logger != null)
+            {
+
+                if (cache != null && e.ItemIndex >= cacheStart && e.ItemIndex < cacheStart + cache.Count)
+                {
+                    e.Item = cache[e.ItemIndex - cacheStart];
+                }
+                else
+                {
+                    // ID is 1-based
+                    e.Item = createItem(logger.GetChannelByID(e.ItemIndex + 1).Value);
+                }
+            }
+        }
+
+        private void channels_CacheVirtualItems(object sender, CacheVirtualItemsEventArgs e)
+        {
+            if(logger != null)
+            {
+                // new cache is a subset of current cache
+                if (cache != null && cacheStart <= e.StartIndex && cache.Count > e.EndIndex - e.StartIndex) return;
+                cache = new List<ListViewItem>(e.EndIndex - e.StartIndex + 1);
+                cacheStart = e.StartIndex;
+                // ID is 1-based
+                var node = logger.GetChannelByID(e.StartIndex + 1);
+                int i = 0;
+                do
+                {
+                    cache.Insert(i, createItem(node.Value));
+                    node = node.Next;
+                } while (++i < e.EndIndex - e.StartIndex);
+            }
         }
     }
 }

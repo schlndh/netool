@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net;
+using Netool.Logging;
 using Netool.Network;
 using Netool.Network.Tcp;
 using Netool.Network.Udp;
@@ -19,6 +20,8 @@ namespace Netool.Controllers
     {
         private MainView view;
         private MainModel model;
+        private List<IInstanceController> controllers = new List<IInstanceController>();
+
         public MainController(MainView view, MainModel model)
         {
             this.view = view;
@@ -30,7 +33,25 @@ namespace Netool.Controllers
         /// </summary>
         public void Load()
         {
-            var manualDriver = new ManualChannelDriver(10);
+            /*{ // restored instance
+                var sview = new DefaultInstanceView();
+                var cont = new DefaultInstanceController(sview, new InstanceLogger(@"D:\test\tcp_server_2.tmp"),  new DefaultInstanceController.DefaultChannelViewFactory());
+                sview.SetController(cont);
+                view.AddPage("Restored TCP Server", sview);
+            }*/
+            /*{ // restored instance
+                var pview = new DefaultInstanceView();
+                var cont = new DefaultInstanceController(pview, new InstanceLogger(@"D:\test\tcp_proxy_2.tmp"), new DefaultInstanceController.DefaultChannelViewFactory());
+                pview.SetController(cont);
+                view.AddPage("Restored TCP Proxy", pview);
+            }*/
+            { // restored instance
+                var pview = new DefaultInstanceView();
+                var cont = new DefaultInstanceController(pview, new InstanceLogger(@"D:\test\tcp_client_2.tmp"), new DefaultInstanceController.DefaultChannelViewFactory());
+                pview.SetController(cont);
+                view.AddPage("Restored TCP Client", pview);
+            }
+            /*var manualDriver = new ManualChannelDriver(10);
             var dummyDriver = new DummyDriver();
             var proxyDriver = new DefaultProxyDriver(true);
             {
@@ -64,7 +85,7 @@ namespace Netool.Controllers
                 view.AddPage("TCP Client", cview);
                 cont.Start();
             }
-            {
+            /*{
                 var server = new UdpServer(new UdpServerSettings { LocalEndPoint = new IPEndPoint(IPAddress.Loopback, 7081) });
                 var sview = new DefaultInstanceView();
                 var cont = new DefaultInstanceController(sview, server);
@@ -104,8 +125,17 @@ namespace Netool.Controllers
                 cview.SetController(cont);
                 view.AddPage("UDP Client2", cview);
                 cont.Start();
+            }*/
+        }
+
+        public void Close()
+        {
+            foreach(var cont in controllers)
+            {
+                cont.Stop();
             }
         }
+
         public void CreateServer()
         {
             /*var dialog = new TcpServerDialog();

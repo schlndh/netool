@@ -7,14 +7,17 @@ using System.Threading;
 
 namespace Netool.Network.Tcp
 {
+    [Serializable]
     public class TcpClientSettings : BaseSettings
     {
         public IPEndPoint LocalEndPoint;
         public IPEndPoint RemoteEndPoint;
     }
 
+    [Serializable]
     public class TcpClientChannel : BaseClientChannel, IClientChannel
     {
+        [NonSerialized]
         protected Socket socket;
 
         public int ReceiveBufferSize { get; set; }
@@ -42,6 +45,7 @@ namespace Netool.Network.Tcp
             }
             catch (ObjectDisposedException) { }
         }
+
         private void handleResponse(IAsyncResult ar)
         {
             var s = (ReceiveStateObject)ar.AsyncState;
@@ -103,6 +107,8 @@ namespace Netool.Network.Tcp
             OnChannelClosed();
         }
     }
+
+    [Serializable]
     public class TcpClient : IClient
     {
         protected TcpClientSettings settings;
@@ -110,6 +116,7 @@ namespace Netool.Network.Tcp
         private volatile bool stopped = true;
         private int channelID = 0;
 
+        [field: NonSerialized]
         public event EventHandler<IClientChannel> ChannelCreated;
 
         public int ReceiveBufferSize { get; set; }
@@ -150,10 +157,12 @@ namespace Netool.Network.Tcp
                 }
             }
         }
+
         private void OnChannelCreated(IClientChannel channel)
         {
             if (ChannelCreated != null) ChannelCreated(this, channel);
         }
+
         private void channelClosedHandler(object channel)
         {
             Stop();

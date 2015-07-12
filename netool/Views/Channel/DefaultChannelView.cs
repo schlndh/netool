@@ -1,4 +1,5 @@
-﻿using Netool.Network;
+﻿using Netool.Logging;
+using Netool.Network;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -8,7 +9,7 @@ namespace Netool.Views.Channel
     public partial class DefaultChannelView : Form, IChannelView
     {
         public delegate void ColumnFiller(ListView.ColumnHeaderCollection c);
-        public delegate ListViewItem ItemFactory(Netool.Event e);
+        public delegate ListViewItem ItemFactory(Netool.Logging.Event e);
 
         public static void DefaultColumnFiller(ListView.ColumnHeaderCollection c)
         {
@@ -17,7 +18,7 @@ namespace Netool.Views.Channel
             c.Add("Type").Width = -2;
         }
 
-        public static ListViewItem DefaultItemFactory(Netool.Event e)
+        public static ListViewItem DefaultItemFactory(Netool.Logging.Event e)
         {
             return new ListViewItem(new string[] { e.ID.ToString(), e.Time.ToString("HH:mm:ss.ff"), e.Type.ToString() });
         }
@@ -97,7 +98,8 @@ namespace Netool.Views.Channel
             if (cache != null && cacheStart <= e.StartIndex && cache.Count > e.EndIndex - e.StartIndex) return;
             cache = new List<ListViewItem>(e.EndIndex - e.StartIndex + 1);
             cacheStart = e.StartIndex;
-            var node = logger.GetByPosition(e.StartIndex);
+            // 1-indexed
+            var node = logger.GetByID(e.StartIndex + 1);
             int i = 0;
             do
             {
@@ -198,9 +200,10 @@ namespace Netool.Views.Channel
             }
         }
 
-        private Netool.Event getEventByPosition(int pos)
+        private Netool.Logging.Event getEventByPosition(int pos)
         {
-            return logger.GetByPosition(pos).Value;
+            // position is 0-indexed, whereas id is 1-indexed
+            return logger.GetByID(pos + 1).Value;
         }
     }
 }

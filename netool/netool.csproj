@@ -68,9 +68,10 @@
     <Compile Include="ChannelDrivers\ManualChannelDriver.cs" />
     <Compile Include="ChannelDrivers\RejectDriver.cs" />
     <Compile Include="ChannelDrivers\DummyDriver.cs" />
+    <Compile Include="Logging\ChannelLogger.cs" />
     <Compile Include="Controllers\Contollers.cs" />
     <Compile Include="Controllers\MainController.cs" />
-    <Compile Include="Controllers\DefaultServerController.cs" />
+    <Compile Include="Controllers\DefaultInstanceController.cs" />
     <Compile Include="Dialogs\IPEndpointDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -89,7 +90,10 @@
     <Compile Include="Dialogs\TcpServerDialog.Designer.cs">
       <DependentUpon>TcpServerDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="EventLogger.cs" />
+    <Compile Include="Logging\Event.cs" />
+    <Compile Include="Logging\InstanceLogger.cs" />
+    <Compile Include="Logging\FileLog.cs" />
+    <Compile Include="Logging\FileLogReader.cs" />
     <Compile Include="Models\MainModel.cs" />
     <Compile Include="Network\BaseChannel.cs" />
     <Compile Include="Network\BaseClientChannel.cs" />

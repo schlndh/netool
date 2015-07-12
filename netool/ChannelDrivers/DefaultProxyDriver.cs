@@ -1,8 +1,9 @@
 ﻿using Netool.Network;
-
+using System;
 namespace Netool.ChannelDrivers
 {
-    internal class DefaultProxyDriver : IChannelDriver
+    [Serializable]
+    public class DefaultProxyDriver : IChannelDriver
     {
         public string ID { get { return "DefaultProxyDriver"; } }
         public bool AllowManualControl { get { return allowManual; } }

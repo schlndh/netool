@@ -1,13 +1,16 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 
 namespace Netool.Network.Udp
 {
+    [Serializable]
     public class UdpClientFactorySettings
     {
         public IPAddress LocalIPAddress;
         public IPEndPoint RemoteEndPoint;
     }
 
+    [Serializable]
     public class UdpClientFactory : IClientFactory
     {
         private UdpClientFactorySettings settings;

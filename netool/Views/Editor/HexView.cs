@@ -36,7 +36,7 @@ namespace Netool.Views.Editor
             return new ByteArray(((Be.Windows.Forms.DynamicByteProvider)data.ByteProvider).Bytes.ToArray());
         }
 
-        public void SetValue(Netool.Event val)
+        public void SetValue(Netool.Logging.Event val)
         {
             if(val.Data != null && val.Data.Data != null)
             {

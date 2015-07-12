@@ -2,6 +2,9 @@
 
 namespace Netool.ChannelDrivers
 {
+    /// <summary>
+    /// Channel driver interface, must be serializable
+    /// </summary>
     public interface IChannelDriver
     {
         /// <summary>

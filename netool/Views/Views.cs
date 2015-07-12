@@ -1,4 +1,5 @@
-﻿using Netool.Network;
+﻿using Netool.Logging;
+using Netool.Network;
 using System.Windows.Forms;
 
 namespace Netool.Views
@@ -15,7 +16,7 @@ namespace Netool.Views
         /// <param name="i">instance</param>
         void SetInstance(IInstance i);
 
-        void AddChannel(IChannel c);
+        void SetLogger(InstanceLogger l);
 
         /// <summary>
         /// Get Form to display
@@ -49,7 +50,7 @@ namespace Netool.Views
         /// Change content based on given event
         /// </summary>
         /// <param name="e"></param>
-        void Show(Netool.Event e);
+        void Show(Netool.Logging.Event e);
 
         /// <summary>
         /// Get Form to display
@@ -69,7 +70,7 @@ namespace Netool.Views
 
         IByteArrayConvertible GetValue();
 
-        void SetValue(Netool.Event v);
+        void SetValue(Netool.Logging.Event v);
 
         /// <summary>
         /// Get Form to display

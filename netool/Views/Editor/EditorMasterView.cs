@@ -30,7 +30,7 @@ namespace Netool.Views.Editor
             if (editorViewSelect.SelectedIndex < 0) editorViewSelect.SelectedIndex = 0;
         }
 
-        public void SetValue(Netool.Event val)
+        public void SetValue(Netool.Logging.Event val)
         {
             if(editorViewSelect.SelectedIndex > -1)
             {
