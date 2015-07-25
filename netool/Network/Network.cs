@@ -2,6 +2,11 @@
 using Netool.ChannelDrivers;
 namespace Netool.Network
 {
+    public enum InstanceType
+    {
+        Server, Client, Proxy
+    }
+
     [Serializable]
     public class DataEventArgs : EventArgs, ICloneable
     {
@@ -140,6 +145,14 @@ namespace Netool.Network
             {
                 ((IProxy)c).Start();
             }
+        }
+
+        public static InstanceType GetInstanceType(this IInstance c)
+        {
+            if (c is IClient) return InstanceType.Client;
+            if (c is IServer) return InstanceType.Server;
+            if (c is IProxy) return InstanceType.Proxy;
+            throw new ArgumentException("Invalid IInstance!");
         }
     }
 }

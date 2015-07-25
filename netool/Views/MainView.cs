@@ -1,27 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Netool.Controllers;
+using System;
 using System.Windows.Forms;
-using Netool.Dialogs;
-using Netool.Controllers;
+
 namespace Netool
 {
     public partial class MainView : Form
     {
         private MainController controller;
+
         public MainView()
         {
             InitializeComponent();
         }
+
         public void SetController(MainController c)
         {
             controller = c;
         }
+
         public void AddPage(string label, Form frm)
         {
             var page = new TabPage(label);
@@ -33,6 +29,7 @@ namespace Netool
             page.Controls.Add(frm);
             instances.TabPages.Add(page);
         }
+
         private void MainView_Load(object sender, EventArgs e)
         {
             controller.Load();

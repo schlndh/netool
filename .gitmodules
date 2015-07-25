@@ -1,0 +1,3 @@
+[submodule "IPEndPointControl"]
+	path = IPEndPointControl
+	url = git@github.com:schlndh/netool-ipendpointcontrol

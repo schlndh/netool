@@ -116,6 +116,11 @@ namespace Netool.Controllers
             detailFactory.CreateChannelView(logger.GetChannelLogger(id)).GetForm().Show();
         }
 
+        public InstanceType GetInstanceType()
+        {
+            return instance.GetInstanceType();
+        }
+
         private void handleConnectionCreated(object sender, IChannel c)
         {
             // must be registered before the driver, so that events are logged in proper order

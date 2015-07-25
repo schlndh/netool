@@ -25,7 +25,7 @@ namespace Netool.Network.Tcp
     public class TcpServerSettings : BaseSettings
     {
         public IPEndPoint LocalEndPoint;
-        public int MaxConnections;
+        public int MaxPendingConnections;
     }
 
     [Serializable]
@@ -166,7 +166,7 @@ namespace Netool.Network.Tcp
                 stopped = false;
                 socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
                 socket.Bind(settings.LocalEndPoint);
-                socket.Listen(settings.MaxConnections);
+                socket.Listen(settings.MaxPendingConnections);
                 try
                 {
                     socket.BeginAccept(new AsyncCallback(acceptRequest), socket);
