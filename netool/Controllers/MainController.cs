@@ -36,6 +36,7 @@ namespace Netool.Controllers
             foreach (var cont in controllers)
             {
                 cont.Stop();
+                cont.Close();
             }
         }
 
@@ -76,7 +77,9 @@ namespace Netool.Controllers
                         logger = new InstanceLogger();
                     }
                     logger.WritePluginID(plugin.ID);
+                    var id = logger.ReadPluginID();
                     var pack = plugin.CreateInstance(logger, type);
+                    controllers.Add(pack.Controller);
                     view.AddPage(name, pack.View.GetForm());
                 }
             }

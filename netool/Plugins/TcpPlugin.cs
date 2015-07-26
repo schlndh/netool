@@ -45,7 +45,7 @@ namespace Netool.Plugins
             // for now set manual driver to everything
             var manualDriver = new ManualChannelDriver(-1);
             var view = new DefaultInstanceView();
-            var cont = new DefaultInstanceController(view, instance);
+            var cont = new DefaultInstanceController(view, instance, logger);
             cont.AddDriver(manualDriver, 0);
             view.SetController(cont);
             return new InstancePack(view, cont, type);

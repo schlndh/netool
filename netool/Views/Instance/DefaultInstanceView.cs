@@ -52,7 +52,7 @@ namespace Netool.Views.Instance
 
         public void SetInstance(IInstance s)
         {
-            start.Enabled = s.IsStarted;
+            start.Enabled = !s.IsStarted;
             stop.Enabled = !start.Enabled;
         }
 

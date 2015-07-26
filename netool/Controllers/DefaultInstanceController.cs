@@ -35,17 +35,12 @@ namespace Netool.Controllers
         private IChannelViewFactory detailFactory;
         private RejectDriver rejectDriver = new RejectDriver();
 
-        public DefaultInstanceController(IInstanceView view, IInstance instance)
-            : this(view, instance, new DefaultChannelViewFactory(), new InstanceLogger())
+        public DefaultInstanceController(IInstanceView view, IInstance instance, InstanceLogger logger)
+            : this(view, instance, logger, new DefaultChannelViewFactory())
         {
         }
 
-        public DefaultInstanceController(IInstanceView view, IInstance instance, IChannelViewFactory detailFactory)
-            : this(view, instance, detailFactory, new InstanceLogger())
-        {
-        }
-
-        public DefaultInstanceController(IInstanceView view, IInstance instance, IChannelViewFactory detailFactory, InstanceLogger logger)
+        public DefaultInstanceController(IInstanceView view, IInstance instance, InstanceLogger logger, IChannelViewFactory detailFactory)
         {
             this.view = view;
             this.instance = instance;
@@ -97,6 +92,10 @@ namespace Netool.Controllers
         public void Stop()
         {
             instance.Stop();
+        }
+
+        public void Close()
+        {
             logger.WriteInstanceData(instance);
             logger.Close();
         }
