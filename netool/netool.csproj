@@ -90,12 +90,6 @@
     <Compile Include="Controllers\Contollers.cs" />
     <Compile Include="Controllers\MainController.cs" />
     <Compile Include="Controllers\DefaultInstanceController.cs" />
-    <Compile Include="Dialogs\IPEndpointDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\IPEndpointDialog.Designer.cs">
-      <DependentUpon>IPEndpointDialog.cs</DependentUpon>
-    </Compile>
     <Compile Include="Dialogs\Tcp\TcpServerDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -168,9 +162,6 @@
     <Compile Include="Views\Views.cs" />
     <EmbeddedResource Include="Dialogs\CreateInstanceDialog.resx">
       <DependentUpon>CreateInstanceDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\IPEndpointDialog.resx">
-      <DependentUpon>IPEndpointDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\Tcp\TcpClientDialog.resx">
       <DependentUpon>TcpClientDialog.cs</DependentUpon>

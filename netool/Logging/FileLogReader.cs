@@ -28,15 +28,31 @@ namespace Netool.Logging
         }
 
         /// <summary>
+        /// Reads Plugin ID
+        /// </summary>
+        /// <returns>Plugin ID</returns>
+        public long ReadPluginID()
+        {
+            lock(stream)
+            {
+                stream.Position = 0;
+                // move to format info structure - plugin ID field
+                stream.Position = binReader.ReadInt64() + 2 * sizeof(long);
+                return binReader.ReadInt64();
+            }
+        }
+
+        /// <summary>
         /// Reads instance data
         /// </summary>
         /// <returns>IInstance or null if instance data have not yet been written</returns>
         public IInstance ReadInstanceData()
         {
-            // TODO: reading can run in parallel with writing
             lock (stream)
             {
                 stream.Position = 0;
+                // format info structure - instance data field
+                stream.Position = binReader.ReadInt64() + sizeof(long);
                 var dataPtr = binReader.ReadInt64();
                 if (dataPtr != 0)
                 {
@@ -52,9 +68,10 @@ namespace Netool.Logging
         }
 
         /// <summary>
-        /// Reads multiple consecutive channels at onec
+        /// Reads multiple consecutive channels at once.
+        /// Note that all required channel data must already be written, this method doesn't check that.
         /// </summary>
-        /// <param name="firstID"></param>
+        /// <param name="firstID">1-based channel id</param>
         /// <param name="count"></param>
         /// <returns>chanells in a list</returns>
         public List<IChannel> ReadChannelsData(int firstID, int count)
@@ -85,7 +102,7 @@ namespace Netool.Logging
         /// <summary>
         /// Reads channel data
         /// </summary>
-        /// <param name="id">channel id</param>
+        /// <param name="id">1-based channel id</param>
         /// <returns>channel</returns>
         public IChannel ReadChannelData(int id)
         {
@@ -149,7 +166,7 @@ namespace Netool.Logging
         /// <summary>
         /// Get a pointer to channel info structure by channel id
         /// </summary>
-        /// <param name="id">channel id</param>
+        /// <param name="id">1-based channel id</param>
         /// <returns>hint - a pointer to channel info structure</returns>
         public long GetChannelInfoHintByID(int id)
         {
@@ -183,7 +200,7 @@ namespace Netool.Logging
         /// Reads Event from log
         /// </summary>
         /// <param name="hint">a pointer to channel info structure</param>
-        /// <param name="id">Event ID</param>
+        /// <param name="id">1-based Event ID</param>
         /// <returns>Event</returns>
         public Event ReadEvent(long hint, int id)
         {
@@ -198,7 +215,8 @@ namespace Netool.Logging
         }
 
         /// <summary>
-        /// Reads several consecutive events - more efficient than reading one by one using ReadEvent
+        /// Reads several consecutive events - more efficient than reading one by one using ReadEvent.
+        /// Note that all required events must already be written, this method doesn't check that.
         /// </summary>
         /// <param name="hint">channel info hint</param>
         /// <param name="firstID">ID of the first required event</param>
@@ -213,7 +231,7 @@ namespace Netool.Logging
             {
                 while (count > 0)
                 {
-                    while (count > 0 && off < FileLog.EventsPerBlock)
+                    while (count > 0 && off <= FileLog.EventsPerBlock)
                     {
                         stream.Position = table + off * sizeof(long);
                         ret.Add(readEventByPointer(binReader.ReadInt64()));
@@ -222,7 +240,7 @@ namespace Netool.Logging
                     }
                     stream.Position = table;
                     // next table
-                    stream.Position = binReader.ReadInt64();
+                    table = binReader.ReadInt64();
                     off = 1; // 0 is a pointer to next table
                 }
             }

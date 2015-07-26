@@ -12,8 +12,16 @@ namespace Netool.Logging
     public class FileLog
     {
         /**
+         * Terminology:
+         * Format info: a structure that holds information about the logging format
+         * Channel info: a structure that holds information about a channel and its events
+         * Channel data: serialized channel
+         *
          * FileLog format:
-         * 8B (long) pointer to data about instance | 8B (long) channel count | channel table
+         * 8B (long) pointer to format info | 8B (long) channel count | channel table
+         *
+         * Format info format:
+         * 8B (long) format version | 8B (long) pointer to instance data | 8B (long) ProtocolPlugin ID
          *
          * channel table format:
          * - FileLog.blockSize bytes (must be a power of 2)
@@ -27,13 +35,26 @@ namespace Netool.Logging
          * - first 8B is a pointer to next table
          * - other 8B (long) items are pointers to serialized events
          **/
-        private Stream stream;
+        private FileStream stream;
         private BinaryWriter binWriter;
         private BinaryReader binReader;
         private IFormatter formatter = new BinaryFormatter();
         private long channelCount = 0;
+        /// <summary>
+        /// A constant indicating current version of FileLog format, will be incremented each time a format is changed
+        /// </summary>
+        public const long FormatVersion = 1;
+        /// <summary>
+        /// Size of 1 block in bytes
+        /// </summary>
         public const int BlockSize = 4096;
+        /// <summary>
+        /// The number of actual channel info pointers in 1 block (not counting a pointer to the next table)
+        /// </summary>
         public const int ChannelsPerBlock = BlockSize / sizeof(long) - 1;
+        /// <summary>
+        /// The number of actual event pointers in 1 block (not counting a pointer to the next table)
+        /// </summary>
         public const int EventsPerBlock = BlockSize / sizeof(long) - 1;
         private string filename;
 
@@ -74,11 +95,20 @@ namespace Netool.Logging
             else
             {
                 binWriter = new BinaryWriter(stream);
-                // pointer to instance data
-                binWriter.Write((long)0);
+                stream.Position = sizeof(long);
                 // channel count
                 binWriter.Write((long)0);
                 writeNewTable();
+                // write a pointer to format info
+                stream.Position = 0;
+                binWriter.Write(stream.Length);
+                stream.Position = stream.Length;
+                binWriter.Write(FormatVersion);
+                // a pointer to instance data
+                binWriter.Write((long)0);
+                // Plugin ID
+                binWriter.Write((long)0);
+                stream.Flush();
             }
         }
 
@@ -106,6 +136,22 @@ namespace Netool.Logging
             for (long i = 0; i < BlockSize; i += sizeof(long))
             {
                 binWriter.Write((long)0);
+            }
+        }
+
+        /// <summary>
+        /// Writes plugin ID, should be called by plugin upon creating a new instance
+        /// </summary>
+        /// <param name="ID">plugin ID</param>
+        public void WritePluginID(long ID)
+        {
+            lock(stream)
+            {
+                stream.Position = 0;
+                // move to format info structure - plugin ID field
+                stream.Position = binReader.ReadInt64() + 2 * sizeof(long);
+                binWriter.Write(ID);
+                stream.Flush();
             }
         }
 
@@ -159,6 +205,7 @@ namespace Netool.Logging
                 binWriter.Write((long)0);
                 // event table
                 writeNewTable();
+                stream.Flush();
             }
             return hint;
         }
@@ -179,6 +226,7 @@ namespace Netool.Logging
                 binWriter.Write((long)eventCount);
                 stream.Position = stream.Length;
                 formatter.Serialize(stream, channel);
+                stream.Flush();
             }
         }
 
@@ -191,10 +239,12 @@ namespace Netool.Logging
             lock (stream)
             {
                 stream.Position = 0;
+                stream.Position = binReader.ReadInt64() + sizeof(long);
                 // write the pointer to serialized instance data
                 binWriter.Write(stream.Length);
                 stream.Position = stream.Length;
                 formatter.Serialize(stream, instance);
+                stream.Flush();
             }
         }
 
@@ -210,6 +260,7 @@ namespace Netool.Logging
                 // move the hint to the beginning of the event table
                 hint += 2*sizeof(long);
                 logEventHelper(hint, e.ID, e);
+                stream.Flush();
             }
         }
 
