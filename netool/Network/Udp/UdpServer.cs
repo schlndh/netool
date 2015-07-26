@@ -65,6 +65,7 @@ namespace Netool.Network.Udp
     public class UdpServer : IServer
     {
         protected UdpServerSettings settings;
+        public object Settings { get { return settings; } }
         [NonSerialized]
         protected Socket socket;
         private volatile bool stopped = true;

@@ -14,6 +14,7 @@ namespace Netool.Network.Udp
     public class UdpClientFactory : IClientFactory
     {
         private UdpClientFactorySettings settings;
+        public object Settings { get { return settings; } }
 
         public UdpClientFactory(UdpClientFactorySettings s)
         {

@@ -151,7 +151,6 @@
     <Compile Include="Network\Network.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Settings\SettingsFormat.cs" />
     <Compile Include="Network\Tcp\TcpClient.cs" />
     <Compile Include="Network\Tcp\TcpServer.cs" />
     <Compile Include="Views\Instance\DefaultInstanceView.cs">

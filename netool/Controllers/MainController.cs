@@ -2,7 +2,11 @@
 using Netool.Logging;
 using Netool.Network;
 using Netool.Plugins;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 
 namespace Netool.Controllers
@@ -14,21 +18,59 @@ namespace Netool.Controllers
         private List<IInstanceController> controllers = new List<IInstanceController>();
         private Dictionary<long, IProtocolPlugin> protocols = new Dictionary<long, IProtocolPlugin>();
 
-        public MainController(MainView view, MainModel model)
+        public MainController(MainView view)
         {
             this.view = view;
             this.view.SetController(this);
-            this.model = model;
             // register built-in plugins
             IProtocolPlugin plugin = new TcpPlugin();
             protocols.Add(plugin.ID, plugin);
+
+            load();
         }
 
         /// <summary>
         /// Load settings, open previously open instances, etc
         /// </summary>
-        public void Load()
+        private void load()
         {
+            var appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            if (appDataDir != "")
+            {
+                appDataDir += "/netool";
+                if (!Directory.Exists(appDataDir))
+                {
+                    Directory.CreateDirectory(appDataDir);
+                }
+                try
+                {
+                    using(var file = new FileStream(appDataDir + "/instances.nest", FileMode.Open, FileAccess.Read))
+                    {
+                        var formatter = new BinaryFormatter();
+                        model = (MainModel)formatter.Deserialize(file);
+                        file.Close();
+                    }
+                }
+                catch
+                {
+                    model = new MainModel();
+                }
+            }
+
+            foreach(var instance in model.OpenInstances)
+            {
+                IProtocolPlugin plugin;
+                if(protocols.TryGetValue(instance.PluginID, out plugin))
+                {
+                    // temp log file - dont bother user with log file dialogs now
+                    var logger = new InstanceLogger();
+                    logger.WritePluginID(plugin.ID);
+                    var pack = plugin.CreateInstance(logger, instance.Type, instance.Settings);
+                    controllers.Add(pack.Controller);
+                    view.AddPage(instance.Name, pack.View.GetForm());
+                }
+
+            }
         }
 
         public void Close()
@@ -37,6 +79,24 @@ namespace Netool.Controllers
             {
                 cont.Stop();
                 cont.Close();
+            }
+            if(model.OpenInstances.Count > 0)
+            {
+                var appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                if (appDataDir != "")
+                {
+                    appDataDir += "/netool";
+                    if (!Directory.Exists(appDataDir))
+                    {
+                        Directory.CreateDirectory(appDataDir);
+                    }
+                    using (var file = new FileStream(appDataDir + "/instances.nest", FileMode.Create, FileAccess.Write))
+                    {
+                        var formatter = new BinaryFormatter();
+                        formatter.Serialize(file, model);
+                        file.Close();
+                    }
+                }
             }
         }
 
@@ -77,9 +137,9 @@ namespace Netool.Controllers
                         logger = new InstanceLogger();
                     }
                     logger.WritePluginID(plugin.ID);
-                    var id = logger.ReadPluginID();
                     var pack = plugin.CreateInstance(logger, type);
                     controllers.Add(pack.Controller);
+                    model.AddInstance(plugin.ID, name, type, pack.Controller.Instance.Settings);
                     view.AddPage(name, pack.View.GetForm());
                 }
             }

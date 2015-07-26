@@ -130,7 +130,6 @@
             this.Name = "MainView";
             this.Text = "Netool";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainView_FormClosing);
-            this.Load += new System.EventHandler(this.MainView_Load);
             this.mainMenu.ResumeLayout(false);
             this.mainMenu.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);

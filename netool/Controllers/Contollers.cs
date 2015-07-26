@@ -1,7 +1,9 @@
-﻿namespace Netool.Controllers
+﻿using Netool.Network;
+namespace Netool.Controllers
 {
     public interface IInstanceController
     {
+        IInstance Instance { get; }
         /// <summary>
         /// Start the associated instance.
         /// </summary>

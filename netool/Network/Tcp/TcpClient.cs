@@ -1,5 +1,4 @@
 ﻿using Netool.Network.DataFormats;
-using Netool.Settings;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -8,7 +7,7 @@ using System.Threading;
 namespace Netool.Network.Tcp
 {
     [Serializable]
-    public class TcpClientSettings : BaseSettings
+    public class TcpClientSettings
     {
         public IPEndPoint LocalEndPoint;
         public IPEndPoint RemoteEndPoint;
@@ -112,6 +111,7 @@ namespace Netool.Network.Tcp
     public class TcpClient : IClient
     {
         protected TcpClientSettings settings;
+        public object Settings { get { return settings; } }
         protected TcpClientChannel channel;
         private volatile bool stopped = true;
         private int channelID = 0;

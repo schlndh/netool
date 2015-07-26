@@ -51,6 +51,15 @@ namespace Netool.Plugins
         InstancePack CreateInstance(InstanceLogger logger, InstanceType t);
 
         /// <summary>
+        /// Create instance with given settings.
+        /// </summary>
+        /// <param name="logger">instance logger to be passed to the instance controller</param>
+        /// <param name="t">type of the instance to create, one of the supported types</param>
+        /// <param name="settings"></param>
+        /// <returns>Newly created instance with given settings</returns>
+        InstancePack CreateInstance(InstanceLogger logger, InstanceType t, object settings);
+
+        /// <summary>
         /// This method is called when instance is to be restored from file.
         /// The plugin has to recognize the proper instance type itself.
         /// </summary>

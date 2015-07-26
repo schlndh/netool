@@ -1,5 +1,4 @@
 ﻿using Netool.Network.DataFormats;
-using Netool.Settings;
 using System;
 using System.Collections.Concurrent;
 using System.Net;
@@ -22,7 +21,7 @@ namespace Netool.Network.Tcp
     }
 
     [Serializable]
-    public class TcpServerSettings : BaseSettings
+    public class TcpServerSettings
     {
         public IPEndPoint LocalEndPoint;
         public int MaxPendingConnections;
@@ -127,6 +126,7 @@ namespace Netool.Network.Tcp
         }
 
         protected TcpServerSettings settings;
+        public object Settings { get { return settings; } }
         [NonSerialized]
         protected Socket socket;
         private volatile bool stopped = true;

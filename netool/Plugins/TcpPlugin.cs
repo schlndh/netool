@@ -51,6 +51,39 @@ namespace Netool.Plugins
             return new InstancePack(view, cont, type);
         }
 
+        public InstancePack CreateInstance(InstanceLogger logger, InstanceType type, object settings)
+        {
+            IInstance instance;
+            if (settings == null) throw new ArgumentNullException("settings");
+            switch(type)
+            {
+                case InstanceType.Server:
+                    var s = settings as TcpServerSettings;
+                    if (s == null) throw new InvalidSettingsType();
+                    instance = new TcpServer(s);
+                    break;
+
+                case InstanceType.Client:
+                    var c = settings as TcpClientSettings;
+                    if (c == null) throw new InvalidSettingsType();
+                    instance = new TcpClient(c);
+                    break;
+
+                default:
+                    var p = settings as DefaultProxySettings;
+                    if (p == null) throw new InvalidSettingsType();
+                    instance = new DefaultProxy(p);
+                    break;
+            }
+            // for now set manual driver to everything
+            var manualDriver = new ManualChannelDriver(-1);
+            var view = new DefaultInstanceView();
+            var cont = new DefaultInstanceController(view, instance, logger);
+            cont.AddDriver(manualDriver, 0);
+            view.SetController(cont);
+            return new InstancePack(view, cont, type);
+        }
+
         public InstancePack RestoreInstance(InstanceLogger logger)
         {
             var view = new DefaultInstanceView();
@@ -91,7 +124,7 @@ namespace Netool.Plugins
             {
                 var clFactory = new TcpClientFactory(dialog.ClientFactorySettings);
                 var srv = new TcpServer(dialog.ServerSettings);
-                return new DefaultProxy(srv, clFactory);
+                return new DefaultProxy(new DefaultProxySettings { Server = srv, ClientFactory = clFactory });
             }
             return null;
         }

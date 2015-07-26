@@ -14,6 +14,7 @@ namespace Netool.Network.Tcp
     public class TcpClientFactory : IClientFactory
     {
         private TcpClientFactorySettings settings;
+        public object Settings { get { return settings; } }
 
         public TcpClientFactory(TcpClientFactorySettings s)
         {

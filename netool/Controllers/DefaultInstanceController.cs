@@ -30,6 +30,7 @@ namespace Netool.Controllers
 
         private IInstanceView view;
         private IInstance instance;
+        public IInstance Instance { get { return instance; } }
         private SortedList<int, IChannelDriver> drivers = new SortedList<int, IChannelDriver>();
         private InstanceLogger logger;
         private IChannelViewFactory detailFactory;

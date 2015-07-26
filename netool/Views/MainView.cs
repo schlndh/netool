@@ -30,11 +30,6 @@ namespace Netool
             instances.TabPages.Add(page);
         }
 
-        private void MainView_Load(object sender, EventArgs e)
-        {
-            controller.Load();
-        }
-
         private void serverToolStripMenuItem_Click(object sender, EventArgs e)
         {
             controller.CreateServer();

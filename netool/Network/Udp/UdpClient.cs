@@ -103,6 +103,7 @@ namespace Netool.Network.Udp
     public class UdpClient : IClient
     {
         protected UdpClientSettings settings;
+        public object Settings { get { return settings; } }
         protected UdpClientChannel channel;
         private volatile bool stopped = true;
 

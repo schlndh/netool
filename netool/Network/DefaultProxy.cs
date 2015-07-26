@@ -109,21 +109,29 @@ namespace Netool.Network
     }
 
     [Serializable]
+    public class DefaultProxySettings
+    {
+        public IServer Server;
+        public IClientFactory ClientFactory;
+    }
+
+    [Serializable]
     public class DefaultProxy : IProxy
     {
         [field: NonSerialized]
         public event EventHandler<IProxyChannel> ChannelCreated;
 
         protected ConcurrentDictionary<int, IProxyChannel> channels = new ConcurrentDictionary<int, IProxyChannel>();
-        protected IServer server;
-        protected IClientFactory clientFactory;
+        protected DefaultProxySettings settings;
+        public object Settings { get { return settings; } }
+        protected IServer server { get { return settings.Server; } }
+        protected IClientFactory clientFactory { get { return settings.ClientFactory; } }
 
         public bool IsStarted { get { return server.IsStarted; } }
 
-        public DefaultProxy(IServer server, IClientFactory clientFactory)
+        public DefaultProxy(DefaultProxySettings settings)
         {
-            this.server = server;
-            this.clientFactory = clientFactory;
+            this.settings = settings;
         }
 
         public virtual void Start()

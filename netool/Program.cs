@@ -17,8 +17,7 @@ namespace Netool
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             var view = new MainView();
-            var model = new MainModel();
-            var controller = new MainController(view, model);
+            var controller = new MainController(view);
             Application.Run(view);
         }
     }

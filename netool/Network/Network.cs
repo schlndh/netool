@@ -55,6 +55,11 @@ namespace Netool.Network
     public interface IInstance
     {
         bool IsStarted { get; }
+        /// <summary>
+        /// A serializable settings that can be used to create a new instance with the same settings
+        /// </summary>
+        object Settings { get; }
+
         void Stop();
     }
 
