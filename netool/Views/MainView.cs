@@ -54,5 +54,22 @@ namespace Netool
         {
             controller.Close();
         }
+
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if(openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                do
+                {
+                    try
+                    {
+                        controller.RestoreInstance(openFileDialog.FileName);
+                        return;
+                    }
+                    catch {}
+                } while(MessageBox.Show("Selected file couldn't be opened!", "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == DialogResult.Retry);
+
+            }
+        }
     }
 }

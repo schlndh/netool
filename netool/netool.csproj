@@ -86,6 +86,7 @@
     <Compile Include="Dialogs\Tcp\TcpProxyDialog.Designer.cs">
       <DependentUpon>TcpProxyDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="MainExceptions.cs" />
     <Compile Include="Logging\ChannelLogger.cs" />
     <Compile Include="Controllers\Contollers.cs" />
     <Compile Include="Controllers\MainController.cs" />

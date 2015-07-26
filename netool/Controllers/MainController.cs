@@ -91,5 +91,22 @@ namespace Netool.Controllers
                 }
             }
         }
+
+        public void RestoreInstance(string filename)
+        {
+            InstanceLogger logger = new InstanceLogger(filename);
+            var id = logger.ReadPluginID();
+            IProtocolPlugin plugin;
+            if(protocols.TryGetValue(id, out plugin))
+            {
+                var pack = plugin.RestoreInstance(logger);
+                controllers.Add(pack.Controller);
+                view.AddPage("placeholder", pack.View.GetForm());
+            }
+            else
+            {
+                throw new UnknownPluginException(id);
+            }
+        }
     }
 }
