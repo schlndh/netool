@@ -25,6 +25,10 @@ namespace Netool.Plugins
     /// </summary>
     public interface IPlugin
     {
+        /// <summary>
+        /// Unique plugin ID. See Plugins/ReservedPluginIDs.md.
+        /// </summary>
+        long ID { get; }
         string Name { get; }
         string Description { get; }
         Version Version { get; }

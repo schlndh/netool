@@ -9,9 +9,10 @@ namespace Netool.Dialogs
     public partial class CreateInstanceDialog : Form
     {
         public IProtocolPlugin SelectedPlugin { get { return (protocolSelect.SelectedItems.Count > 0) ? (IProtocolPlugin)protocolSelect.SelectedItems[0].Tag : null; } }
-        public string InstanceName { get { return this.instanceName.Text; } }
+        public string InstanceName { get { return instanceName.Text; } }
+        public string LogFileName { get { return logPath.Text; } }
 
-        public CreateInstanceDialog(List<IProtocolPlugin> protocols, InstanceType type)
+        public CreateInstanceDialog(Dictionary<long, IProtocolPlugin>.ValueCollection protocols, InstanceType type)
         {
             InitializeComponent();
             foreach (var protocol in protocols)
@@ -48,6 +49,14 @@ namespace Netool.Dialogs
         private void CreateInstanceDialog_FormClosing(object sender, FormClosingEventArgs e)
         {
             e.Cancel = (this.DialogResult == DialogResult.OK) && !this.ValidateChildren();
+        }
+
+        private void saveBtn_Click(object sender, System.EventArgs e)
+        {
+            if(saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                logPath.Text = saveFileDialog.FileName;
+            }
         }
     }
 }

@@ -76,6 +76,19 @@ namespace Netool.Logging
             return ret;
         }
 
+        public void WritePluginID(long id)
+        {
+            log.WritePluginID(id);
+        }
+
+        public long ReadPluginID()
+        {
+            var reader = log.CreateReader();
+            var id = reader.ReadPluginID();
+            reader.Close();
+            return id;
+        }
+
         /// <summary>
         /// Call this when the instance is closed
         /// </summary>

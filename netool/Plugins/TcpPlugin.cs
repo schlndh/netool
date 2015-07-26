@@ -12,6 +12,7 @@ namespace Netool.Plugins
 {
     public class TcpPlugin : IProtocolPlugin
     {
+        public long ID { get { return 1; } }
         public string Name { get { return "TcpPlugin"; } }
         public string Description { get { return "Plugin for basic TCP functions. Supports Client, Server and Proxy."; } }
         private Version version = new Version(0, 1);
