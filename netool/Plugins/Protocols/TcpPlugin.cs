@@ -1,6 +1,5 @@
 ﻿using Netool.Controllers;
 using Netool.Dialogs.Tcp;
-using Netool.ChannelDrivers;
 using Netool.Logging;
 using Netool.Network;
 using Netool.Network.Tcp;
@@ -43,10 +42,8 @@ namespace Netool.Plugins.Protocols
             }
             if (instance == null) throw new SetupAbortedByUser();
             // for now set manual driver to everything
-            var manualDriver = new ManualChannelDriver(-1);
             var view = new DefaultInstanceView();
             var cont = new DefaultInstanceController(view, instance, logger);
-            cont.AddDriver(manualDriver, 0);
             view.SetController(cont);
             return new InstancePack(view, cont, type);
         }
@@ -76,10 +73,8 @@ namespace Netool.Plugins.Protocols
                     break;
             }
             // for now set manual driver to everything
-            var manualDriver = new ManualChannelDriver(-1);
             var view = new DefaultInstanceView();
             var cont = new DefaultInstanceController(view, instance, logger);
-            cont.AddDriver(manualDriver, 0);
             view.SetController(cont);
             return new InstancePack(view, cont, type);
         }

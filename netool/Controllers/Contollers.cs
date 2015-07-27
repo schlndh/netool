@@ -1,4 +1,6 @@
-﻿using Netool.Network;
+﻿using Netool.ChannelDrivers;
+using Netool.Network;
+
 namespace Netool.Controllers
 {
     public interface IInstanceController
@@ -22,5 +24,11 @@ namespace Netool.Controllers
         /// </summary>
         /// <param name="id">channel ID</param>
         void ShowDetail(int id);
+        /// <summary>
+        /// Adds a driver to driver queue
+        /// </summary>
+        /// <param name="d">driver</param>
+        /// <param name="order">lower number = higher priority</param>
+        void AddDriver(IChannelDriver d, int order);
     }
 }

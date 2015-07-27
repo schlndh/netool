@@ -72,6 +72,8 @@ namespace Netool.Controllers
                     var logger = new InstanceLogger();
                     logger.WritePluginID(plugin.ID);
                     var pack = plugin.CreateInstance(logger, instance.Type, instance.Settings);
+                    // TODO: setup original channel drivers here
+                    setupDrivers(cont); // placeholder
                     controllers.Add(pack.Controller);
                     view.AddPage(instance.Name, pack.View.GetForm());
                 }
@@ -144,6 +146,7 @@ namespace Netool.Controllers
                     }
                     logger.WritePluginID(plugin.ID);
                     var pack = plugin.CreateInstance(logger, type);
+                    setupDrivers(pack.Controller);
                     controllers.Add(pack.Controller);
                     model.AddInstance(plugin.ID, name, type, pack.Controller.Instance.Settings);
                     view.AddPage(name, pack.View.GetForm());
@@ -173,6 +176,13 @@ namespace Netool.Controllers
             {
                 throw new UnknownPluginException(id);
             }
+        }
+
+        public void setupDrivers(IInstanceController cont)
+        {
+            // placeholder
+            var driver = new Netool.ChannelDrivers.ManualChannelDriver(-1);
+            cont.AddDriver(driver, 0);
         }
     }
 }
