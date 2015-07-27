@@ -8,7 +8,7 @@ using Netool.Views.Instance;
 using System;
 using System.Windows.Forms;
 
-namespace Netool.Plugins
+namespace Netool.Plugins.Protocols
 {
     public class TcpPlugin : IProtocolPlugin
     {
@@ -41,7 +41,7 @@ namespace Netool.Plugins
                     instance = createProxy();
                     break;
             }
-            if (instance == null) throw new InstanceCreationAbortedByUser();
+            if (instance == null) throw new SetupAbortedByUser();
             // for now set manual driver to everything
             var manualDriver = new ManualChannelDriver(-1);
             var view = new DefaultInstanceView();

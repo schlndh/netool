@@ -9,6 +9,7 @@ namespace Netool.ChannelDrivers
         public bool CanAccept(IChannel c) { return true; }
         public bool AllowManualControl { get { return false; } }
         public string ID { get { return "Reject"; } }
+        public object Settings { get { return null; } }
 
         public void Handle(IChannel c)
         {

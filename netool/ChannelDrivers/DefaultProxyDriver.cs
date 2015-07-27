@@ -8,6 +8,7 @@ namespace Netool.ChannelDrivers
         public string ID { get { return "DefaultProxyDriver"; } }
         public bool AllowManualControl { get { return allowManual; } }
         private bool allowManual;
+        public object Settings { get { return allowManual; } }
 
         public DefaultProxyDriver(bool allowManual = false)
         {

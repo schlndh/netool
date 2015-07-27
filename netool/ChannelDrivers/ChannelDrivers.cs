@@ -17,6 +17,10 @@ namespace Netool.ChannelDrivers
         bool AllowManualControl { get; }
         string ID { get; }
         /// <summary>
+        /// Settings used to create this instance, can be null if the driver doesn't need any settings. Must be serializable
+        /// </summary>
+        object Settings { get; }
+        /// <summary>
         /// Listen for events on channel and respond to them
         /// </summary>
         /// <param name="c">channel</param>

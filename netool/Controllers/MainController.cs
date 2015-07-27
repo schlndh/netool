@@ -2,6 +2,8 @@
 using Netool.Logging;
 using Netool.Network;
 using Netool.Plugins;
+using Netool.Plugins.ChannelDrivers;
+using Netool.Plugins.Protocols;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,15 +18,19 @@ namespace Netool.Controllers
         private MainView view;
         private MainModel model;
         private List<IInstanceController> controllers = new List<IInstanceController>();
-        private Dictionary<long, IProtocolPlugin> protocols = new Dictionary<long, IProtocolPlugin>();
+        private Dictionary<long, IProtocolPlugin> protocolPlugins = new Dictionary<long, IProtocolPlugin>();
+        private Dictionary<long, IChannelDriverPlugin> channelDriverPlugins = new Dictionary<long, IChannelDriverPlugin>();
 
         public MainController(MainView view)
         {
             this.view = view;
             this.view.SetController(this);
             // register built-in plugins
-            IProtocolPlugin plugin = new TcpPlugin();
-            protocols.Add(plugin.ID, plugin);
+            IProtocolPlugin protoPlg = new TcpPlugin();
+            protocolPlugins.Add(protoPlg.ID, protoPlg);
+
+            IChannelDriverPlugin cdPlg = new DefaultProxyChannelDriverPlugin();
+            channelDriverPlugins.Add(cdPlg.ID, cdPlg);
 
             load();
         }
@@ -44,7 +50,7 @@ namespace Netool.Controllers
                 }
                 try
                 {
-                    using(var file = new FileStream(appDataDir + "/instances.nest", FileMode.Open, FileAccess.Read))
+                    using(var file = new FileStream(appDataDir + "/session.nest", FileMode.Open, FileAccess.Read))
                     {
                         var formatter = new BinaryFormatter();
                         model = (MainModel)formatter.Deserialize(file);
@@ -60,7 +66,7 @@ namespace Netool.Controllers
             foreach(var instance in model.OpenInstances)
             {
                 IProtocolPlugin plugin;
-                if(protocols.TryGetValue(instance.PluginID, out plugin))
+                if(protocolPlugins.TryGetValue(instance.PluginID, out plugin))
                 {
                     // temp log file - dont bother user with log file dialogs now
                     var logger = new InstanceLogger();
@@ -90,7 +96,7 @@ namespace Netool.Controllers
                     {
                         Directory.CreateDirectory(appDataDir);
                     }
-                    using (var file = new FileStream(appDataDir + "/instances.nest", FileMode.Create, FileAccess.Write))
+                    using (var file = new FileStream(appDataDir + "/session.nest", FileMode.Create, FileAccess.Write))
                     {
                         var formatter = new BinaryFormatter();
                         formatter.Serialize(file, model);
@@ -120,7 +126,7 @@ namespace Netool.Controllers
             InstanceLogger logger = null;
             try
             {
-                var dialog = new CreateInstanceDialog(protocols.Values, type);
+                var dialog = new CreateInstanceDialog(protocolPlugins.Values, type);
                 dialog.ShowDialog();
                 if (dialog.DialogResult == DialogResult.OK)
                 {
@@ -143,7 +149,7 @@ namespace Netool.Controllers
                     view.AddPage(name, pack.View.GetForm());
                 }
             }
-            catch (InstanceCreationAbortedByUser)
+            catch (SetupAbortedByUser)
             {
                 if(logger != null)
                 {
@@ -157,7 +163,7 @@ namespace Netool.Controllers
             InstanceLogger logger = new InstanceLogger(filename);
             var id = logger.ReadPluginID();
             IProtocolPlugin plugin;
-            if(protocols.TryGetValue(id, out plugin))
+            if(protocolPlugins.TryGetValue(id, out plugin))
             {
                 var pack = plugin.RestoreInstance(logger);
                 controllers.Add(pack.Controller);

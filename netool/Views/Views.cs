@@ -8,7 +8,16 @@ namespace Netool.Views
      * Important note: Most methods on views will be called from non-gui threads!
      */
 
-    public interface IInstanceView
+    public interface IFormView
+    {
+        /// <summary>
+        /// Get Form to display
+        /// </summary>
+        /// <returns></returns>
+        Form GetForm();
+    }
+
+    public interface IInstanceView : IFormView
     {
         /// <summary>
         /// Sets view's instance, for view to get additional information about the instance
@@ -17,15 +26,9 @@ namespace Netool.Views
         void SetInstance(IInstance i);
 
         void SetLogger(InstanceLogger l);
-
-        /// <summary>
-        /// Get Form to display
-        /// </summary>
-        /// <returns></returns>
-        Form GetForm();
     }
 
-    public interface IChannelView
+    public interface IChannelView : IFormView
     {
         void AddEventView(IEventView v);
 
@@ -34,15 +37,9 @@ namespace Netool.Views
         /// </summary>
         /// <param name="v"></param>
         void AllowManualControl(Editor.EditorMasterView v);
-
-        /// <summary>
-        /// Get Form to display
-        /// </summary>
-        /// <returns></returns>
-        Form GetForm();
     }
 
-    public interface IEventView
+    public interface IEventView : IFormView
     {
         string ID { get; }
 
@@ -51,15 +48,9 @@ namespace Netool.Views
         /// </summary>
         /// <param name="e"></param>
         void Show(Netool.Logging.Event e);
-
-        /// <summary>
-        /// Get Form to display
-        /// </summary>
-        /// <returns></returns>
-        Form GetForm();
     }
 
-    public interface IEditorView
+    public interface IEditorView : IFormView
     {
         string ID { get; }
 
@@ -71,11 +62,5 @@ namespace Netool.Views
         IByteArrayConvertible GetValue();
 
         void SetValue(Netool.Logging.Event v);
-
-        /// <summary>
-        /// Get Form to display
-        /// </summary>
-        /// <returns></returns>
-        Form GetForm();
     }
 }

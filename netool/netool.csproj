@@ -67,7 +67,6 @@
     <Compile Include="ChannelDrivers\DefaultProxyDriver.cs" />
     <Compile Include="ChannelDrivers\ManualChannelDriver.cs" />
     <Compile Include="ChannelDrivers\RejectDriver.cs" />
-    <Compile Include="ChannelDrivers\DummyDriver.cs" />
     <Compile Include="Dialogs\CreateInstanceDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -114,9 +113,10 @@
     <Compile Include="Network\Udp\UdpServer.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Plugins\ChannelDrivers\DefaultProxyChannelDriverPlugin.cs" />
     <Compile Include="Plugins\PluginExceptions.cs" />
     <Compile Include="Plugins\Plugins.cs" />
-    <Compile Include="Plugins\TcpPlugin.cs" />
+    <Compile Include="Plugins\Protocols\TcpPlugin.cs" />
     <Compile Include="Views\Channel\DefaultChannelView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -238,6 +238,7 @@
       <Name>IPEndPointControl</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

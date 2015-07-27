@@ -1,4 +1,5 @@
-﻿using Netool.Controllers;
+﻿using Netool.ChannelDrivers;
+using Netool.Controllers;
 using Netool.Logging;
 using Netool.Network;
 using Netool.Views;
@@ -17,6 +18,21 @@ namespace Netool.Plugins
             View = view;
             Controller = controller;
             Type = type;
+        }
+    }
+
+    public struct ChannelDriverPack
+    {
+        public readonly IChannelDriver Driver;
+        /// <summary>
+        /// A channel driver detail view (can be null)
+        /// </summary>
+        public readonly IFormView View;
+
+        public ChannelDriverPack(IChannelDriver driver, IFormView view = null)
+        {
+            Driver = driver;
+            View = view;
         }
     }
 
@@ -66,6 +82,21 @@ namespace Netool.Plugins
         /// <param name="logger">Instance logger for an instance created by this plugin</param>
         /// <returns>Restored instance</returns>
         InstancePack RestoreInstance(InstanceLogger logger);
+    }
+
+    public interface IChannelDriverPlugin : IPlugin
+    {
+        /// <summary>
+        /// Create a new channel driver
+        /// </summary>
+        /// <returns></returns>
+        ChannelDriverPack CreateChannelDriver();
+        /// <summary>
+        /// Create a new channel driver with given settings
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <returns></returns>
+        ChannelDriverPack CreateChannelDriver(object settings);
     }
 
     public static class ProtocolPluginExtensions
