@@ -46,11 +46,12 @@ namespace Netool.Network.Udp
             catch (ObjectDisposedException) { }
         }
 
-        public void Send(IByteArrayConvertible request)
+        public void Send(IDataStream request)
         {
             try
             {
-                socket.SendTo(request.ToByteArray(), remoteEP);
+                // TODO: improve this
+                socket.SendTo(request.ReadBytes(0, request.Length), remoteEP);
             }
             catch (ObjectDisposedException)
             {
@@ -80,7 +81,7 @@ namespace Netool.Network.Udp
             }
         }
 
-        private IByteArrayConvertible processResponse(byte[] response, int length)
+        private IDataStream processResponse(byte[] response, int length)
         {
             byte[] arr = new byte[length];
             Array.Copy(response, arr, length);

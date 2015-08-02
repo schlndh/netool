@@ -44,18 +44,19 @@ namespace Netool.Network.Udp
             OnChannelClosed();
         }
 
-        public void Send(IByteArrayConvertible response)
+        public void Send(IDataStream response)
         {
             try
             {
-                socket.SendTo(response.ToByteArray(), remoteEP);
+                // TODO: improve this
+                socket.SendTo(response.ReadBytes(0, response.Length), remoteEP);
                 OnResponseSent(response);
             }
             catch (ObjectDisposedException)
             { }
         }
 
-        public void InjectRequest(IByteArrayConvertible request)
+        public void InjectRequest(IDataStream request)
         {
             OnRequestReceived(request);
         }
@@ -171,7 +172,7 @@ namespace Netool.Network.Udp
             }
         }
 
-        private IByteArrayConvertible processRequest(string id, byte[] data, int length)
+        private IDataStream processRequest(string id, byte[] data, int length)
         {
             byte[] arr = new byte[length];
             Array.Copy(data, arr, length);

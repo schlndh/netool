@@ -1,4 +1,5 @@
 ﻿using Netool.ChannelDrivers;
+using Netool.Network.DataFormats;
 using System;
 using System.Collections.Concurrent;
 
@@ -67,12 +68,12 @@ namespace Netool.Network
             }
         }
 
-        public void SendToClient(IByteArrayConvertible data)
+        public void SendToClient(IDataStream data)
         {
             serverChannel.Send(data);
         }
 
-        public void SendToServer(IByteArrayConvertible data)
+        public void SendToServer(IDataStream data)
         {
             clientChannel.Send(data);
         }
@@ -87,22 +88,22 @@ namespace Netool.Network
             OnResponseReceived(e.Data, e.State);
         }
 
-        protected virtual void OnRequestReceived(IByteArrayConvertible request, ICloneable state)
+        protected virtual void OnRequestReceived(IDataStream request, ICloneable state)
         {
             if (RequestReceived != null) RequestReceived(this, new DataEventArgs { Data = request, State = state });
         }
 
-        protected virtual void OnRequestSent(IByteArrayConvertible request, ICloneable state)
+        protected virtual void OnRequestSent(IDataStream request, ICloneable state)
         {
             if (RequestSent != null) RequestSent(this, new DataEventArgs { Data = request, State = state });
         }
 
-        protected virtual void OnResponseReceived(IByteArrayConvertible response, ICloneable state)
+        protected virtual void OnResponseReceived(IDataStream response, ICloneable state)
         {
             if (ResponseReceived != null) ResponseReceived(this, new DataEventArgs { Data = response, State = state });
         }
 
-        protected virtual void OnResponseSent(IByteArrayConvertible response, ICloneable state)
+        protected virtual void OnResponseSent(IDataStream response, ICloneable state)
         {
             if (ResponseSent != null) ResponseSent(this, new DataEventArgs { Data = response, State = state });
         }

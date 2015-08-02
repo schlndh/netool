@@ -31,7 +31,7 @@ namespace Netool.Views.Editor
             return this;
         }
 
-        public IByteArrayConvertible GetValue()
+        public IInMemoryData GetValue()
         {
             return new ByteArray(((Be.Windows.Forms.DynamicByteProvider)data.ByteProvider).Bytes.ToArray());
         }
@@ -40,7 +40,8 @@ namespace Netool.Views.Editor
         {
             if(val.Data != null && val.Data.Data != null)
             {
-                data.ByteProvider = new Be.Windows.Forms.DynamicByteProvider(val.Data.Data.ToByteArray());
+                // TODO: improve this
+                data.ByteProvider = new Be.Windows.Forms.DynamicByteProvider(val.Data.Data.ReadBytes(0, val.Data.Data.Length));
             }
             else
             {

@@ -1,4 +1,5 @@
 ﻿using Netool.Network;
+using Netool.Network.DataFormats;
 using System;
 using System.Windows.Forms;
 
@@ -8,7 +9,7 @@ namespace Netool.Views.Editor
     {
         public struct SendEventArgs
         {
-            public IByteArrayConvertible Data;
+            public IInMemoryData Data;
             /// <summary>
             /// Indicates whether Data is to be sent to client or server, only matters for proxy
             /// </summary>

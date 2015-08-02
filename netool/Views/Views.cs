@@ -1,5 +1,6 @@
 ﻿using Netool.Logging;
 using Netool.Network;
+using Netool.Network.DataFormats;
 using System.Windows.Forms;
 
 namespace Netool.Views
@@ -59,7 +60,7 @@ namespace Netool.Views
         /// </summary>
         void Clear();
 
-        IByteArrayConvertible GetValue();
+        IInMemoryData GetValue();
 
         void SetValue(Netool.Logging.Event v);
     }

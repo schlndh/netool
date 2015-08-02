@@ -70,18 +70,19 @@ namespace Netool.Network.Tcp
             }
         }
 
-        private IByteArrayConvertible processResponse(byte[] response, int length)
+        private IDataStream processResponse(byte[] response, int length)
         {
             byte[] arr = new byte[length];
             Array.Copy(response, arr, length);
             return new ByteArray(arr);
         }
 
-        public void Send(IByteArrayConvertible request)
+        public void Send(IDataStream request)
         {
             try
             {
-                socket.Send(request.ToByteArray());
+                // TODO: improve this
+                socket.Send(request.ReadBytes(0, request.Length));
             }
             catch (ObjectDisposedException)
             {

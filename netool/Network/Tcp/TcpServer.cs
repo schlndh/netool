@@ -73,7 +73,7 @@ namespace Netool.Network.Tcp
             }
             if (bytesRead > 0)
             {
-                IByteArrayConvertible processed = processRequest(stateObject.Buffer, bytesRead);
+                var processed = processRequest(stateObject.Buffer, bytesRead);
                 OnRequestReceived(processed);
                 scheduleNextReceive();
             }
@@ -83,18 +83,19 @@ namespace Netool.Network.Tcp
             }
         }
 
-        private IByteArrayConvertible processRequest(byte[] data, int length)
+        private IDataStream processRequest(byte[] data, int length)
         {
             byte[] arr = new byte[length];
             Array.Copy(data, arr, length);
             return new ByteArray(arr);
         }
 
-        public void Send(IByteArrayConvertible response)
+        public void Send(IDataStream response)
         {
             try
             {
-                socket.Send(response.ToByteArray());
+                // TODO: improve this
+                socket.Send(response.ReadBytes(0, response.Length));
             }
             catch (ObjectDisposedException)
             {

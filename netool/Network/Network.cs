@@ -1,5 +1,8 @@
-﻿using System;
-using Netool.ChannelDrivers;
+﻿using Netool.ChannelDrivers;
+using Netool.Network.DataFormats;
+using System;
+using System.Collections.Generic;
+
 namespace Netool.Network
 {
     public enum InstanceType
@@ -10,16 +13,16 @@ namespace Netool.Network
     [Serializable]
     public class DataEventArgs : EventArgs, ICloneable
     {
-        public IByteArrayConvertible Data;
+        public IDataStream Data;
         public ICloneable State;
 
         public object Clone()
         {
-            IByteArrayConvertible nd = null;
+            IDataStream nd = null;
             ICloneable ns = null;
             if(Data != null)
             {
-                nd = (IByteArrayConvertible)Data.Clone();
+                nd = (IDataStream)Data.Clone();
             }
             if(State != null)
             {
@@ -35,11 +38,6 @@ namespace Netool.Network
     public delegate void ResponseSentHandler(object sender, DataEventArgs e);
     public delegate void ResponseReceivedHandler(object sender, DataEventArgs e);
     public delegate void ChannelClosedHandler(object sender);
-
-    public interface IByteArrayConvertible : ICloneable
-    {
-        byte[] ToByteArray();
-    }
 
     /// <summary>
     /// Client factory interface for default proxy, must be serializable
@@ -112,7 +110,7 @@ namespace Netool.Network
         event RequestSentHandler RequestSent;
         event ResponseReceivedHandler ResponseReceived;
 
-        void Send(IByteArrayConvertible request);
+        void Send(IDataStream request);
     }
 
     public interface IServerChannel : IChannel
@@ -120,7 +118,7 @@ namespace Netool.Network
         event RequestReceivedHandler RequestReceived;
         event ResponseSentHandler ResponseSent;
 
-        void Send(IByteArrayConvertible response);
+        void Send(IDataStream response);
     }
 
     public interface IProxyChannel : IChannel
@@ -130,8 +128,8 @@ namespace Netool.Network
         event ResponseReceivedHandler ResponseReceived;
         event ResponseSentHandler ResponseSent;
 
-        void SendToServer(IByteArrayConvertible request);
-        void SendToClient(IByteArrayConvertible response);
+        void SendToServer(IDataStream request);
+        void SendToClient(IDataStream response);
     }
 
     public static class IInstanceExtensions

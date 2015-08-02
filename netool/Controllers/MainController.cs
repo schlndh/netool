@@ -73,7 +73,7 @@ namespace Netool.Controllers
                     logger.WritePluginID(plugin.ID);
                     var pack = plugin.CreateInstance(logger, instance.Type, instance.Settings);
                     // TODO: setup original channel drivers here
-                    setupDrivers(cont); // placeholder
+                    setupDrivers(pack.Controller); // placeholder
                     controllers.Add(pack.Controller);
                     view.AddPage(instance.Name, pack.View.GetForm());
                 }

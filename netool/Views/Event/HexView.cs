@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Netool.Network.DataFormats;
 using System.Windows.Forms;
 
 namespace Netool.Views.Event
@@ -21,9 +14,10 @@ namespace Netool.Views.Event
 
         public void Show(Netool.Logging.Event e)
         {
-            if(e.Data != null)
+            if (e.Data != null)
             {
-                data.ByteProvider = new Be.Windows.Forms.DynamicByteProvider(e.Data.Data.ToByteArray());
+                // TODO: improve this
+                data.ByteProvider = new Be.Windows.Forms.DynamicByteProvider(e.Data.Data.ReadBytes(0, e.Data.Data.Length));
                 data.Visible = true;
             }
             else
