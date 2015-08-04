@@ -19,9 +19,9 @@ namespace Netool.Logging
             log = new FileLog(Path.GetTempFileName());
         }
 
-        public InstanceLogger(string filename)
+        public InstanceLogger(string filename, FileMode mode = FileMode.OpenOrCreate)
         {
-            log = new FileLog(filename);
+            log = new FileLog(filename, mode);
             // temporary workaround - load all channels
             GetChannelByID(log.GetChannelCount());
         }

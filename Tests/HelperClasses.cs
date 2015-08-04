@@ -7,6 +7,7 @@ namespace Tests
     [Serializable]
     internal class TestInstance : IInstance
     {
+        public object Settings { get { return null; } }
         public string Serialized;
 
         [NonSerialized]

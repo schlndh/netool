@@ -49,9 +49,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Be.Windows.Forms.HexBox">
-      <HintPath>..\packages\Be.Windows.Forms.HexBox.1.6.1\lib\net40\Be.Windows.Forms.HexBox.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
@@ -65,127 +62,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChannelDrivers\ChannelDrivers.cs" />
-    <Compile Include="ChannelDrivers\DefaultProxyDriver.cs" />
-    <Compile Include="ChannelDrivers\ManualChannelDriver.cs" />
-    <Compile Include="ChannelDrivers\RejectDriver.cs" />
     <Compile Include="Dialogs\CreateInstanceDialog.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Dialogs\CreateInstanceDialog.Designer.cs">
       <DependentUpon>CreateInstanceDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\Tcp\TcpClientDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\Tcp\TcpClientDialog.Designer.cs">
-      <DependentUpon>TcpClientDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\Tcp\TcpProxyDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\Tcp\TcpProxyDialog.Designer.cs">
-      <DependentUpon>TcpProxyDialog.cs</DependentUpon>
-    </Compile>
     <Compile Include="MainExceptions.cs" />
-    <Compile Include="Logging\ChannelLogger.cs" />
-    <Compile Include="Controllers\Contollers.cs" />
     <Compile Include="Controllers\MainController.cs" />
-    <Compile Include="Controllers\DefaultInstanceController.cs" />
-    <Compile Include="Dialogs\Tcp\TcpServerDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\Tcp\TcpServerDialog.Designer.cs">
-      <DependentUpon>TcpServerDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Logging\Event.cs" />
-    <Compile Include="Logging\InstanceLogger.cs" />
-    <Compile Include="Logging\FileLog.cs" />
-    <Compile Include="Logging\FileLogReader.cs" />
     <Compile Include="Models\MainModel.cs" />
-    <Compile Include="Network\BaseChannel.cs" />
-    <Compile Include="Network\BaseClientChannel.cs" />
-    <Compile Include="Network\BaseServerChannel.cs" />
-    <Compile Include="Network\DataFormats\ByteArray.cs" />
-    <Compile Include="Network\DataFormats\DataFormats.cs" />
-    <Compile Include="Network\DefaultProxy.cs" />
-    <Compile Include="Network\Helpers.cs" />
-    <Compile Include="Network\Tcp\TcpClientFactory.cs" />
-    <Compile Include="Network\Udp\UdpClient.cs" />
-    <Compile Include="Network\Udp\UdpClientFactory.cs" />
-    <Compile Include="Network\Udp\UdpServer.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Plugins\ChannelDrivers\DefaultProxyChannelDriverPlugin.cs" />
-    <Compile Include="Plugins\PluginExceptions.cs" />
-    <Compile Include="Plugins\Plugins.cs" />
-    <Compile Include="Plugins\Protocols\TcpPlugin.cs" />
-    <Compile Include="Views\Channel\DefaultChannelView.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Views\Channel\DefaultChannelView.Designer.cs">
-      <DependentUpon>DefaultChannelView.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Editor\DefaultEditorMasterViewFactory.cs" />
-    <Compile Include="Views\Editor\EditorMasterView.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Views\Editor\EditorMasterView.Designer.cs">
-      <DependentUpon>EditorMasterView.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Editor\HexView.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Views\Editor\HexView.Designer.cs">
-      <DependentUpon>HexView.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Event\HexView.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Views\Event\HexView.Designer.cs">
-      <DependentUpon>HexView.cs</DependentUpon>
-    </Compile>
     <Compile Include="Views\MainView.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Views\MainView.Designer.cs">
       <DependentUpon>MainView.cs</DependentUpon>
     </Compile>
-    <Compile Include="Network\Network.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Network\Tcp\TcpClient.cs" />
-    <Compile Include="Network\Tcp\TcpServer.cs" />
-    <Compile Include="Views\Instance\DefaultInstanceView.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Views\Instance\DefaultInstanceView.Designer.cs">
-      <DependentUpon>DefaultInstanceView.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Views.cs" />
     <EmbeddedResource Include="Dialogs\CreateInstanceDialog.resx">
       <DependentUpon>CreateInstanceDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\Tcp\TcpClientDialog.resx">
-      <DependentUpon>TcpClientDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\Tcp\TcpProxyDialog.resx">
-      <DependentUpon>TcpProxyDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\Tcp\TcpServerDialog.resx">
-      <DependentUpon>TcpServerDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\Channel\DefaultChannelView.resx">
-      <DependentUpon>DefaultChannelView.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\Editor\EditorMasterView.resx">
-      <DependentUpon>EditorMasterView.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\Editor\HexView.resx">
-      <DependentUpon>HexView.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Views\Event\HexView.resx">
-      <DependentUpon>HexView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\MainView.resx">
       <DependentUpon>MainView.cs</DependentUpon>
@@ -200,11 +95,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="Views\Instance\DefaultInstanceView.resx">
-      <DependentUpon>DefaultInstanceView.cs</DependentUpon>
-    </EmbeddedResource>
-    <None Include="packages.config" />
-    <None Include="Plugins\ReservedPluginIDs.md" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -236,12 +126,11 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\IPEndPointControl\IPEndPointControl\IPEndPointControl.csproj">
-      <Project>{4027CC4F-182C-49C9-BEF5-63AD7E1FFABC}</Project>
-      <Name>IPEndPointControl</Name>
+    <ProjectReference Include="..\libnetool\libnetool.csproj">
+      <Project>{7f2d2640-8401-4ee8-917f-b1ae3cce51db}</Project>
+      <Name>libnetool</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

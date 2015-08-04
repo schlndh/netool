@@ -61,7 +61,9 @@ namespace Netool
                         controller.RestoreInstance(openFileDialog.FileName);
                         return;
                     }
-                    catch {}
+                    catch(Exception err) {
+                        var msg = err.Message;
+                    }
                 } while(MessageBox.Show("Selected file couldn't be opened!", "Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) == DialogResult.Retry);
 
             }

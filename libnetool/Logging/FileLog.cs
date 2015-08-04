@@ -63,10 +63,10 @@ namespace Netool.Logging
 
         private long currentChannelTableSize = 0;
 
-        public FileLog(string filename)
+        public FileLog(string filename, FileMode mode = FileMode.OpenOrCreate)
         {
             this.filename = filename;
-            stream = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
+            stream = new FileStream(filename, mode, FileAccess.ReadWrite, FileShare.Read);
             init();
         }
 

@@ -137,7 +137,7 @@ namespace Netool.Controllers
                     var file = dialog.LogFileName;
                     try
                     {
-                        logger = new InstanceLogger(file);
+                        logger = new InstanceLogger(file, FileMode.Create);
                     }
                     // something went wrong with the path, save it as temp file
                     catch

@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IPEndPointControl", "IPEndPointControl\IPEndPointControl\IPEndPointControl.csproj", "{4027CC4F-182C-49C9-BEF5-63AD7E1FFABC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libnetool", "libnetool\libnetool.csproj", "{7F2D2640-8401-4EE8-917F-B1AE3CCE51DB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{4027CC4F-182C-49C9-BEF5-63AD7E1FFABC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4027CC4F-182C-49C9-BEF5-63AD7E1FFABC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4027CC4F-182C-49C9-BEF5-63AD7E1FFABC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F2D2640-8401-4EE8-917F-B1AE3CCE51DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F2D2640-8401-4EE8-917F-B1AE3CCE51DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F2D2640-8401-4EE8-917F-B1AE3CCE51DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F2D2640-8401-4EE8-917F-B1AE3CCE51DB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
