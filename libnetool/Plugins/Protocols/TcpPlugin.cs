@@ -9,20 +9,33 @@ using System.Windows.Forms;
 
 namespace Netool.Plugins.Protocols
 {
+    /// <summary>
+    /// Plugin for basic TCP functions.
+    /// </summary>
     public class TcpPlugin : IProtocolPlugin
     {
+        /// <inheritdoc/>
         public long ID { get { return 1; } }
+        /// <inheritdoc/>
         public string Name { get { return "TcpPlugin"; } }
+        /// <inheritdoc/>
         public string Description { get { return "Plugin for basic TCP functions. Supports Client, Server and Proxy."; } }
         private Version version = new Version(0, 1);
+        /// <inheritdoc/>
         public Version Version { get { return version; } }
+        /// <inheritdoc/>
         public string Author { get { return "Hynek Schlindenbuch"; } }
 
+        /// <inheritdoc/>
         public bool SupportsServer { get { return true; } }
+        /// <inheritdoc/>
         public bool SupportsClient { get { return true; } }
+        /// <inheritdoc/>
         public bool SupportsProxy { get { return true; } }
+        /// <inheritdoc/>
         public string ProtocolName { get { return "Tcp"; } }
 
+        /// <inheritdoc/>
         public InstancePack CreateInstance(InstanceLogger logger, InstanceType type)
         {
             IInstance instance;
@@ -48,6 +61,7 @@ namespace Netool.Plugins.Protocols
             return new InstancePack(view, cont, type);
         }
 
+        /// <inheritdoc/>
         public InstancePack CreateInstance(InstanceLogger logger, InstanceType type, object settings)
         {
             IInstance instance;
@@ -79,6 +93,7 @@ namespace Netool.Plugins.Protocols
             return new InstancePack(view, cont, type);
         }
 
+        /// <inheritdoc/>
         public InstancePack RestoreInstance(InstanceLogger logger)
         {
             var view = new DefaultInstanceView();

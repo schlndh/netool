@@ -3,6 +3,7 @@ using Netool.Logging;
 using Netool.Network;
 using Netool.Views;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 
 namespace Netool.Controllers
@@ -92,13 +93,17 @@ namespace Netool.Controllers
 
         public void Stop()
         {
+            Debug.WriteLine("DefaultInstanceController - stopping instance(type: {0})", instance.GetType(), 1);
             instance.Stop();
+            Debug.WriteLine("DefaultInstanceController - instance(type: {0}) stopped", instance.GetType(), 1);
         }
 
         public void Close()
         {
+            Debug.WriteLine("DefaultInstanceController - closing instance(type: {0})", instance.GetType(), 1);
             logger.WriteInstanceData(instance);
             logger.Close();
+            Debug.WriteLine("DefaultInstanceController - instance(type: {0}) closed", instance.GetType(), 1);
         }
 
         /// <summary>

@@ -1,24 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Netool.Controllers;
+using System;
+using System.Diagnostics;
 using System.Windows.Forms;
-using Netool.Controllers;
+
 namespace Netool
 {
-    static class Program
+    internal static class Program
     {
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        private static void Main()
         {
+            Debug.Listeners.Add(new TextWriterTraceListener("debug.log"));
+            Debug.AutoFlush = true;
+            Debug.WriteLine("---------------- Netool started ----------------");
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             var view = new MainView();
             var controller = new MainController(view);
             Application.Run(view);
+            Debug.WriteLine("---------------- Netool ended ----------------");
         }
     }
 }

@@ -101,6 +101,12 @@ namespace Netool.Plugins
 
     public static class ProtocolPluginExtensions
     {
+        /// <summary>
+        /// Check if protocol plugin supports given instance type
+        /// </summary>
+        /// <param name="p">protocol plugin</param>
+        /// <param name="t">type</param>
+        /// <returns></returns>
         public static bool SupportsType(this IProtocolPlugin p, InstanceType t)
         {
             if (t == InstanceType.Client) return p.SupportsClient;

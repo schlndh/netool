@@ -1,6 +1,7 @@
 ﻿using Netool.Network;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 
 namespace Netool.Logging
@@ -119,8 +120,9 @@ namespace Netool.Logging
 
         private void channelClosedHandler(object sender)
         {
-            generalHandler(EventType.ChannelClosed);
+            Debug.WriteLine("ChannelLogger (type: {0}, id: {1}, name: {2}) writing channel data", channel.GetType(), channel.ID, channel.Name);
             log.WriteChannelData(hint, eventCount, channel);
+            generalHandler(EventType.ChannelClosed);
         }
 
         private void responseReceivedHandler(object sender, DataEventArgs e)
@@ -135,7 +137,7 @@ namespace Netool.Logging
 
         private void generalHandler(EventType type, DataEventArgs data = null)
         {
-
+            Debug.WriteLine("ChannelLogger (type: {0}, id: {1}, name: {2}) logging event (type: {3})", channel.GetType(), channel.ID, channel.Name, type);
             int c = 0;
             DataEventArgs nd = null;
             if (data != null)

@@ -1,5 +1,6 @@
 ﻿using Netool.Network;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -162,6 +163,7 @@ namespace Netool.Logging
         {
             lock (stream)
             {
+                Debug.WriteLine("FileLog ({0}) closing", filename, 1);
                 stream.Position = sizeof(long);
                 binWriter.Write(channelCount);
                 binWriter.Close();
@@ -220,6 +222,7 @@ namespace Netool.Logging
         {
             lock (stream)
             {
+                Debug.WriteLine("FileLog ({0}) writing channel data (type: {1}, id: {2}, name: {3})", filename, channel.GetType(), channel.ID, channel.Name);
                 stream.Position = hint;
                 // write the pointer to serialized channel data
                 binWriter.Write(stream.Length);
@@ -238,6 +241,7 @@ namespace Netool.Logging
         {
             lock (stream)
             {
+                Debug.WriteLine("FileLog ({0}) writing instance data (type: {1})", filename, instance.GetType());
                 stream.Position = 0;
                 stream.Position = binReader.ReadInt64() + sizeof(long);
                 // write the pointer to serialized instance data
@@ -257,6 +261,7 @@ namespace Netool.Logging
         {
             lock (stream)
             {
+                Debug.WriteLine("FileLog ({0}) logging event (id: {1}, type: {2})", filename, e.ID, e.Type);
                 // move the hint to the beginning of the event table
                 hint += 2*sizeof(long);
                 logEventHelper(hint, e.ID, e);

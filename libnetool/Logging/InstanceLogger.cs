@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace Netool.Logging
@@ -63,11 +64,14 @@ namespace Netool.Logging
             log.Open();
         }
 
+        /// <inheritdoc cref="FileLog.WriteInstanceData"/>
         public void WriteInstanceData(IInstance instance)
         {
+            Debug.WriteLine("InstanceLogger - writing instance data (type: {0})", instance.GetType());
             log.WriteInstanceData(instance);
         }
 
+        /// <inheritdoc cref="FileLogReader.ReadInstanceData"/>
         public IInstance ReadInstanceData()
         {
             var reader = log.CreateReader();
@@ -76,11 +80,13 @@ namespace Netool.Logging
             return ret;
         }
 
+        /// <inheritdoc cref="FileLog.WritePluginID"/>
         public void WritePluginID(long id)
         {
             log.WritePluginID(id);
         }
 
+        /// <inheritdoc cref="FileLogReader.ReadPluginID"/>
         public long ReadPluginID()
         {
             var reader = log.CreateReader();
@@ -94,6 +100,7 @@ namespace Netool.Logging
         /// </summary>
         public void Close()
         {
+            Debug.WriteLine("InstanceLogger - closing");
             log.Close();
         }
 
@@ -102,6 +109,7 @@ namespace Netool.Logging
             if (ChannelCountChanged != null) ChannelCountChanged(this, c);
         }
 
+        /// <inheritdoc cref="FileLog.GetChannelCount"/>
         public int GetChannelCount()
         {
             return log.GetChannelCount();

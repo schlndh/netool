@@ -1,5 +1,6 @@
 ﻿using Netool.Network.DataFormats;
 using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -27,6 +28,7 @@ namespace Netool.Network.Tcp
             this.id = id;
             name = socket.LocalEndPoint.ToString();
             ReceiveBufferSize = receiveBufferSize;
+            Debug.WriteLine("TcpClientChannel created: id {0}, name {1}", id, name);
             // don't call scheduleNextReceive right away, the ChannelCreated event must be raised first
         }
 
@@ -60,21 +62,21 @@ namespace Netool.Network.Tcp
             }
             if (bytesRead > 0)
             {
+                Debug.WriteLine("TcpClientChannel (id: {0}, name: {1}) received {2} bytes", ID, Name, bytesRead);
                 var response = processResponse(s.Buffer, bytesRead);
                 OnResponseReceived(response);
                 scheduleNextReceive();
             }
             else
             {
+                Debug.WriteLine("TcpClientChannel (id: {0}, name: {1}) received 0 bytes - closing", ID, Name);
                 Close();
             }
         }
 
         private IDataStream processResponse(byte[] response, int length)
         {
-            byte[] arr = new byte[length];
-            Array.Copy(response, arr, length);
-            return new ByteArray(arr);
+            return new ByteArray(response, 0, length);
         }
 
         public void Send(IDataStream request)
@@ -91,6 +93,7 @@ namespace Netool.Network.Tcp
 
             OnRequestSent(request);
         }
+
         public void Close()
         {
             try
@@ -103,7 +106,7 @@ namespace Netool.Network.Tcp
                 // already closed
                 return;
             }
-
+            Debug.WriteLine("TcpClientChannel (id: {0}, name: {1}) calling OnChannelClosed", ID, Name);
             OnChannelClosed();
         }
     }
@@ -116,6 +119,7 @@ namespace Netool.Network.Tcp
         protected TcpClientChannel channel;
         private volatile bool stopped = true;
         private int channelID = 0;
+        private object stopLock = new object();
 
         [field: NonSerialized]
         public event EventHandler<IClientChannel> ChannelCreated;
@@ -138,8 +142,8 @@ namespace Netool.Network.Tcp
                 socket.Bind(settings.LocalEndPoint);
                 socket.Connect(settings.RemoteEndPoint);
                 channel = new TcpClientChannel(socket, Interlocked.Increment(ref channelID), ReceiveBufferSize);
-                channel.ChannelClosed += channelClosedHandler;
                 OnChannelCreated(channel);
+                channel.ChannelClosed += channelClosedHandler;
                 channel.raiseChannelReady();
                 channel.scheduleNextReceive();
 
@@ -149,14 +153,20 @@ namespace Netool.Network.Tcp
 
         public void Stop()
         {
-            if (!stopped)
+            Debug.WriteLine("TcpClient stopping");
+            lock(stopLock)
             {
-                stopped = true;
-                if (channel != null)
+                if (!stopped)
                 {
-                    channel.Close();
+                    stopped = true;
+                    if (channel != null)
+                    {
+                        channel.ChannelClosed -= channelClosedHandler;
+                        channel.Close();
+                    }
                 }
             }
+            Debug.WriteLine("TcpClient stopped");
         }
 
         private void OnChannelCreated(IClientChannel channel)
@@ -166,6 +176,7 @@ namespace Netool.Network.Tcp
 
         private void channelClosedHandler(object channel)
         {
+            Debug.WriteLine("TcpClient.channelClosedHandler");
             Stop();
         }
     }

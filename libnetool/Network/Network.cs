@@ -63,6 +63,12 @@ namespace Netool.Network
 
     public interface IServer : IInstance
     {
+        /// <summary>
+        /// Indicates that new channel was created
+        /// </summary>
+        /// <remarks>
+        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// </remarks>
         event EventHandler<IServerChannel> ChannelCreated;
 
         void Start();
@@ -70,6 +76,12 @@ namespace Netool.Network
 
     public interface IClient : IInstance
     {
+        /// <summary>
+        /// Indicates that new channel was created. This event is raised every time the client is newly started.
+        /// </summary>
+        /// <remarks>
+        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// </remarks>
         event EventHandler<IClientChannel> ChannelCreated;
 
         IClientChannel Start();
@@ -77,14 +89,24 @@ namespace Netool.Network
 
     public interface IProxy : IInstance
     {
+        /// <summary>
+        /// Indicates that new channel was created
+        /// </summary>
+        /// <remarks>
+        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// </remarks>
         event EventHandler<IProxyChannel> ChannelCreated;
 
         void Start();
     }
 
     /// <summary>
-    /// All events on a channel must happen only after ChannelCreated event is completed, must be serializable
+    /// Basic interface for all channel
     /// </summary>
+    /// <remarks>
+    /// All events on a channel must happen only after ChannelCreated event is completed.
+    /// Must be serializable
+    /// </remarks>
     public interface IChannel
     {
         /// <summary>
@@ -96,44 +118,140 @@ namespace Netool.Network
         /// </summary>
         string Name { get; }
         IChannelDriver Driver { get; set; }
+
         /// <summary>
         /// Indicates, that channel is ready to receive commands, useful for drivers
         /// </summary>
+        /// <remarks>
+        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// </remarks>
         event ChannelReadyHandler ChannelReady;
+
+        /// <summary>
+        /// Indicates that channel is closed and will receive no further commands
+        /// </summary>
+        /// <remarks>
+        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// </remarks>
         event ChannelClosedHandler ChannelClosed;
 
+        /// <summary>
+        /// Close the channel, will raise the ChannelClosed event
+        /// </summary>
         void Close();
     }
 
+    /// <summary>
+    /// Basic interface for client channels
+    /// </summary>
+    /// <inheritdoc select="remarks"/>
     public interface IClientChannel : IChannel
     {
+        /// <summary>
+        /// Indicates that request was sent
+        /// </summary>
+        /// <remarks>
+        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// </remarks>
         event RequestSentHandler RequestSent;
+        /// <summary>
+        /// Indicates that response was recieved
+        /// </summary>
+        /// <remarks>
+        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// </remarks>
         event ResponseReceivedHandler ResponseReceived;
 
+        /// <summary>
+        /// Send request to server
+        /// </summary>
+        /// <param name="request">request stream</param>
         void Send(IDataStream request);
     }
 
+    /// <summary>
+    /// Basic interface for client channels
+    /// </summary>
+    /// <inheritdoc select="remarks"/>
     public interface IServerChannel : IChannel
     {
+        /// <summary>
+        /// Indicates that request was received
+        /// </summary>
+        /// <remarks>
+        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// </remarks>
         event RequestReceivedHandler RequestReceived;
+
+        /// <summary>
+        /// Indicates that response was sent
+        /// </summary>
+        /// <remarks>
+        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// </remarks>
         event ResponseSentHandler ResponseSent;
 
+        /// <summary>
+        /// Send response to client
+        /// </summary>
+        /// <param name="response">response stream</param>
         void Send(IDataStream response);
     }
 
+    /// <summary>
+    /// Basic interface for client channels
+    /// </summary>
+    /// <inheritdoc select="remarks"/>
     public interface IProxyChannel : IChannel
     {
+        /// <summary>
+        /// Indicates that request was received
+        /// </summary>
+        /// <remarks>
+        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// </remarks>
         event RequestReceivedHandler RequestReceived;
+        /// <summary>
+        /// Indicates that request was sent
+        /// </summary>
+        /// <remarks>
+        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// </remarks>
         event RequestSentHandler RequestSent;
+        /// <summary>
+        /// Indicates that response was received
+        /// </summary>
+        /// <remarks>
+        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// </remarks>
         event ResponseReceivedHandler ResponseReceived;
+        /// <summary>
+        /// Indicates that response was received
+        /// </summary>
+        /// <remarks>
+        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// </remarks>
         event ResponseSentHandler ResponseSent;
 
+        /// <summary>
+        /// Send request to server
+        /// </summary>
+        /// <param name="response">requesr stream</param>
         void SendToServer(IDataStream request);
+
+        /// <summary>
+        /// Send response to client
+        /// </summary>
+        /// <param name="response">response stream</param>
         void SendToClient(IDataStream response);
     }
 
     public static class IInstanceExtensions
     {
+        /// <summary>
+        /// Start instance of any type
+        /// </summary>
+        /// <param name="c">instance</param>
         public static void Start(this IInstance c)
         {
             if(c is IClient)
@@ -150,6 +268,11 @@ namespace Netool.Network
             }
         }
 
+        /// <summary>
+        /// Get instance type
+        /// </summary>
+        /// <param name="c">instance</param>
+        /// <returns>type</returns>
         public static InstanceType GetInstanceType(this IInstance c)
         {
             if (c is IClient) return InstanceType.Client;
