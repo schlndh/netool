@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="FileLogReaderTests.cs" />
     <Compile Include="HelperClasses.cs" />
+    <Compile Include="Network\DataFormats\StreamListTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="NetworkHelpersTests.cs" />
     <Compile Include="FileLogTests.cs" />

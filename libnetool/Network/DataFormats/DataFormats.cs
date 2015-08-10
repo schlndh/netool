@@ -79,7 +79,7 @@ namespace Netool.Network.DataFormats
         /// <param name="index"></param>
         /// <example>
         /// Example default implementation for your class
-        /// <code>
+        /// <code language="C#">
         /// public byte ReadByte(long index)
         /// {
         ///     return DefaultIInMemoryDataStream.ReadByte(this, (int) index);
@@ -101,7 +101,7 @@ namespace Netool.Network.DataFormats
         /// <param name="buffers"></param>
         /// <example>
         /// Example default implementation for your class
-        /// <code>
+        /// <code language="C#">
         /// <![CDATA[
         /// public void ReadBytesToBuffer(long start, long length, IList<ArraySegment<byte>> buffers)
         /// {
