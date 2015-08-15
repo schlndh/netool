@@ -7,7 +7,7 @@
     <ProjectGuid>{7F2D2640-8401-4EE8-917F-B1AE3CCE51DB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>libnetool</RootNamespace>
+    <RootNamespace>Netool</RootNamespace>
     <AssemblyName>libnetool</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -21,6 +21,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\libnetool.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -79,10 +80,12 @@
     <Compile Include="Network\BaseChannel.cs" />
     <Compile Include="Network\BaseClientChannel.cs" />
     <Compile Include="Network\BaseServerChannel.cs" />
+    <Compile Include="Network\DataFormats\StreamSegment.cs" />
     <Compile Include="Network\DataFormats\StreamList.cs" />
     <Compile Include="Network\DataFormats\EmptyData.cs" />
     <Compile Include="Network\DataFormats\ByteArray.cs" />
     <Compile Include="Network\DataFormats\DataFormats.cs" />
+    <Compile Include="Network\DataFormats\StreamWrapper.cs" />
     <Compile Include="Network\DefaultProxy.cs" />
     <Compile Include="Network\Helpers.cs" />
     <Compile Include="Network\Network.cs" />

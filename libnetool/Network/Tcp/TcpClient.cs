@@ -19,6 +19,7 @@ namespace Netool.Network.Tcp
     {
         [NonSerialized]
         protected Socket socket;
+        private object stopLock = new object();
 
         public int ReceiveBufferSize { get; set; }
 
@@ -79,6 +80,7 @@ namespace Netool.Network.Tcp
             return new ByteArray(response, 0, length);
         }
 
+        /// <inheritdoc />
         public void Send(IDataStream request)
         {
             try
@@ -94,20 +96,25 @@ namespace Netool.Network.Tcp
             OnRequestSent(request);
         }
 
+        /// <inheritdoc />
         public void Close()
         {
-            try
+            lock (stopLock)
             {
-                socket.Shutdown(SocketShutdown.Both);
-                socket.Close();
+                try
+                {
+                    socket.Shutdown(SocketShutdown.Both);
+                    socket.Close();
+                }
+                catch (ObjectDisposedException)
+                {
+                    // already closed
+                    return;
+                }
+                Debug.WriteLine("TcpClientChannel (id: {0}, name: {1}) calling OnChannelClosed", ID, Name);
+                OnChannelClosed();
+                Debug.WriteLine("TcpClientChannel (id: {0}, name: {1}) OnChannelClosed finished", ID, Name);
             }
-            catch (ObjectDisposedException)
-            {
-                // already closed
-                return;
-            }
-            Debug.WriteLine("TcpClientChannel (id: {0}, name: {1}) calling OnChannelClosed", ID, Name);
-            OnChannelClosed();
         }
     }
 
@@ -115,16 +122,19 @@ namespace Netool.Network.Tcp
     public class TcpClient : IClient
     {
         protected TcpClientSettings settings;
+        /// <inheritdoc />
         public object Settings { get { return settings; } }
         protected TcpClientChannel channel;
         private volatile bool stopped = true;
         private int channelID = 0;
         private object stopLock = new object();
 
+        /// <inheritdoc />
         [field: NonSerialized]
         public event EventHandler<IClientChannel> ChannelCreated;
 
         public int ReceiveBufferSize { get; set; }
+        /// <inheritdoc />
         public bool IsStarted { get { return !stopped; } }
 
         public TcpClient(TcpClientSettings settings)
@@ -133,6 +143,7 @@ namespace Netool.Network.Tcp
             ReceiveBufferSize = 2048;
         }
 
+        /// <inheritdoc />
         public IClientChannel Start()
         {
             if (stopped)
@@ -151,6 +162,7 @@ namespace Netool.Network.Tcp
             return channel;
         }
 
+        /// <inheritdoc />
         public void Stop()
         {
             Debug.WriteLine("TcpClient stopping");

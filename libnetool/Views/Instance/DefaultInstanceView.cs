@@ -65,7 +65,7 @@ namespace Netool.Views.Instance
 
         private void logger_ChannelCountChanged(object sender, int e)
         {
-            this.channels.Invoke(new Action(() => this.channels.VirtualListSize = e));
+            this.channels.BeginInvoke(new Action(() => this.channels.VirtualListSize = e));
         }
 
         public Form GetForm()

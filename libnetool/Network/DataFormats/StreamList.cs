@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Threading;
 
 namespace Netool.Network.DataFormats
@@ -12,6 +13,7 @@ namespace Netool.Network.DataFormats
     {
         private List<IDataStream> streams = new List<IDataStream>();
         private long length;
+        [NonSerialized]
         private ReaderWriterLockSlim streamsLock = new ReaderWriterLockSlim();
         /// <inheritdoc/>
         public long Length { get { return Interlocked.Read(ref length); } }
@@ -67,7 +69,7 @@ namespace Netool.Network.DataFormats
         }
 
         /// <inheritdoc/>
-        public void ReadBytesToBuffer(long start, long length, IList<ArraySegment<byte>> buffers)
+        public void ReadBytesToBuffer(IList<ArraySegment<byte>> buffers, long start, long length)
         {
             if (length == 0) return;
             var workBuffers = new List<ArraySegment<byte>>(buffers);
@@ -93,7 +95,7 @@ namespace Netool.Network.DataFormats
                     int skip = 0;
                     long off = 0;
                     length -= len;
-                    stream.ReadBytesToBuffer(start, len, workBuffers);
+                    stream.ReadBytesToBuffer(workBuffers, start, len);
                     foreach(var buff in workBuffers)
                     {
                         len -= buff.Count;
@@ -145,6 +147,12 @@ namespace Netool.Network.DataFormats
             {
                 streamsLock.ExitReadLock();
             }
+        }
+
+        [OnDeserializing]
+        private void SetValuesOnDeserializing(StreamingContext context)
+        {
+            streamsLock = new ReaderWriterLockSlim();
         }
     }
 }

@@ -33,8 +33,30 @@ namespace Netool.Network.DataFormats
         public ByteArray(byte[] arr, int start, int length)
         {
             byte[] narr = new byte[length];
-            Array.Copy(arr, start, narr, 0, arr.Length);
+            Array.Copy(arr, start, narr, 0, length);
             this.arr = System.Array.AsReadOnly(narr);
+        }
+
+        /// <summary>
+        /// Creates new ByteArray from a copy of the given list
+        /// </summary>
+        /// <param name="arr"></param>
+        public ByteArray(IReadOnlyList<byte> arr)
+        {
+            arr = new List<byte>(arr).AsReadOnly();
+        }
+
+        /// <summary>
+        /// Creates new ByteArray from a copy of the given stream
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="start"></param>
+        /// <param name="length">length to copy, or -1 to copy from start to the end</param>
+        public ByteArray(IDataStream stream, long start = 0, long length = -1)
+        {
+            if (length == -1) length = stream.Length - start;
+            // ReadBytes copies data, so no extra copying is required
+            arr = System.Array.AsReadOnly(stream.ReadBytes(start, length));
         }
 
         /// <inheritdoc/>
@@ -50,9 +72,9 @@ namespace Netool.Network.DataFormats
         }
 
         /// <inheritdoc/>
-        public void ReadBytesToBuffer(long start, long length, IList<ArraySegment<byte>> buffers)
+        public void ReadBytesToBuffer(IList<ArraySegment<byte>> buffers, long start, long length)
         {
-            DefaultIInMemoryDataStream.ReadBytesToBuffer(this, (int)start, (int)length, buffers);
+            DefaultIInMemoryDataStream.ReadBytesToBuffer(this, buffers, (int)start, (int)length);
         }
 
         /// <inheritdoc/>

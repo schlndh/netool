@@ -20,6 +20,7 @@ namespace Netool.Network.Udp
         protected Socket socket;
         protected EndPoint remoteEP;
         public int ReceiveBufferSize { get; set; }
+        private object stopLock = new object();
 
         public UdpClientChannel(Socket socket, EndPoint remoteEP, int id, int receiveBufferSize = 2048)
         {
@@ -46,6 +47,7 @@ namespace Netool.Network.Udp
             catch (ObjectDisposedException) { }
         }
 
+        /// <inheritdoc/>
         public void Send(IDataStream request)
         {
             try
@@ -88,6 +90,7 @@ namespace Netool.Network.Udp
             return new ByteArray(arr);
         }
 
+        /// <inheritdoc/>
         public void Close()
         {
             try
@@ -104,12 +107,17 @@ namespace Netool.Network.Udp
     public class UdpClient : IClient
     {
         protected UdpClientSettings settings;
+        /// <inheritdoc/>
         public object Settings { get { return settings; } }
         protected UdpClientChannel channel;
         private volatile bool stopped = true;
 
         public int ReceiveBufferSize { get; set; }
+        /// <inheritdoc/>
         public bool IsStarted { get { return !stopped; } }
+        private object stopLock = new object();
+
+        /// <inheritdoc/>
         [field: NonSerialized]
         public event EventHandler<IClientChannel> ChannelCreated;
         private int channelID = 0;
@@ -120,20 +128,24 @@ namespace Netool.Network.Udp
             ReceiveBufferSize = 2048;
         }
 
+        /// <inheritdoc/>
         public IClientChannel Start()
         {
-            if (stopped)
+            lock(stopLock)
             {
-                stopped = false;
-                var socket = new Socket(SocketType.Dgram, ProtocolType.Udp);
-                socket.Bind(settings.LocalEndPoint);
-                channel = new UdpClientChannel(socket, settings.RemoteEndPoint, Interlocked.Increment(ref channelID), ReceiveBufferSize);
-                channel.ChannelClosed += channelClosedHandler;
-                OnChannelCreated(channel);
-                channel.raiseChannelReady();
-                channel.scheduleNextReceive();
+                if (stopped)
+                {
+                    stopped = false;
+                    var socket = new Socket(SocketType.Dgram, ProtocolType.Udp);
+                    socket.Bind(settings.LocalEndPoint);
+                    channel = new UdpClientChannel(socket, settings.RemoteEndPoint, Interlocked.Increment(ref channelID), ReceiveBufferSize);
+                    channel.ChannelClosed += channelClosedHandler;
+                    OnChannelCreated(channel);
+                    channel.raiseChannelReady();
+                    channel.scheduleNextReceive();
+                }
+                return channel;
             }
-            return channel;
         }
 
         void channelClosedHandler(object sender)
@@ -142,12 +154,16 @@ namespace Netool.Network.Udp
             Stop();
         }
 
+        /// <inheritdoc/>
         public void Stop()
         {
-            if (!stopped)
+            lock (stopLock)
             {
-                stopped = true;
-                if(channel != null) channel.Close();
+                if (!stopped)
+                {
+                    stopped = true;
+                    if (channel != null) channel.Close();
+                }
             }
         }
 

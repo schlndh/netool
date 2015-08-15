@@ -25,7 +25,7 @@ namespace Netool.Network.DataFormats
         }
 
         /// <inheritdoc/>
-        public void ReadBytesToBuffer(long start, long length, IList<ArraySegment<byte>> buffers)
+        public void ReadBytesToBuffer(IList<ArraySegment<byte>> buffers, long start, long length)
         {
             if (length > 0) throw new ArgumentOutOfRangeException();
         }

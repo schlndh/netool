@@ -33,6 +33,8 @@ namespace Netool.Network.Tcp
         [NonSerialized]
         protected Socket socket;
         public int ReceiveBufferSize { get; set; }
+        private object stopLock = new object();
+
         public TcpServerChannel(Socket socket, int id, int receiveBufferSize = 2048)
         {
             this.socket = socket;
@@ -90,6 +92,7 @@ namespace Netool.Network.Tcp
             return new ByteArray(arr);
         }
 
+        /// <inheritdoc />
         public void Send(IDataStream response)
         {
             try
@@ -103,17 +106,22 @@ namespace Netool.Network.Tcp
             }
             OnResponseSent(response);
         }
+
+        /// <inheritdoc />
         public void Close()
         {
-            try
+            lock(stopLock)
             {
-                socket.Shutdown(SocketShutdown.Both);
-                socket.Close();
-                OnChannelClosed();
-            }
-            catch (ObjectDisposedException)
-            {
-                // already closed
+                try
+                {
+                    socket.Shutdown(SocketShutdown.Both);
+                    socket.Close();
+                    OnChannelClosed();
+                }
+                catch (ObjectDisposedException)
+                {
+                    // already closed
+                }
             }
         }
     }
@@ -127,15 +135,19 @@ namespace Netool.Network.Tcp
         }
 
         protected TcpServerSettings settings;
+        /// <inheritdoc />
         public object Settings { get { return settings; } }
         [NonSerialized]
         protected Socket socket;
         private volatile bool stopped = true;
         private ConcurrentDictionary<int, IServerChannel> channels = new ConcurrentDictionary<int, IServerChannel>();
         private int channelID = 0;
+        private object stopLock = new object();
         public int ReceiveBufferSize { get; set; }
+        /// <inheritdoc />
         public bool IsStarted { get { return !stopped; } }
 
+        /// <inheritdoc />
         [field: NonSerialized]
         public event EventHandler<IServerChannel> ChannelCreated;
 
@@ -145,37 +157,45 @@ namespace Netool.Network.Tcp
             ReceiveBufferSize = 2048;
         }
 
+        /// <inheritdoc />
         public void Stop()
         {
-            if (!stopped)
+            lock(stopLock)
             {
-                stopped = true;
-                foreach (var channel in channels)
+                if (!stopped)
                 {
-                    channel.Value.ChannelClosed -= channelClosedHandler;
-                    channel.Value.Close();
+                    stopped = true;
+                    foreach (var channel in channels)
+                    {
+                        channel.Value.ChannelClosed -= channelClosedHandler;
+                        channel.Value.Close();
+                    }
+                    channels.Clear();
+                    socket.Close();
                 }
-                channels.Clear();
-                socket.Close();
             }
         }
 
+        /// <inheritdoc />
         public void Start()
         {
-            if (stopped)
+            lock(stopLock)
             {
-                stopped = false;
-                socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-                socket.Bind(settings.LocalEndPoint);
-                socket.Listen(settings.MaxPendingConnections);
-                try
+                if (stopped)
                 {
-                    socket.BeginAccept(new AsyncCallback(acceptRequest), socket);
-                }
-                catch (ObjectDisposedException)
-                {
-                    // socket closed
-                    return;
+                    stopped = false;
+                    socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+                    socket.Bind(settings.LocalEndPoint);
+                    socket.Listen(settings.MaxPendingConnections);
+                    try
+                    {
+                        socket.BeginAccept(new AsyncCallback(acceptRequest), socket);
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // socket closed
+                        return;
+                    }
                 }
             }
         }

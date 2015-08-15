@@ -80,8 +80,8 @@ namespace Netool.Logging
         /// <summary>
         /// Get node by id
         /// </summary>
-        /// <param name="id">Position has to be <= count given by GetEventCount or by EventCountChanged event.
-        /// This method DOESN'T check that.
+        /// <param name="id"><![CDATA[Position has to be <= count given by GetEventCount or by EventCountChanged event.
+        /// This method DOESN'T check that.]]>
         /// </param>
         public LinkedListNode<Event> GetByID(int id)
         {
@@ -120,9 +120,9 @@ namespace Netool.Logging
 
         private void channelClosedHandler(object sender)
         {
+            generalHandler(EventType.ChannelClosed);
             Debug.WriteLine("ChannelLogger (type: {0}, id: {1}, name: {2}) writing channel data", channel.GetType(), channel.ID, channel.Name);
             log.WriteChannelData(hint, eventCount, channel);
-            generalHandler(EventType.ChannelClosed);
         }
 
         private void responseReceivedHandler(object sender, DataEventArgs e)

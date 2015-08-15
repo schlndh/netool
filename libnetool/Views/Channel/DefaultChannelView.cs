@@ -77,7 +77,7 @@ namespace Netool.Views.Channel
 
         private void eventCountChanged(object sender, int e)
         {
-            this.events.Invoke(new Action(() => this.events.VirtualListSize = e));
+            this.events.BeginInvoke(new Action(() => this.events.VirtualListSize = e));
         }
 
         private void events_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)

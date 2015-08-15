@@ -30,6 +30,8 @@ namespace Netool.Network.Udp
         [NonSerialized]
         protected Socket socket;
         protected EndPoint remoteEP;
+        private bool stopped = false;
+        private object stopLock = new object();
 
         public UdpServerChannel(Socket socket, EndPoint remoteEP, int id)
         {
@@ -39,11 +41,20 @@ namespace Netool.Network.Udp
             name = remoteEP.ToString();
         }
 
+        /// <inheritdoc/>
         public void Close()
         {
-            OnChannelClosed();
+            lock(stopLock)
+            {
+                if (!stopped)
+                {
+                    stopped = true;
+                    OnChannelClosed();
+                }
+            }
         }
 
+        /// <inheritdoc/>
         public void Send(IDataStream response)
         {
             try
@@ -66,15 +77,19 @@ namespace Netool.Network.Udp
     public class UdpServer : IServer
     {
         protected UdpServerSettings settings;
+        /// <inheritdoc/>
         public object Settings { get { return settings; } }
         [NonSerialized]
         protected Socket socket;
         private volatile bool stopped = true;
         private ConcurrentDictionary<string, UdpServerChannel> channels = new ConcurrentDictionary<string, UdpServerChannel>();
         public int ReceiveBufferSize { get; set; }
+        /// <inheritdoc/>
         public bool IsStarted { get { return !stopped; } }
         private int channelID = 0;
+        private object stopLock = new object();
 
+        /// <inheritdoc/>
         [field: NonSerialized]
         public event EventHandler<IServerChannel> ChannelCreated;
 
@@ -84,44 +99,52 @@ namespace Netool.Network.Udp
             ReceiveBufferSize = 2048;
         }
 
+        /// <inheritdoc/>
         public void Start()
         {
-            if (stopped)
+            lock(stopLock)
             {
-                stopped = false;
-                socket = new Socket(SocketType.Dgram, ProtocolType.Udp);
-                socket.Bind(settings.LocalEndPoint);
-                if (settings.LocalEndPoint.AddressFamily == AddressFamily.InterNetworkV6)
+                if (stopped)
                 {
-                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.PacketInformation, true);
-                }
-                else if (settings.LocalEndPoint.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
-                }
+                    stopped = false;
+                    socket = new Socket(SocketType.Dgram, ProtocolType.Udp);
+                    socket.Bind(settings.LocalEndPoint);
+                    if (settings.LocalEndPoint.AddressFamily == AddressFamily.InterNetworkV6)
+                    {
+                        socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.PacketInformation, true);
+                    }
+                    else if (settings.LocalEndPoint.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
+                    }
 
-                scheduleNextReceive();
+                    scheduleNextReceive();
+                }
             }
         }
 
+        /// <inheritdoc/>
         public void Stop()
         {
-            if (!stopped)
+            lock(stopLock)
             {
-                stopped = true;
-                foreach (var channel in channels)
+                if (!stopped)
                 {
-                    channel.Value.ChannelClosed -= channelClosedHandler;
-                    channel.Value.Close();
+                    stopped = true;
+                    foreach (var channel in channels)
+                    {
+                        channel.Value.ChannelClosed -= channelClosedHandler;
+                        channel.Value.Close();
+                    }
+                    channels.Clear();
+                    try
+                    {
+                        socket.Shutdown(SocketShutdown.Both);
+                        socket.Close();
+                    }
+                    catch (ObjectDisposedException)
+                    { }
                 }
-                channels.Clear();
-                try
-                {
-                    socket.Shutdown(SocketShutdown.Both);
-                    socket.Close();
-                }
-                catch (ObjectDisposedException)
-                { }
             }
         }
 

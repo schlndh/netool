@@ -4,5 +4,6 @@ For 3rd-party plugins please choose high numbers. Numbers 1-10000 are reserved f
 
 |			ID			|				Plugin Name				|		   Type			|				Link				|
 |-----------------------|---------------------------------------|-----------------------|-----------------------------------|
-| 1						| TcpPlugin								| ProtocolP				| Built-in							|
+| 1						| TcpPlugin								| Protocol				| Built-in							|
 | 1001					| DefaulProxyChannelDriverPlugin		| ChannelDriver			| Built-in							|
+| 2001					| HttpPlugin							| Protocol				| Built-in							|

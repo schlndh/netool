@@ -236,7 +236,7 @@ namespace Netool.Network
         /// <summary>
         /// Send request to server
         /// </summary>
-        /// <param name="response">requesr stream</param>
+        /// <param name="request">request stream</param>
         void SendToServer(IDataStream request);
 
         /// <summary>

@@ -39,12 +39,12 @@ namespace Tests.Network.DataFormats
                 new ArraySegment<byte>(arr2, 0, 10),
                 new ArraySegment<byte>(arr3, 0, 20),
             };
-            list.ReadBytesToBuffer(5, 0, buffers);
+            list.ReadBytesToBuffer(buffers, 5, 0);
             Assert.AreEqual(99, arr1[2]);
-            list.ReadBytesToBuffer(5, 1, buffers);
+            list.ReadBytesToBuffer(buffers, 5, 1);
             Assert.AreEqual(6, arr1[2]);
             Assert.AreEqual(99, arr1[3]);
-            list.ReadBytesToBuffer(9, 10, buffers);
+            list.ReadBytesToBuffer(buffers, 9, 10);
             Assert.AreEqual(1, arr1[3]);
             Assert.AreEqual(4, arr1[6]);
             Assert.AreEqual(99, arr1[8]);
@@ -52,9 +52,9 @@ namespace Tests.Network.DataFormats
             Assert.AreEqual(9, arr2[4]);
             Assert.AreEqual(99, arr2[5]);
             // test read-all for possible off-by-one errors
-            list.ReadBytesToBuffer(0, list.Length, buffers);
-            // test start > list.streams[0].length
-            list.ReadBytesToBuffer(16, 5, buffers);
+            list.ReadBytesToBuffer(buffers, 0, list.Length);
+            // test start > contentData.streams[0].length
+            list.ReadBytesToBuffer(buffers, 16, 5);
             Assert.AreEqual(7, arr1[2]);
         }
     }
