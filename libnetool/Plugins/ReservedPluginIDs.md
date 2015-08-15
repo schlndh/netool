@@ -7,3 +7,4 @@ For 3rd-party plugins please choose high numbers. Numbers 1-10000 are reserved f
 | 1						| TcpPlugin								| Protocol				| Built-in							|
 | 1001					| DefaulProxyChannelDriverPlugin		| ChannelDriver			| Built-in							|
 | 2001					| HttpPlugin							| Protocol				| Built-in							|
+| 3001					| CoreViewsPlugin						| EventView, EditorView | Built-in							|

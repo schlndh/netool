@@ -96,6 +96,7 @@
     <Compile Include="Network\Udp\UdpClientFactory.cs" />
     <Compile Include="Network\Udp\UdpServer.cs" />
     <Compile Include="Plugins\ChannelDrivers\DefaultProxyChannelDriverPlugin.cs" />
+    <Compile Include="Plugins\CoreViewsPlugin.cs" />
     <Compile Include="Plugins\PluginExceptions.cs" />
     <Compile Include="Plugins\Plugins.cs" />
     <Compile Include="Plugins\Protocols\TcpPlugin.cs" />
@@ -106,7 +107,6 @@
     <Compile Include="Views\Channel\DefaultChannelView.Designer.cs">
       <DependentUpon>DefaultChannelView.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\Editor\DefaultEditorMasterViewFactory.cs" />
     <Compile Include="Views\Editor\EditorMasterView.cs">
       <SubType>Form</SubType>
     </Compile>

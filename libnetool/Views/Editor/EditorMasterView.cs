@@ -25,7 +25,7 @@ namespace Netool.Views.Editor
             proxyFlowPanel.Visible = false;
         }
 
-        public void AddEditor(IEditorView v)
+        public void AddEditorView(IEditorView v)
         {
             editorViewSelect.Items.Add(v);
             if (editorViewSelect.SelectedIndex < 0) editorViewSelect.SelectedIndex = 0;

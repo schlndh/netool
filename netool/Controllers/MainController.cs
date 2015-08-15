@@ -13,13 +13,15 @@ using System.Windows.Forms;
 
 namespace Netool.Controllers
 {
-    public class MainController
+    public class MainController : IMainController
     {
         private MainView view;
         private MainModel model;
         private List<IInstanceController> controllers = new List<IInstanceController>();
         private Dictionary<long, IProtocolPlugin> protocolPlugins = new Dictionary<long, IProtocolPlugin>();
         private Dictionary<long, IChannelDriverPlugin> channelDriverPlugins = new Dictionary<long, IChannelDriverPlugin>();
+        private Dictionary<long, IEditorViewPlugin> editorViewPlugins = new Dictionary<long, IEditorViewPlugin>();
+        private Dictionary<long, IEventViewPlugin> eventViewPlugins = new Dictionary<long, IEventViewPlugin>();
 
         public MainController(MainView view)
         {
@@ -31,6 +33,10 @@ namespace Netool.Controllers
 
             IChannelDriverPlugin cdPlg = new DefaultProxyChannelDriverPlugin();
             channelDriverPlugins.Add(cdPlg.ID, cdPlg);
+
+            var coreViewsPlugin = new CoreViewsPlugin();
+            editorViewPlugins.Add(coreViewsPlugin.ID, coreViewsPlugin);
+            eventViewPlugins.Add(coreViewsPlugin.ID, coreViewsPlugin);
 
             load();
         }
@@ -72,6 +78,7 @@ namespace Netool.Controllers
                     var logger = new InstanceLogger();
                     logger.WritePluginID(plugin.ID);
                     var pack = plugin.CreateInstance(logger, instance.Type, instance.Settings);
+                    pack.Controller.SetMainController(this);
                     // TODO: setup original channel drivers here
                     setupDrivers(pack.Controller); // placeholder
                     controllers.Add(pack.Controller);
@@ -146,6 +153,7 @@ namespace Netool.Controllers
                     }
                     logger.WritePluginID(plugin.ID);
                     var pack = plugin.CreateInstance(logger, type);
+                    pack.Controller.SetMainController(this);
                     setupDrivers(pack.Controller);
                     controllers.Add(pack.Controller);
                     model.AddInstance(plugin.ID, name, type, pack.Controller.Instance.Settings);
@@ -169,6 +177,7 @@ namespace Netool.Controllers
             if(protocolPlugins.TryGetValue(id, out plugin))
             {
                 var pack = plugin.RestoreInstance(logger);
+                pack.Controller.SetMainController(this);
                 controllers.Add(pack.Controller);
                 view.AddPage("placeholder", pack.View.GetForm());
             }
@@ -183,6 +192,26 @@ namespace Netool.Controllers
             // placeholder
             var driver = new Netool.ChannelDrivers.ManualChannelDriver(-1);
             cont.AddDriver(driver, 0);
+        }
+
+        public List<Views.IEditorView> CreateEditorViews()
+        {
+            var ret = new List<Views.IEditorView>();
+            foreach(var item in editorViewPlugins)
+            {
+                ret.AddRange(item.Value.CreateEditorViews());
+            }
+            return ret;
+        }
+
+        public List<Views.IEventView> CreateEventViews()
+        {
+            var ret = new List<Views.IEventView>();
+            foreach (var item in eventViewPlugins)
+            {
+                ret.AddRange(item.Value.CreateEventViews());
+            }
+            return ret;
         }
     }
 }

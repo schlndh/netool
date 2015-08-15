@@ -4,6 +4,7 @@ using Netool.Logging;
 using Netool.Network;
 using Netool.Views;
 using System;
+using System.Collections.Generic;
 
 namespace Netool.Plugins
 {
@@ -51,6 +52,9 @@ namespace Netool.Plugins
         string Author { get; }
     }
 
+    /// <summary>
+    /// Basic interface for plugins providing a protocol support
+    /// </summary>
     public interface IProtocolPlugin : IPlugin
     {
         bool SupportsServer { get; }
@@ -84,6 +88,9 @@ namespace Netool.Plugins
         InstancePack RestoreInstance(InstanceLogger logger);
     }
 
+    /// <summary>
+    /// Basic interface for plugins providing new channel driver
+    /// </summary>
     public interface IChannelDriverPlugin : IPlugin
     {
         /// <summary>
@@ -97,6 +104,30 @@ namespace Netool.Plugins
         /// <param name="settings"></param>
         /// <returns></returns>
         ChannelDriverPack CreateChannelDriver(object settings);
+    }
+
+    /// <summary>
+    /// Basic interface for plugins providing new EventView
+    /// </summary>
+    public interface IEventViewPlugin : IPlugin
+    {
+        /// <summary>
+        /// Create Event Views for one channel view
+        /// </summary>
+        /// <returns></returns>
+        List<IEventView> CreateEventViews();
+    }
+
+    /// <summary>
+    /// Basic interface for plugins providing new EditorView
+    /// </summary>
+    public interface IEditorViewPlugin : IPlugin
+    {
+        /// <summary>
+        /// Create Editor Views for one channel view
+        /// </summary>
+        /// <returns></returns>
+        List<IEditorView> CreateEditorViews();
     }
 
     public static class ProtocolPluginExtensions

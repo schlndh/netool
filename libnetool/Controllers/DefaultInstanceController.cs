@@ -12,18 +12,27 @@ namespace Netool.Controllers
     {
         public interface IChannelViewFactory
         {
-            IChannelView CreateChannelView(ChannelLogger info);
+            IChannelView CreateChannelView(ChannelLogger info, IMainController mainCont);
         }
 
         public class DefaultChannelViewFactory : IChannelViewFactory
         {
-            public IChannelView CreateChannelView(ChannelLogger logger)
+            public IChannelView CreateChannelView(ChannelLogger logger, IMainController mainCont)
             {
                 var v = new Views.Channel.DefaultChannelView(logger);
-                v.AddEventView(new Views.Event.HexView());
+                foreach(var ev in mainCont.CreateEventViews())
+                {
+                    v.AddEventView(ev);
+                }
+
                 if (logger.channel != null && logger.channel.Driver != null && logger.channel.Driver.AllowManualControl)
                 {
-                    v.AllowManualControl(new Views.Editor.DefaultEditorMasterViewFactory().Create());
+                    var masterEd = new Views.Editor.EditorMasterView();
+                    foreach (var ev in mainCont.CreateEditorViews())
+                    {
+                        masterEd.AddEditorView(ev);
+                    }
+                    v.AllowManualControl(masterEd);
                 }
                 return v;
             }
@@ -36,6 +45,7 @@ namespace Netool.Controllers
         private InstanceLogger logger;
         private IChannelViewFactory detailFactory;
         private RejectDriver rejectDriver = new RejectDriver();
+        private IMainController mainCont;
 
         public DefaultInstanceController(IInstanceView view, IInstance instance, InstanceLogger logger)
             : this(view, instance, logger, new DefaultChannelViewFactory())
@@ -118,12 +128,17 @@ namespace Netool.Controllers
 
         public void ShowDetail(int id)
         {
-            detailFactory.CreateChannelView(logger.GetChannelLogger(id)).GetForm().Show();
+            detailFactory.CreateChannelView(logger.GetChannelLogger(id), mainCont).GetForm().Show();
         }
 
         public InstanceType GetInstanceType()
         {
             return instance.GetInstanceType();
+        }
+
+        public void SetMainController(IMainController c)
+        {
+            this.mainCont = c;
         }
 
         private void handleConnectionCreated(object sender, IChannel c)
