@@ -9,7 +9,7 @@ namespace Netool.Views.Editor
     {
         public struct SendEventArgs
         {
-            public IInMemoryData Data;
+            public IDataStream Data;
             /// <summary>
             /// Indicates whether Data is to be sent to client or server, only matters for proxy
             /// </summary>
@@ -31,11 +31,19 @@ namespace Netool.Views.Editor
             if (editorViewSelect.SelectedIndex < 0) editorViewSelect.SelectedIndex = 0;
         }
 
-        public void SetValue(Netool.Logging.Event val)
+        public void SetValue(IDataStream s)
         {
             if(editorViewSelect.SelectedIndex > -1)
             {
-                ((IEditorView)editorViewSelect.SelectedItem).SetValue(val);
+                ((IEditorView)editorViewSelect.SelectedItem).SetValue(s);
+            }
+        }
+
+        public void Clear()
+        {
+            if (editorViewSelect.SelectedIndex > -1)
+            {
+                ((IEditorView)editorViewSelect.SelectedItem).Clear();
             }
         }
 
@@ -60,10 +68,7 @@ namespace Netool.Views.Editor
 
         private void clearButton_Click(object sender, EventArgs e)
         {
-            if (editorViewSelect.SelectedIndex > -1)
-            {
-                ((IEditorView)editorViewSelect.SelectedItem).Clear();
-            }
+            Clear();
         }
 
         private void sendButton_Click(object sender, EventArgs e)

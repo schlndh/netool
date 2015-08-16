@@ -45,10 +45,10 @@ namespace Netool.Views
         string ID { get; }
 
         /// <summary>
-        /// Change content based on given event
+        /// Change content based on given data stream
         /// </summary>
-        /// <param name="e"></param>
-        void Show(Netool.Logging.Event e);
+        /// <param name="s"></param>
+        void Show(IDataStream s);
     }
 
     public interface IEditorView : IFormView
@@ -60,8 +60,8 @@ namespace Netool.Views
         /// </summary>
         void Clear();
 
-        IInMemoryData GetValue();
+        IDataStream GetValue();
 
-        void SetValue(Netool.Logging.Event v);
+        void SetValue(IDataStream s);
     }
 }

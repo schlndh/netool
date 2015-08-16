@@ -31,22 +31,15 @@ namespace Netool.Views.Editor
             return this;
         }
 
-        public IInMemoryData GetValue()
+        public IDataStream GetValue()
         {
             return new ByteArray(((Be.Windows.Forms.DynamicByteProvider)data.ByteProvider).Bytes.ToArray());
         }
 
-        public void SetValue(Netool.Logging.Event val)
+        public void SetValue(IDataStream s)
         {
-            if(val.Data != null && val.Data.Data != null)
-            {
-                // TODO: improve this
-                data.ByteProvider = new Be.Windows.Forms.DynamicByteProvider(val.Data.Data.ReadBytes(0, val.Data.Data.Length));
-            }
-            else
-            {
-                Clear();
-            }
+            // TODO: improve this
+            data.ByteProvider = new Be.Windows.Forms.DynamicByteProvider(s.ReadBytes());
         }
     }
 }

@@ -110,11 +110,11 @@ namespace Netool.Views.Channel
             {
                 eventViewPanel.Controls.Clear();
                 currentViewForm = ((IEventView)eventViewsSelect.SelectedItem);
-                var frm = currentViewForm.GetForm();
-                eventViewPanel.Embed(frm);
+
                 if(events.SelectedIndices.Count > 0)
                 {
-                    currentViewForm.Show(getEventByPosition(events.SelectedIndices[0]));
+                    var evt = getEventByPosition(events.SelectedIndices[0]);
+                    showEvent(evt);
                 }
             }
         }
@@ -123,20 +123,32 @@ namespace Netool.Views.Channel
         {
             if (events.SelectedIndices.Count > 0)
             {
-                if (currentViewForm != null)
-                {
-                    var evt = getEventByPosition(events.SelectedIndices[0]);
-                    idLabel.Text = evt.ID.ToString();
-                    typeLabel.Text = evt.Type.ToString();
-                    timeLabel.Text = evt.Time.ToString("dd. MM. yyyy HH:mm:ss.ff");
-                    currentViewForm.Show(evt);
-                }
+                var evt = getEventByPosition(events.SelectedIndices[0]);
+                showEvent(evt);
             }
             else
             {
                 idLabel.Text = "-";
                 typeLabel.Text = "-";
                 timeLabel.Text = "-";
+            }
+        }
+
+        private void showEvent(Logging.Event e)
+        {
+            idLabel.Text = e.ID.ToString();
+            typeLabel.Text = e.Type.ToString();
+            timeLabel.Text = e.Time.ToString("dd. MM. yyyy HH:mm:ss.ff");
+            eventViewPanel.Controls.Clear();
+            if(currentViewForm != null)
+            {
+                if (e.Data != null && e.Data.Data != null)
+                {
+                    var frm = currentViewForm.GetForm();
+                    eventViewPanel.Embed(frm);
+                    currentViewForm.Show(e.Data.Data);
+                }
+
             }
         }
 
@@ -187,7 +199,15 @@ namespace Netool.Views.Channel
             {
                 if(editor != null && events.SelectedIndices.Count > 0)
                 {
-                    editor.SetValue(getEventByPosition(events.SelectedIndices[0]));
+                    var evt = getEventByPosition(events.SelectedIndices[0]);
+                    if(evt.Data != null && evt.Data.Data != null)
+                    {
+                        editor.SetValue(evt.Data.Data);
+                    }
+                    else
+                    {
+                        editor.Clear();
+                    }
                 }
             }
         }
