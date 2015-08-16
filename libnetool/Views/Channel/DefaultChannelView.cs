@@ -49,11 +49,7 @@ namespace Netool.Views.Channel
         public void AllowManualControl(Editor.EditorMasterView editor)
         {
             mainSplitContainer.Panel2Collapsed = false;
-            editor.TopLevel = false;
-            editor.Visible = true;
-            editor.FormBorderStyle = FormBorderStyle.None;
-            editor.Dock = DockStyle.Fill;
-            mainSplitContainer.Panel2.Controls.Add(editor);
+            mainSplitContainer.Panel2.Embed(editor);
             editor.SendClicked += editorSendHandler;
             editor.CloseClicked += editorCloseHandler;
             events.ContextMenuStrip = eventsContextMenu;
@@ -115,11 +111,7 @@ namespace Netool.Views.Channel
                 eventViewPanel.Controls.Clear();
                 currentViewForm = ((IEventView)eventViewsSelect.SelectedItem);
                 var frm = currentViewForm.GetForm();
-                frm.TopLevel = false;
-                frm.Visible = true;
-                frm.FormBorderStyle = FormBorderStyle.None;
-                frm.Dock = DockStyle.Fill;
-                eventViewPanel.Controls.Add(frm);
+                eventViewPanel.Embed(frm);
                 if(events.SelectedIndices.Count > 0)
                 {
                     currentViewForm.Show(getEventByPosition(events.SelectedIndices[0]));

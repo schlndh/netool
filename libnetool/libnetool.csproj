@@ -125,6 +125,7 @@
     <Compile Include="Views\Event\HexView.Designer.cs">
       <DependentUpon>HexView.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\Helpers.cs" />
     <Compile Include="Views\Instance\DefaultInstanceView.cs">
       <SubType>Form</SubType>
     </Compile>

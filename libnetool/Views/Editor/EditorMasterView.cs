@@ -54,11 +54,7 @@ namespace Netool.Views.Editor
             {
                 editorViewPanel.Controls.Clear();
                 var frm = ((IEditorView)editorViewSelect.SelectedItem).GetForm();
-                frm.TopLevel = false;
-                frm.Visible = true;
-                frm.FormBorderStyle = FormBorderStyle.None;
-                frm.Dock = DockStyle.Fill;
-                editorViewPanel.Controls.Add(frm);
+                editorViewPanel.Embed(frm);
             }
         }
 
