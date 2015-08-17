@@ -8,7 +8,7 @@ namespace Netool.Network.DataFormats
     /// Wrapper class to make any Netool's IDataStream into a standard stream.
     /// </summary>
     [Serializable]
-    public class StreamWrapper : Stream
+    public class ToStream : Stream
     {
         private IDataStream stream;
         private long position = 0;
@@ -25,7 +25,7 @@ namespace Netool.Network.DataFormats
         public override long Position { get { return position; } set { position = value; } }
 
 
-        public StreamWrapper(IDataStream stream)
+        public ToStream(IDataStream stream)
         {
             this.stream = stream;
         }

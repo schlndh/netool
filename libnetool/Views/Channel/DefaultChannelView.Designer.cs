@@ -35,19 +35,20 @@
             this.eventViewsSelect = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.eventViewPanel = new System.Windows.Forms.Panel();
+            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.label3 = new System.Windows.Forms.Label();
+            this.idLabel = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.typeLabel = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.timeLabel = new System.Windows.Forms.Label();
             this.mainSplitContainer = new System.Windows.Forms.SplitContainer();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.eventsContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.eventsEditMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.timeLabel = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.typeLabel = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.idLabel = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
             this.tableLayoutPanel2.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.flowLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mainSplitContainer)).BeginInit();
             this.mainSplitContainer.Panel1.SuspendLayout();
             this.mainSplitContainer.SuspendLayout();
@@ -56,7 +57,6 @@
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
             this.eventsContextMenu.SuspendLayout();
-            this.flowLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // events
@@ -68,7 +68,7 @@
             this.events.MultiSelect = false;
             this.events.Name = "events";
             this.events.ShowGroups = false;
-            this.events.Size = new System.Drawing.Size(674, 121);
+            this.events.Size = new System.Drawing.Size(670, 119);
             this.events.TabIndex = 0;
             this.events.UseCompatibleStateImageBehavior = false;
             this.events.View = System.Windows.Forms.View.Details;
@@ -92,7 +92,7 @@
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(674, 145);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(670, 143);
             this.tableLayoutPanel2.TabIndex = 1;
             // 
             // panel1
@@ -102,7 +102,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(3, 43);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(668, 34);
+            this.panel1.Size = new System.Drawing.Size(664, 34);
             this.panel1.TabIndex = 1;
             // 
             // eventViewsSelect
@@ -130,11 +130,81 @@
             this.eventViewPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.eventViewPanel.Location = new System.Drawing.Point(3, 83);
             this.eventViewPanel.Name = "eventViewPanel";
-            this.eventViewPanel.Size = new System.Drawing.Size(668, 59);
+            this.eventViewPanel.Size = new System.Drawing.Size(664, 57);
             this.eventViewPanel.TabIndex = 2;
+            // 
+            // flowLayoutPanel1
+            // 
+            this.flowLayoutPanel1.Controls.Add(this.label3);
+            this.flowLayoutPanel1.Controls.Add(this.idLabel);
+            this.flowLayoutPanel1.Controls.Add(this.label2);
+            this.flowLayoutPanel1.Controls.Add(this.typeLabel);
+            this.flowLayoutPanel1.Controls.Add(this.label4);
+            this.flowLayoutPanel1.Controls.Add(this.timeLabel);
+            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 3);
+            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            this.flowLayoutPanel1.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(664, 34);
+            this.flowLayoutPanel1.TabIndex = 3;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(3, 5);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(21, 13);
+            this.label3.TabIndex = 6;
+            this.label3.Text = "ID:";
+            // 
+            // idLabel
+            // 
+            this.idLabel.AutoSize = true;
+            this.idLabel.Location = new System.Drawing.Point(30, 5);
+            this.idLabel.Name = "idLabel";
+            this.idLabel.Size = new System.Drawing.Size(10, 13);
+            this.idLabel.TabIndex = 7;
+            this.idLabel.Text = "-";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(46, 5);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(34, 13);
+            this.label2.TabIndex = 8;
+            this.label2.Text = "Type:";
+            // 
+            // typeLabel
+            // 
+            this.typeLabel.AutoSize = true;
+            this.typeLabel.Location = new System.Drawing.Point(86, 5);
+            this.typeLabel.Name = "typeLabel";
+            this.typeLabel.Size = new System.Drawing.Size(10, 13);
+            this.typeLabel.TabIndex = 9;
+            this.typeLabel.Text = "-";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(102, 5);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(33, 13);
+            this.label4.TabIndex = 10;
+            this.label4.Text = "Time:";
+            // 
+            // timeLabel
+            // 
+            this.timeLabel.AutoSize = true;
+            this.timeLabel.Location = new System.Drawing.Point(141, 5);
+            this.timeLabel.Name = "timeLabel";
+            this.timeLabel.Size = new System.Drawing.Size(10, 13);
+            this.timeLabel.TabIndex = 11;
+            this.timeLabel.Text = "-";
             // 
             // mainSplitContainer
             // 
+            this.mainSplitContainer.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.mainSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mainSplitContainer.Location = new System.Drawing.Point(0, 0);
             this.mainSplitContainer.Name = "mainSplitContainer";
@@ -161,8 +231,8 @@
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.tableLayoutPanel2);
-            this.splitContainer2.Size = new System.Drawing.Size(674, 270);
-            this.splitContainer2.SplitterDistance = 121;
+            this.splitContainer2.Size = new System.Drawing.Size(670, 266);
+            this.splitContainer2.SplitterDistance = 119;
             this.splitContainer2.TabIndex = 0;
             // 
             // eventsContextMenu
@@ -179,87 +249,20 @@
             this.eventsEditMenuItem.Text = "Edit";
             this.eventsEditMenuItem.Click += new System.EventHandler(this.editToolStripMenuItem_Click);
             // 
-            // flowLayoutPanel1
-            // 
-            this.flowLayoutPanel1.Controls.Add(this.label3);
-            this.flowLayoutPanel1.Controls.Add(this.idLabel);
-            this.flowLayoutPanel1.Controls.Add(this.label2);
-            this.flowLayoutPanel1.Controls.Add(this.typeLabel);
-            this.flowLayoutPanel1.Controls.Add(this.label4);
-            this.flowLayoutPanel1.Controls.Add(this.timeLabel);
-            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 3);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(668, 34);
-            this.flowLayoutPanel1.TabIndex = 3;
-            // 
-            // timeLabel
-            // 
-            this.timeLabel.AutoSize = true;
-            this.timeLabel.Location = new System.Drawing.Point(141, 5);
-            this.timeLabel.Name = "timeLabel";
-            this.timeLabel.Size = new System.Drawing.Size(10, 13);
-            this.timeLabel.TabIndex = 11;
-            this.timeLabel.Text = "-";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(102, 5);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(33, 13);
-            this.label4.TabIndex = 10;
-            this.label4.Text = "Time:";
-            // 
-            // typeLabel
-            // 
-            this.typeLabel.AutoSize = true;
-            this.typeLabel.Location = new System.Drawing.Point(86, 5);
-            this.typeLabel.Name = "typeLabel";
-            this.typeLabel.Size = new System.Drawing.Size(10, 13);
-            this.typeLabel.TabIndex = 9;
-            this.typeLabel.Text = "-";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(46, 5);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(34, 13);
-            this.label2.TabIndex = 8;
-            this.label2.Text = "Type:";
-            // 
-            // idLabel
-            // 
-            this.idLabel.AutoSize = true;
-            this.idLabel.Location = new System.Drawing.Point(30, 5);
-            this.idLabel.Name = "idLabel";
-            this.idLabel.Size = new System.Drawing.Size(10, 13);
-            this.idLabel.TabIndex = 7;
-            this.idLabel.Text = "-";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(3, 5);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(21, 13);
-            this.label3.TabIndex = 6;
-            this.label3.Text = "ID:";
-            // 
-            // DefaultServerChannelView
+            // DefaultChannelView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(674, 423);
             this.Controls.Add(this.mainSplitContainer);
-            this.Name = "DefaultServerChannelView";
+            this.Name = "DefaultChannelView";
             this.Text = "DefaultServerChannelView";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.DefaultServerChannelView_FormClosed);
             this.tableLayoutPanel2.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.flowLayoutPanel1.ResumeLayout(false);
+            this.flowLayoutPanel1.PerformLayout();
             this.mainSplitContainer.Panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.mainSplitContainer)).EndInit();
             this.mainSplitContainer.ResumeLayout(false);
@@ -268,8 +271,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
             this.eventsContextMenu.ResumeLayout(false);
-            this.flowLayoutPanel1.ResumeLayout(false);
-            this.flowLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
 
         }

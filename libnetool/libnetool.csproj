@@ -80,12 +80,13 @@
     <Compile Include="Network\BaseChannel.cs" />
     <Compile Include="Network\BaseClientChannel.cs" />
     <Compile Include="Network\BaseServerChannel.cs" />
+    <Compile Include="Network\DataFormats\FromStream.cs" />
     <Compile Include="Network\DataFormats\StreamSegment.cs" />
     <Compile Include="Network\DataFormats\StreamList.cs" />
     <Compile Include="Network\DataFormats\EmptyData.cs" />
     <Compile Include="Network\DataFormats\ByteArray.cs" />
     <Compile Include="Network\DataFormats\DataFormats.cs" />
-    <Compile Include="Network\DataFormats\StreamWrapper.cs" />
+    <Compile Include="Network\DataFormats\ToStream.cs" />
     <Compile Include="Network\DefaultProxy.cs" />
     <Compile Include="Network\Helpers.cs" />
     <Compile Include="Network\Network.cs" />
