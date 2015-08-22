@@ -1,0 +1,10 @@
+configuration: Release
+
+install:
+  - git submodule update --init --recursive
+
+before_build:
+  - nuget restore
+
+build:
+  project: netool.sln
