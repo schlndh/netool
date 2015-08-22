@@ -1,4 +1,5 @@
 ﻿using Netool.Controllers;
+using Netool.Views;
 using System;
 using System.Windows.Forms;
 
@@ -22,11 +23,7 @@ namespace Netool
         {
             var page = new TabPage(label);
             page.AutoScroll = true;
-            frm.TopLevel = false;
-            frm.Visible = true;
-            frm.FormBorderStyle = FormBorderStyle.None;
-            frm.Dock = DockStyle.Fill;
-            page.Controls.Add(frm);
+            page.Embed(frm);
             instances.TabPages.Add(page);
         }
 

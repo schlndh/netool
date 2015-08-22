@@ -61,12 +61,18 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="Http\ChunkedEncodingTests.cs" />
+    <Compile Include="Http\HttpHeaderParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\http\http.csproj">
+      <Project>{9423974e-a2d3-4c90-9967-04df5a413d69}</Project>
+      <Name>http</Name>
+    </ProjectReference>
     <ProjectReference Include="..\IPEndPointControl\IPEndPointControl\IPEndPointControl.csproj">
       <Project>{4027cc4f-182c-49c9-bef5-63ad7e1ffabc}</Project>
       <Name>IPEndPointControl</Name>

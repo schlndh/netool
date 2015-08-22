@@ -30,6 +30,8 @@ namespace Netool.Controllers
             // register built-in plugins
             IProtocolPlugin protoPlg = new TcpPlugin();
             protocolPlugins.Add(protoPlg.ID, protoPlg);
+            protoPlg = new HttpPlugin();
+            protocolPlugins.Add(protoPlg.ID, protoPlg);
 
             IChannelDriverPlugin cdPlg = new DefaultProxyChannelDriverPlugin();
             channelDriverPlugins.Add(cdPlg.ID, cdPlg);
@@ -37,6 +39,10 @@ namespace Netool.Controllers
             var coreViewsPlugin = new CoreViewsPlugin();
             editorViewPlugins.Add(coreViewsPlugin.ID, coreViewsPlugin);
             eventViewPlugins.Add(coreViewsPlugin.ID, coreViewsPlugin);
+
+            var httpViewsPlugin = new Plugins.Views.HttpViewsPlugin();
+            editorViewPlugins.Add(httpViewsPlugin.ID, httpViewsPlugin);
+            eventViewPlugins.Add(httpViewsPlugin.ID, httpViewsPlugin);
 
             load();
         }
@@ -84,7 +90,6 @@ namespace Netool.Controllers
                     controllers.Add(pack.Controller);
                     view.AddPage(instance.Name, pack.View.GetForm());
                 }
-
             }
         }
 
