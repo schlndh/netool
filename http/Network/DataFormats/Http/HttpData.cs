@@ -18,7 +18,7 @@ namespace Netool.Network.DataFormats.Http
         /// <threadsafety static="true" instance="false"/>
         public class Builder
         {
-            private Dictionary<string, string> headers = new Dictionary<string, string>();
+            private Dictionary<string, string> headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             private List<string> headerKeys = new List<string>();
 
             public bool IsRequest { get; set; }
@@ -149,13 +149,10 @@ namespace Netool.Network.DataFormats.Http
         /// <inheritdoc/>
         public long Length { get { return MessageData.Length; } }
 
-        private HttpData(IDataStream headerData, IDataStream bodyData, IReadOnlyDictionary<string, string> headers,
-            IReadOnlyList<string> headerKeys, bool isRequest,
-            string version, int code, string reasonPhrase,
-            HttpRequestMethod method, string requestTarget)
+        private HttpData(IDataStream headerData, IReadOnlyDictionary<string, string> headers, IReadOnlyList<string> headerKeys, bool isRequest, string version, int code, string reasonPhrase, HttpRequestMethod method, string requestTarget, IDataStream bodyData = null)
         {
             HeaderData = headerData;
-            BodyData = bodyData;
+            BodyData = bodyData ?? new EmptyData();
             var list = new StreamList();
             list.Add(HeaderData);
             list.Add(BodyData);
@@ -182,7 +179,7 @@ namespace Netool.Network.DataFormats.Http
                 stringBuilder.Append("\r\n");
                 headerData = new ByteArray(ASCIIEncoding.ASCII.GetBytes(stringBuilder.ToString()));
             }
-            return new HttpData(headerData, payload, headers, headerKeys, false, version, code, reasonPhrase, HttpRequestMethod.Null, "");
+            return new HttpData(headerData, headers, headerKeys, false, version, code, reasonPhrase, HttpRequestMethod.Null, "", payload);
         }
 
         public static HttpData CreateRequest(IReadOnlyDictionary<string, string> headers,
@@ -203,7 +200,7 @@ namespace Netool.Network.DataFormats.Http
             {
                 payload = new EmptyData();
             }
-            return new HttpData(headerData, payload, headers, headerKeys, false, version, -1, "", HttpRequestMethod.Null, "");
+            return new HttpData(headerData, headers, headerKeys, false, version, -1, "", HttpRequestMethod.Null, "", payload);
         }
 
         /// <inheritdoc/>
