@@ -18,15 +18,15 @@ namespace Tests.Http.Network.DataFormats
         [Fact]
         public void TestValidResponse()
         {
-            var header = @"HTTP/1.1 200 OK
-Date: Mon, 27 Jul 2009 12:28:53 GMT
-Server: Apache
-Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT
-ETag: " + '"' + "34aa387-d-1568eb00\"" + @"
-Accept-Ranges: bytes
-Content-Length: 0
-Vary: Accept-Encoding
-Content-Type: text/plain" + "\r\n\r\n";
+            var header = "HTTP/1.1 200 OK\r\n" +
+                "Date: Mon, 27 Jul 2009 12:28:53 GMT\r\n" +
+                "Server: Apache\r\n" +
+                "Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT\r\n" +
+                "ETag: \"34aa387-d-1568eb00\"\r\n" +
+                "Accept-Ranges: bytes\r\n" +
+                "Content-Length: 0\r\n" +
+                "Vary: Accept-Encoding\r\n" +
+                "Content-Type: text/plain\r\n\r\n";
 
             var parser = new HttpHeaderParser();
             var stream = new ByteArray(ASCIIEncoding.ASCII.GetBytes(header));
@@ -41,16 +41,16 @@ Content-Type: text/plain" + "\r\n\r\n";
         [Fact]
         public void TestValidPartialKeyResponse()
         {
-            var header1 = @"HTTP/1.1 200 OK
-Date: Mon, 27 Jul 2009 12:28:53 GMT
-Server: Apache
-Last-Modi";
-            var header2 = header1 + @"fied: Wed, 22 Jul 2009 19:15:56 GMT
-ETag: " + '"' + "34aa387-d-1568eb00\"" + @"
-Accept-Ranges: bytes
-Content-Length: 0
-Vary: Accept-Encoding
-Content-Type: text/plain" + "\r\n\r\n";
+            var header1 = "HTTP/1.1 200 OK\r\n" +
+                "Date: Mon, 27 Jul 2009 12:28:53 GMT\r\n" +
+                "Server: Apache\r\n" +
+                "Last-Modi";
+            var header2 = header1 + "fied: Wed, 22 Jul 2009 19:15:56 GMT\r\n" +
+                "ETag: \"34aa387-d-1568eb00\"\r\n" +
+                "Accept-Ranges: bytes\r\n" +
+                "Content-Length: 0\r\n" +
+                "Vary: Accept-Encoding\r\n" +
+                "Content-Type: text/plain\r\n\r\n";
             var parser = new HttpHeaderParser();
             var stream = new ByteArray(ASCIIEncoding.ASCII.GetBytes(header1));
             parser.Parse(stream, true);
@@ -70,16 +70,16 @@ Content-Type: text/plain" + "\r\n\r\n";
         [Fact]
         public void TestValidPartialValueResponse()
         {
-            var header1 = @"HTTP/1.1 200 OK
-Date: Mon, 27 Jul 2009 12:28:53 GMT
-Server: Apache
-Last-Modified: Wed, 22 Jul 2";
-            var header2 = header1 + @"009 19:15:56 GMT
-ETag: " + '"' + "34aa387-d-1568eb00\"" + @"
-Accept-Ranges: bytes
-Content-Length: 0
-Vary: Accept-Encoding
-Content-Type: text/plain" + "\r\n\r\n";
+            var header1 = "HTTP/1.1 200 OK\r\n" +
+                "Date: Mon, 27 Jul 2009 12:28:53 GMT\r\n" +
+                "Server: Apache\r\n" +
+                "Last-Modified: Wed, 22 Jul 2";
+            var header2 = header1 + "009 19:15:56 GMT\r\n" +
+                "ETag: \"34aa387-d-1568eb00\"\r\n" +
+                "Accept-Ranges: bytes\r\n" +
+                "Content-Length: 0\r\n" +
+                "Vary: Accept-Encoding\r\n" +
+                "Content-Type: text/plain\r\n\r\n";
             var parser = new HttpHeaderParser();
             var stream = new ByteArray(ASCIIEncoding.ASCII.GetBytes(header1));
             parser.Parse(stream, true);
