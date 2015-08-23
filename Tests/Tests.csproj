@@ -65,6 +65,7 @@
     <Compile Include="Http\Network\DataFormats\ChunkedEncodingTests.cs" />
     <Compile Include="Http\Network\DataFormats\HttpDataTests.cs" />
     <Compile Include="Http\Network\DataFormats\HttpHeaderParserTests.cs" />
+    <Compile Include="Http\Network\Http\HttpServerTests.cs" />
     <Compile Include="Http\Network\Http\HttpClientTests.cs" />
     <Compile Include="Logging\FileLogReaderTests.cs" />
     <Compile Include="Logging\FileLogTests.cs" />

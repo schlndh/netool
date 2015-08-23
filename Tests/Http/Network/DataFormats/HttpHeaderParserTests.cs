@@ -30,12 +30,12 @@ Content-Type: text/plain" + "\r\n\r\n";
 
             var parser = new HttpHeaderParser();
             var stream = new ByteArray(ASCIIEncoding.ASCII.GetBytes(header));
-            parser.ParseResponse(stream);
+            parser.Parse(stream, true);
             Assert.Equal("Mon, 27 Jul 2009 12:28:53 GMT", parser.GetHeader("Date"));
             Assert.Equal("Apache", parser.GetHeader("Server"));
             Assert.Equal("\"34aa387-d-1568eb00\"", parser.GetHeader("ETag"));
 
-            var data = parser.CreateResponse(stream, new EmptyData());
+            var data = parser.Create(stream, new EmptyData());
         }
 
         [Fact]
@@ -53,18 +53,18 @@ Vary: Accept-Encoding
 Content-Type: text/plain" + "\r\n\r\n";
             var parser = new HttpHeaderParser();
             var stream = new ByteArray(ASCIIEncoding.ASCII.GetBytes(header1));
-            parser.ParseResponse(stream);
+            parser.Parse(stream, true);
             Assert.Equal("Mon, 27 Jul 2009 12:28:53 GMT", parser.GetHeader("Date"));
             Assert.Equal("Apache", parser.GetHeader("Server"));
             Assert.Null(parser.GetHeader("Last-Modi"));
             Assert.Null(parser.GetHeader("Last-Modified"));
             stream = new ByteArray(ASCIIEncoding.ASCII.GetBytes(header2));
-            parser.ParseResponse(stream);
+            parser.Parse(stream, true);
             Assert.Equal("Apache", parser.GetHeader("Server"));
             Assert.Equal("Wed, 22 Jul 2009 19:15:56 GMT", parser.GetHeader("Last-Modified"));
             Assert.Equal("\"34aa387-d-1568eb00\"", parser.GetHeader("ETag"));
 
-            var data = parser.CreateResponse(stream, new EmptyData());
+            var data = parser.Create(stream, new EmptyData());
         }
 
         [Fact]
@@ -82,18 +82,18 @@ Vary: Accept-Encoding
 Content-Type: text/plain" + "\r\n\r\n";
             var parser = new HttpHeaderParser();
             var stream = new ByteArray(ASCIIEncoding.ASCII.GetBytes(header1));
-            parser.ParseResponse(stream);
+            parser.Parse(stream, true);
             Assert.Equal("Mon, 27 Jul 2009 12:28:53 GMT", parser.GetHeader("Date"));
             Assert.Equal("Apache", parser.GetHeader("Server"));
             Assert.Null(parser.GetHeader("Last-Modi"));
             Assert.Null(parser.GetHeader("Last-Modified"));
             stream = new ByteArray(ASCIIEncoding.ASCII.GetBytes(header2));
-            parser.ParseResponse(stream);
+            parser.Parse(stream, true);
             Assert.Equal("Apache", parser.GetHeader("Server"));
             Assert.Equal("Wed, 22 Jul 2009 19:15:56 GMT", parser.GetHeader("Last-Modified"));
             Assert.Equal("\"34aa387-d-1568eb00\"", parser.GetHeader("ETag"));
 
-            var data = parser.CreateResponse(stream, new EmptyData());
+            var data = parser.Create(stream, new EmptyData());
         }
 
         [Theory,

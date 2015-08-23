@@ -43,8 +43,7 @@ namespace Netool.Plugins.Protocols
             switch (type)
             {
                 case InstanceType.Server:
-                    throw new NotImplementedException();
-                    //instance = createServer();
+                    instance = createServer();
                     break;
 
                 case InstanceType.Client:
@@ -72,10 +71,9 @@ namespace Netool.Plugins.Protocols
             switch(type)
             {
                 case InstanceType.Server:
-                    throw new NotImplementedException();
-                    /*var s = settings as TcpServerSettings;
+                    var s = settings as HttpServerSettings;
                     if (s == null) throw new InvalidSettingsType();
-                    instance = new TcpServer(s);*/
+                    instance = new HttpServer(s);
                     break;
 
                 case InstanceType.Client:
@@ -107,17 +105,17 @@ namespace Netool.Plugins.Protocols
             return new InstancePack(view, cont, cont.GetInstanceType());
         }
 
-        /*private TcpServer createServer()
+        private HttpServer createServer()
         {
             var dialog = new TcpServerDialog();
             dialog.ShowDialog();
             if (dialog.DialogResult == DialogResult.OK)
             {
                 var settings = dialog.Settings;
-                return new TcpServer(settings);
+                return new HttpServer(new HttpServerSettings { TcpSettings = settings });
             }
             return null;
-        }*/
+        }
 
         private HttpClient createClient()
         {
@@ -139,7 +137,7 @@ namespace Netool.Plugins.Protocols
             {
                 var clFactory = new TcpClientFactory(dialog.ClientFactorySettings);
                 var srv = new TcpServer(dialog.ServerSettings);
-                return new DefaultProxy(new DefaultProxySettings { Server = srv, ClientFactory = clFactory });
+                return new DefaultProxy(new DefaultProxySettings { server = srv, ClientFactory = clFactory });
             }
             return null;
         }*/

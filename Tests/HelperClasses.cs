@@ -58,4 +58,22 @@ namespace Tests
             OnChannelClosed();
         }
     }
+
+    internal class TestServerChannel : BaseServerChannel, IServerChannel
+    {
+        public void Send(IDataStream s)
+        {
+            OnResponseSent(s);
+        }
+
+        public void Receive(IDataStream s)
+        {
+            OnRequestReceived(s);
+        }
+
+        public void Close()
+        {
+            OnChannelClosed();
+        }
+    }
 }

@@ -65,15 +65,18 @@ namespace Netool.Network.DataFormats.Http
         private static string owsPt = "[\t ]*";
         private static string obsTextPt = @"[\x80-\xFF]";
         private static string vcharPt = @"[\x21-\x7E]";
+
         /*private static string unreservedCharPt = @"[-a-zA-Z0-9._~]";
         private static string pctEncodedPt = @"(?:%[0-9A-F]{2})";
         private static string subDelimsPt = @"[!$&'()*+,;=]";
         private static string schemePt = @"[a-zA-Z](?:[-a-zA-Z0-9+.])*";
+        private static string userInfoPt = @"(?:" + unreservedCharPt + "|" + pctEncodedPt + "|" + subDelimsPt + "|:)*";
         private static string pcharPt = @"(?:" + unreservedCharPt + "|" + pctEncodedPt + "|" + subDelimsPt + "|[:@])";
         private static string absolutePathPt = @"(?:/" + pcharPt + "*)+";
         private static string queryPt = @"(?:" + pcharPt + "|[/?])*";
-        private static string authorityPt
-        private static string hierPartPt = @"//(?:" + authorityPt + pathAbEmpty + "|" + pathAbsolutePt + "|" + pathRootless + "|" + pathEmptyPt + ")";
+        private static string hostPt = ""
+        private static string authorityPt = @"(?:" + userInfoPt + @"@)?" + hostPt + "(?::" + portPt +")?";
+        private static string hierPartPt = @"(?://" + authorityPt + pathAbEmpty + "|" + pathAbsolutePt + "|" + pathRootless + "|" + pathEmptyPt + ")";
         private static string originFormPt = absolutePathPt + @"(?:\?" + queryPt + @")\?";
         private static string absoluteURIPt = schemePt + ":" + hierPartPt + @"(?:\?" + queryPt + ")?";
         private static string absoluteFormPt = absoluteURIPt;
@@ -117,13 +120,14 @@ namespace Netool.Network.DataFormats.Http
         }
 
         /// <summary>
-        /// Parses response header
+        /// Parses response/request header
         /// </summary>
-        /// <param name="s">data to parse, must be long enough to contain at least the status line</param>
+        /// <param name="s">data to parse, must be long enough to contain at least the start line</param>
+        /// <param name="isResponse"></param>
         /// <returns>is header parsing finished</returns>
         /// <exception cref="InvalidHttpHeaderException">Thrown when parsing is unsuccessful</exception>
         /// <remarks>Max headers size is limited by 512KiB</remarks>
-        public bool ParseResponse(IDataStream s)
+        public bool Parse(IDataStream s, bool isResponse)
         {
             lock(builder)
             {
@@ -137,15 +141,35 @@ namespace Netool.Network.DataFormats.Http
                 var str = ASCIIEncoding.ASCII.GetString(arr);
                 if (stage == ParsingStage.StatusLine)
                 {
-                    var match = statusLineRegex.Match(str);
-                    if (!match.Success) throw new InvalidHttpHeaderException();
+                    if(isResponse)
+                    {
+                        var match = statusLineRegex.Match(str);
+                        if (!match.Success && str.Length < s.Length) throw new InvalidHttpHeaderException();
 
-                    builder.HttpVersion = match.Groups["Version"].Value;
-                    builder.StatusCode = int.Parse(match.Groups["Code"].Value);
-                    builder.ReasonPhrase = match.Groups["ReasonPhrase"].Value;
-                    nextRead = match.Length;
-                    stage = ParsingStage.Headers;
-                    str = str.Substring(nextRead);
+                        builder.IsRequest = false;
+                        builder.HttpVersion = match.Groups["Version"].Value;
+                        builder.StatusCode = int.Parse(match.Groups["Code"].Value);
+                        builder.ReasonPhrase = match.Groups["ReasonPhrase"].Value;
+                        nextRead = match.Length;
+                        stage = ParsingStage.Headers;
+                        str = str.Substring(nextRead);
+                    }
+                    else
+                    {
+                        var match = requestLineRegex.Match(str);
+                        if (!match.Success && str.Length < s.Length) throw new InvalidHttpHeaderException();
+
+                        var target = match.Groups["Target"].Value;
+                        HttpRequestMethod method;
+                        if (!Enum.TryParse(match.Groups["Method"].Value, out method)) throw new InvalidHttpHeaderException();
+                        builder.IsRequest = true;
+                        builder.HttpVersion = match.Groups["Version"].Value;
+                        builder.Method = method;
+                        builder.RequestTarget = target;
+                        nextRead = match.Length;
+                        stage = ParsingStage.Headers;
+                        str = str.Substring(nextRead);
+                    }
                 }
                 if (stage == ParsingStage.Headers)
                 {
@@ -187,9 +211,10 @@ namespace Netool.Network.DataFormats.Http
         /// Creates a response from current parser
         /// </summary>
         /// <param name="headerData"></param>
+        /// <param name="bodyData"></param>
         /// <returns>parsed http response</returns>
         /// <exception cref="ParsingNotFinishedException">if this method is called before parsing is finished</exception>
-        public HttpData CreateResponse(IDataStream headerData, IDataStream bodyData)
+        public HttpData Create(IDataStream headerData, IDataStream bodyData)
         {
             lock(builder)
             {
@@ -218,7 +243,7 @@ namespace Netool.Network.DataFormats.Http
         /// </summary>
         /// <param name="isRequest"></param>
         /// <returns></returns>
-        /// <exception cref="BadRequestException">when request/response body length cannot be determined (http error no 400)</exception>
+        /// <exception cref="BadRequestException">when response/request body length cannot be determined (http error no 400)</exception>
         /// <remarks>
         /// Relevant RFC link: https://tools.ietf.org/html/rfc7230#section-3.3.3
         /// </remarks>

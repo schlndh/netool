@@ -163,6 +163,8 @@ namespace Netool.Network.DataFormats.Http
             Version = version;
             Code = code;
             ReasonPhrase = reasonPhrase;
+            Method = method;
+            RequestTarget = requestTarget;
         }
 
         public static HttpData CreateResponse(IReadOnlyDictionary<string, string> headers,
@@ -179,6 +181,7 @@ namespace Netool.Network.DataFormats.Http
                 stringBuilder.Append("\r\n");
                 headerData = new ByteArray(ASCIIEncoding.ASCII.GetBytes(stringBuilder.ToString()));
             }
+
             return new HttpData(headerData, headers, headerKeys, false, version, code, reasonPhrase, HttpRequestMethod.Null, "", payload);
         }
 
@@ -196,11 +199,8 @@ namespace Netool.Network.DataFormats.Http
                 stringBuilder.Append("\r\n");
                 headerData = new ByteArray(ASCIIEncoding.ASCII.GetBytes(stringBuilder.ToString()));
             }
-            if(payload == null)
-            {
-                payload = new EmptyData();
-            }
-            return new HttpData(headerData, headers, headerKeys, false, version, -1, "", HttpRequestMethod.Null, "", payload);
+
+            return new HttpData(headerData, headers, headerKeys, true, version, -1, "", method, requestTarget, payload);
         }
 
         /// <inheritdoc/>
