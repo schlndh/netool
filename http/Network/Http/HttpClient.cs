@@ -113,16 +113,34 @@ namespace Netool.Network.Http
                     }
                     else if(info.Type == HttpBodyLengthInfo.LengthType.Chunked)
                     {
-                        var chunkInfo = chunkedDecoder.Decode(contentData);
-                        contentData = new StreamList();
-                        if(chunkInfo.DecodedData.Length > 0)
+                        if(contentData.Length == 0)
                         {
-                            decodedChunkedData.Add(chunkInfo.DecodedData);
+                            // wait for some data
+                            return;
                         }
-                        if(chunkInfo.Finished)
+                        try
                         {
-                            OnResponseReceived(parser.CreateResponse(headerData, decodedChunkedData));
-                            resetReceiveStatus();
+                            var chunkInfo = chunkedDecoder.Decode(contentData);
+                            contentData = new StreamList();
+                            if (chunkInfo.DecodedData.Length > 0)
+                            {
+                                decodedChunkedData.Add(chunkInfo.DecodedData);
+                            }
+                            if (chunkInfo.Finished)
+                            {
+                                OnResponseReceived(parser.CreateResponse(headerData, decodedChunkedData));
+                                resetReceiveStatus();
+                            }
+                        }
+                        catch(PartialChunkException)
+                        {
+                            // wait for more data
+                            return;
+                        }
+                        catch
+                        {
+                            // invalid response
+                            Close();
                         }
                     }
                 }
@@ -177,6 +195,7 @@ namespace Netool.Network.Http
             contentData = new StreamList();
             readingResponseBody = false;
             lastRequestMethod = HttpRequestMethod.Null;
+            parser = new HttpHeaderParser();
         }
     }
 

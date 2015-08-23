@@ -1,5 +1,6 @@
 ﻿using Netool.ChannelDrivers;
 using Netool.Network;
+using Netool.Network.DataFormats;
 using System;
 
 namespace Tests
@@ -38,5 +39,23 @@ namespace Tests
 
         [NonSerialized]
         public string NonSerialized;
+    }
+
+    internal class TestClientChannel : BaseClientChannel, IClientChannel
+    {
+        public void Send(IDataStream s)
+        {
+            OnRequestSent(s);
+        }
+
+        public void Receive(IDataStream s)
+        {
+            OnResponseReceived(s);
+        }
+
+        public void Close()
+        {
+            OnChannelClosed();
+        }
     }
 }

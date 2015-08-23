@@ -173,7 +173,7 @@ namespace Netool.Network.DataFormats.Http
                     str = str.Substring(read);
                     nextRead += read;
                 }
-                if (stage != ParsingStage.Finished && str.Substring(0, 2) == "\r\n")
+                if (stage != ParsingStage.Finished && str.Length >= 2 && str.Substring(0, 2) == "\r\n")
                 {
                     stage = ParsingStage.Finished;
                     nextRead += 2;
