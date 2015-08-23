@@ -1,0 +1,11 @@
+language: csharp
+solution: netool.sln
+mono:
+  - nightly
+install:
+  - git submodule update --init --recursive
+  - nuget restore netool.sln
+  - nuget install xunit.runner.console -Version 2.0.0 -OutputDirectory packages
+script:
+  - xbuild /p:Configuration=Release netool.sln
+  - mono ./packages/xunit.runner.console*/tools/xunit.console.exe ./Tests/bin/Release/Tests.dll
