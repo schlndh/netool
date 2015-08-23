@@ -1,56 +1,53 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using Netool.Logging;
 using Netool.Network;
 using Netool.ChannelDrivers;
 
-namespace Tests
+namespace Tests.Logging
 {
-    [TestClass]
-    public class FileLogReaderTests
+    public class FileLogReaderTests : IDisposable
     {
         private string filename;
         private FileLog log;
         private FileLogReader logReader;
 
-        [TestInitialize]
-        public void TestInit()
+        public FileLogReaderTests()
         {
             filename = Path.GetTempFileName();
             log = new FileLog(filename);
             logReader = log.CreateReader();
         }
 
-        [TestCleanup]
-        public void TestCleanup()
+        void IDisposable.Dispose()
         {
             log.Close();
             logReader.Close();
             File.Delete(filename);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestReadPluginID()
         {
             long pluginID = 17;
             log.WritePluginID(pluginID);
-            Assert.AreEqual(pluginID, logReader.ReadPluginID());
+            Assert.Equal(pluginID, logReader.ReadPluginID());
         }
 
-        [TestMethod]
+        [Fact]
         public void TestReadInstanceData()
         {
             var instance = new TestInstance { Serialized = "aaa", NonSerialized = "bbb" };
             log.WriteInstanceData(instance);
             var instance2 = logReader.ReadInstanceData() as TestInstance;
-            Assert.IsNotNull(instance2);
-            Assert.AreEqual(instance.Serialized, instance2.Serialized);
-            Assert.IsTrue(string.IsNullOrEmpty(instance2.NonSerialized));
+            Assert.NotNull(instance2);
+            Assert.Equal(instance.Serialized, instance2.Serialized);
+            Assert.True(string.IsNullOrEmpty(instance2.NonSerialized));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestReadChannelsData()
         {
             const int channelCount = 10;
@@ -60,45 +57,45 @@ namespace Tests
                 log.WriteChannelData(hint, 0, new TestChannel { id = i, NonSerialized = "bbb" });
             }
             var channels = logReader.ReadChannelsData(1, channelCount);
-            Assert.AreEqual(channelCount, channels.Count);
+            Assert.Equal(channelCount, channels.Count);
             for (int i = 1; i <= channelCount; ++i)
             {
                 var channel = channels[i - 1] as TestChannel;
-                Assert.IsNotNull(channel);
-                Assert.AreEqual(i, channel.id);
-                Assert.IsTrue(string.IsNullOrEmpty(channel.NonSerialized));
+                Assert.NotNull(channel);
+                Assert.Equal(i, channel.id);
+                Assert.True(string.IsNullOrEmpty(channel.NonSerialized));
             }
             channels = logReader.ReadChannelsData(3, 1);
-            Assert.AreEqual(1, channels.Count);
+            Assert.Equal(1, channels.Count);
             var channel2 = channels[0] as TestChannel;
-            Assert.IsNotNull(channel2);
-            Assert.AreEqual(3, channel2.id);
+            Assert.NotNull(channel2);
+            Assert.Equal(3, channel2.id);
             channels = logReader.ReadChannelsData(3, 0);
-            Assert.AreEqual(0, channels.Count);
+            Assert.Equal(0, channels.Count);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestReadChannelData()
         {
             var channel = new TestChannel { id = 55, NonSerialized = "bbb" };
             var hint = log.AddChannel();
             log.WriteChannelData(hint, 0, channel);
             var channel2 = logReader.ReadChannelData(1) as TestChannel;
-            Assert.IsNotNull(channel2);
-            Assert.AreEqual(55, channel2.ID);
-            Assert.IsTrue(string.IsNullOrEmpty(channel2.NonSerialized));
+            Assert.NotNull(channel2);
+            Assert.Equal(55, channel2.ID);
+            Assert.True(string.IsNullOrEmpty(channel2.NonSerialized));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGetChannelInfoHintByID()
         {
             var hint1 = log.AddChannel();
             var hint2 = log.AddChannel();
-            Assert.AreEqual(hint1, logReader.GetChannelInfoHintByID(1));
-            Assert.AreEqual(hint2, logReader.GetChannelInfoHintByID(2));
+            Assert.Equal(hint1, logReader.GetChannelInfoHintByID(1));
+            Assert.Equal(hint2, logReader.GetChannelInfoHintByID(2));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestGetEventCount()
         {
             var hint = log.AddChannel();
@@ -108,11 +105,11 @@ namespace Tests
             var hint2 = log.AddChannel();
             log.LogEvent(hint2, new Event(1, EventType.ChannelCreated, null, DateTime.Now));
             log.WriteChannelData(hint2, 1, new TestChannel());
-            Assert.AreEqual(1, logReader.GetEventCount(hint2));
-            Assert.AreEqual(2, logReader.GetEventCount(hint));
+            Assert.Equal(1, logReader.GetEventCount(hint2));
+            Assert.Equal(2, logReader.GetEventCount(hint));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestReadEvent()
         {
             var hint = log.AddChannel();
@@ -121,18 +118,18 @@ namespace Tests
             log.LogEvent(hint, new Event(1, EventType.ChannelCreated, null, date1));
             log.LogEvent(hint, new Event(2, EventType.ChannelClosed, null, date2));
             var e1 = logReader.ReadEvent(hint, 1);
-            Assert.IsNotNull(e1);
-            Assert.AreEqual(EventType.ChannelCreated, e1.Type);
-            Assert.AreEqual(1, e1.ID);
-            Assert.AreEqual(date1, e1.Time);
+            Assert.NotNull(e1);
+            Assert.Equal(EventType.ChannelCreated, e1.Type);
+            Assert.Equal(1, e1.ID);
+            Assert.Equal(date1, e1.Time);
             var e2 = logReader.ReadEvent(hint, 2);
-            Assert.IsNotNull(e2);
-            Assert.AreEqual(EventType.ChannelClosed, e2.Type);
-            Assert.AreEqual(2, e2.ID);
-            Assert.AreEqual(date2, e2.Time);
+            Assert.NotNull(e2);
+            Assert.Equal(EventType.ChannelClosed, e2.Type);
+            Assert.Equal(2, e2.ID);
+            Assert.Equal(date2, e2.Time);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestReadEvents()
         {
             const int eventCount = FileLog.EventsPerBlock + 1;
@@ -143,14 +140,14 @@ namespace Tests
                 log.LogEvent(hint, new Event(i, EventType.ChannelCreated, null, DateTime.Now));
             }
             var events = logReader.ReadEvents(hint, 1, 0);
-            Assert.AreEqual(0, events.Count);
+            Assert.Equal(0, events.Count);
             events = logReader.ReadEvents(hint, 1, eventCount);
-            Assert.AreEqual(eventCount, events.Count);
-            Assert.AreEqual(1, events[0].ID);
-            Assert.AreEqual(2, events[1].ID);
-            Assert.AreEqual(eventCount, events[eventCount -1].ID);
+            Assert.Equal(eventCount, events.Count);
+            Assert.Equal(1, events[0].ID);
+            Assert.Equal(2, events[1].ID);
+            Assert.Equal(eventCount, events[eventCount -1].ID);
             events = logReader.ReadEvents(hint, 1, 1);
-            Assert.AreEqual(1, events.Count);
+            Assert.Equal(1, events.Count);
         }
     }
 }

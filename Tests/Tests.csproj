@@ -61,8 +61,13 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="HelperClasses.cs" />
     <Compile Include="Http\ChunkedEncodingTests.cs" />
     <Compile Include="Http\HttpHeaderParserTests.cs" />
+    <Compile Include="Logging\FileLogReaderTests.cs" />
+    <Compile Include="Logging\FileLogTests.cs" />
+    <Compile Include="NetworkHelpersTests.cs" />
+    <Compile Include="Network\DataFormats\StreamListTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

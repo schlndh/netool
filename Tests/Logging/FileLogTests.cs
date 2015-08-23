@@ -1,33 +1,30 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using Netool.Logging;
 using Netool.Network;
 using Netool.ChannelDrivers;
 
-namespace Tests
+namespace Tests.Logging
 {
-    [TestClass]
-    public class FileLogTests
+    public class FileLogTests : IDisposable
     {
         private string filename;
         private FileLog log;
 
-        [TestInitialize]
-        public void TestInit()
+        public FileLogTests()
         {
             filename = Path.GetTempFileName();
             log = new FileLog(filename);
         }
 
-        [TestCleanup]
-        public void TestCleanup()
+        void IDisposable.Dispose()
         {
             File.Delete(filename);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestFormatVersion()
         {
             log.Close();
@@ -35,15 +32,15 @@ namespace Tests
             BinaryReader binReader = new BinaryReader(stream);
             stream.Position = 0;
             var fInfo = binReader.ReadInt64();
-            Assert.IsTrue(fInfo > 0);
+            Assert.True(fInfo > 0);
             // log contains pluginID field
-            Assert.IsTrue(stream.Length >= fInfo);
+            Assert.True(stream.Length >= fInfo);
             stream.Position = fInfo;
-            Assert.AreEqual(FileLog.FormatVersion, binReader.ReadInt64());
+            Assert.Equal(FileLog.FormatVersion, binReader.ReadInt64());
             binReader.Close();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestWritePluginID()
         {
             long pluginID = 17;
@@ -53,29 +50,29 @@ namespace Tests
             BinaryReader binReader = new BinaryReader(stream);
             stream.Position = 0;
             var fInfo = binReader.ReadInt64();
-            Assert.IsTrue(fInfo > 0);
+            Assert.True(fInfo > 0);
             // log contains pluginID field
-            Assert.IsTrue(stream.Length >= fInfo + 2 * sizeof(long));
+            Assert.True(stream.Length >= fInfo + 2 * sizeof(long));
             stream.Position = fInfo + 2 * sizeof(long);
-            Assert.AreEqual(pluginID, binReader.ReadInt64());
+            Assert.Equal(pluginID, binReader.ReadInt64());
             binReader.Close();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestAddChannel0()
         {
             log.Close();
             FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
             BinaryReader binReader = new BinaryReader(stream);
             // log file contains ChannelCount field
-            Assert.IsTrue(stream.Length >= 2 * sizeof(long));
+            Assert.True(stream.Length >= 2 * sizeof(long));
             stream.Position = sizeof(long);
             // 0 channels
-            Assert.AreEqual(0, binReader.ReadInt64());
+            Assert.Equal(0, binReader.ReadInt64());
             binReader.Close();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestAddChannel()
         {
             log.AddChannel();
@@ -85,29 +82,29 @@ namespace Tests
             BinaryReader binReader = new BinaryReader(stream);
             stream.Position = sizeof(long);
             // 2 channels
-            Assert.AreEqual(2, binReader.ReadInt64());
+            Assert.Equal(2, binReader.ReadInt64());
             // skip next channel table pointer
             stream.Position += sizeof(long);
             long channelPos = binReader.ReadInt64();
             // check the first channel
-            Assert.IsTrue(channelPos > 0);
-            Assert.IsTrue(stream.Length > channelPos + sizeof(long));
+            Assert.True(channelPos > 0);
+            Assert.True(stream.Length > channelPos + sizeof(long));
             // move to event count
             stream.Position = channelPos + sizeof(long);
-            Assert.AreEqual(0, binReader.ReadInt64());
+            Assert.Equal(0, binReader.ReadInt64());
             // move to the second channel pointer
             stream.Position = 4 * sizeof(long);
             channelPos = binReader.ReadInt64();
             // check the second channel
-            Assert.IsTrue(channelPos > 0);
-            Assert.IsTrue(stream.Length > channelPos + sizeof(long));
+            Assert.True(channelPos > 0);
+            Assert.True(stream.Length > channelPos + sizeof(long));
             // move to event count
             stream.Position = channelPos + sizeof(long);
-            Assert.AreEqual(0, binReader.ReadInt64());
+            Assert.Equal(0, binReader.ReadInt64());
             binReader.Close();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestManyAddChannel()
         {
             long hint = 0;
@@ -121,16 +118,16 @@ namespace Tests
             {
                 stream.Position = sizeof(long);
                 // channel count
-                Assert.AreEqual(FileLog.ChannelsPerBlock + 1, binReader.ReadInt64());
+                Assert.Equal(FileLog.ChannelsPerBlock + 1, binReader.ReadInt64());
                 // the last channel will be first in the second table
                 stream.Position = binReader.ReadInt64() + sizeof(long);
-                Assert.AreEqual(hint, binReader.ReadInt64());
+                Assert.Equal(hint, binReader.ReadInt64());
                 binReader.Close();
             }
 
         }
 
-        [TestMethod]
+        [Fact]
         public void TestWriteInstanceData()
         {
             log.WriteInstanceData(new TestInstance { Serialized = "aaa", NonSerialized = "bbb" });
@@ -143,19 +140,19 @@ namespace Tests
                 // move to format info structure - instance data field
                 stream.Position = binReader.ReadInt64() + sizeof(long);
                 var instancePos = binReader.ReadInt64();
-                Assert.IsTrue(instancePos > 0);
-                Assert.IsTrue(stream.Length > instancePos);
+                Assert.True(instancePos > 0);
+                Assert.True(stream.Length > instancePos);
                 stream.Position = instancePos;
                 object res = formatter.Deserialize(stream);
-                Assert.IsInstanceOfType(res, typeof(TestInstance));
+                Assert.IsType(typeof(TestInstance), res);
                 var ins = res as TestInstance;
-                Assert.IsTrue(String.IsNullOrEmpty(ins.NonSerialized));
-                Assert.AreEqual("aaa", ins.Serialized);
+                Assert.True(String.IsNullOrEmpty(ins.NonSerialized));
+                Assert.Equal("aaa", ins.Serialized);
                 binReader.Close();
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestWriteChannelData()
         {
             var hint = log.AddChannel();
@@ -169,33 +166,33 @@ namespace Tests
                 BinaryFormatter formatter = new BinaryFormatter();
                 stream.Position = 3 * sizeof(long);
                 // check that pointers are properly stored in the table
-                Assert.AreEqual(hint, binReader.ReadInt64());
-                Assert.AreEqual(hint2, binReader.ReadInt64());
+                Assert.Equal(hint, binReader.ReadInt64());
+                Assert.Equal(hint2, binReader.ReadInt64());
                 stream.Position = hint + sizeof(long);
                 // check that eventcount is properly written
-                Assert.AreEqual(5, binReader.ReadInt64());
+                Assert.Equal(5, binReader.ReadInt64());
                 // check that object can be properly deserialized
                 stream.Position = hint;
                 stream.Position = binReader.ReadInt64();
                 object res = formatter.Deserialize(stream);
-                Assert.IsInstanceOfType(res, typeof(TestChannel));
+                Assert.IsType(typeof(TestChannel), res);
                 var c = res as TestChannel;
-                Assert.IsTrue(String.IsNullOrEmpty(c.NonSerialized));
-                Assert.AreEqual(1, c.id);
+                Assert.True(String.IsNullOrEmpty(c.NonSerialized));
+                Assert.Equal(1, c.id);
 
                 // second channel
                 stream.Position = hint2;
                 stream.Position = binReader.ReadInt64();
                 res = formatter.Deserialize(stream);
-                Assert.IsInstanceOfType(res, typeof(TestChannel));
+                Assert.IsType(typeof(TestChannel), res);
                 c = res as TestChannel;
-                Assert.IsTrue(String.IsNullOrEmpty(c.NonSerialized));
-                Assert.AreEqual(2, c.id);
+                Assert.True(String.IsNullOrEmpty(c.NonSerialized));
+                Assert.Equal(2, c.id);
                 binReader.Close();
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestLogEvent()
         {
             var hint = log.AddChannel();
@@ -215,11 +212,11 @@ namespace Tests
                 stream.Position += 3 * sizeof(long);
                 stream.Position = binReader.ReadInt64();
                 object res = formatter.Deserialize(stream);
-                Assert.IsInstanceOfType(res, typeof(Event));
+                Assert.IsType(typeof(Event), res);
                 var e = res as Event;
-                Assert.AreEqual(1, e.ID);
-                Assert.AreEqual(EventType.ChannelCreated, e.Type);
-                Assert.AreEqual(date1, e.Time);
+                Assert.Equal(1, e.ID);
+                Assert.Equal(EventType.ChannelCreated, e.Type);
+                Assert.Equal(date1, e.Time);
 
                 stream.Position = 3 * sizeof(long);
                 // move to channel info structure
@@ -229,16 +226,16 @@ namespace Tests
                 stream.Position = binReader.ReadInt64();
 
                 res = formatter.Deserialize(stream);
-                Assert.IsInstanceOfType(res, typeof(Event));
+                Assert.IsType(typeof(Event), res);
                 e = res as Event;
-                Assert.AreEqual(2, e.ID);
-                Assert.AreEqual(EventType.ChannelClosed, e.Type);
-                Assert.AreEqual(date2, e.Time);
+                Assert.Equal(2, e.ID);
+                Assert.Equal(EventType.ChannelClosed, e.Type);
+                Assert.Equal(date2, e.Time);
                 binReader.Close();
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestManyLogEvent()
         {
             var hint = log.AddChannel();
@@ -261,9 +258,9 @@ namespace Tests
                 // move to the event data
                 stream.Position = binReader.ReadInt64();
                 object res = formatter.Deserialize(stream);
-                Assert.IsInstanceOfType(res, typeof(Event));
+                Assert.IsType(typeof(Event), res);
                 var e = res as Event;
-                Assert.AreEqual(FileLog.EventsPerBlock + 1, e.ID);
+                Assert.Equal(FileLog.EventsPerBlock + 1, e.ID);
                 binReader.Close();
             }
         }
