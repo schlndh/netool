@@ -88,12 +88,12 @@ namespace Netool.Network.DataFormats.Http
             return new DecodeInfo(output, false);
         }
 
-        private static long findFirst(IDataStream stream, string needle, long offset)
+        private static int findFirst(IDataStream stream, string needle, int offset)
         {
-            long endIndex = -1;
+            int endIndex = -1;
             while (offset < stream.Length)
             {
-                var len2 = Math.Min(stream.Length - offset, 512);
+                var len2 = (int)Math.Min(stream.Length - offset, 512);
                 var buff = stream.ReadBytes(offset, len2);
                 var str = ASCIIEncoding.ASCII.GetString(buff);
                 // find end
@@ -124,7 +124,7 @@ namespace Netool.Network.DataFormats.Http
         {
             if (stream == null) throw new ArgumentNullException();
 
-            long len = Math.Min(stream.Length, 10);
+            var len = (int) Math.Min(stream.Length, 10);
             var buff = stream.ReadBytes(0, len);
             var str = ASCIIEncoding.ASCII.GetString(buff);
             var match = chunkHeaderRegex.Match(str);
@@ -140,7 +140,7 @@ namespace Netool.Network.DataFormats.Http
                         else throw new InvalidChunkException();
                     }
                     // parse next chunk size
-                    var size = Convert.ToInt64(match.Groups["Size"].Value, 16);
+                    var size = Convert.ToInt32(match.Groups["Size"].Value, 16);
                     if (size < 0)
                     {
                         throw new InvalidChunkException();

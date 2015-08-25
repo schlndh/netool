@@ -216,9 +216,9 @@ namespace Netool.Network.DataFormats.Http
         }
 
         /// <inheritdoc/>
-        public void ReadBytesToBuffer(IList<ArraySegment<byte>> buffers, long start, long length)
+        public void ReadBytesToBuffer(byte[] buffer, long start = 0, int length = -1, int offset = 0)
         {
-            MessageData.ReadBytesToBuffer(buffers, start, length);
+            MessageData.ReadBytesToBuffer(buffer, start, length, offset);
         }
     }
 }

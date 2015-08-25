@@ -62,22 +62,15 @@ namespace Netool.Network.DataFormats
         }
 
         /// <inheritdoc/>
-        public void ReadBytesToBuffer(System.Collections.Generic.IList<ArraySegment<byte>> buffers, long start = 0, long length = -1)
+        public void ReadBytesToBuffer(byte[] buffer, long start = 0, int length = -1, int offset = 0)
         {
             if (start < 0 || start >= stream.Length) throw new ArgumentOutOfRangeException();
             if(length == -1)
             {
-                length = stream.Length - start;
+                length = (int) Math.Min(int.MaxValue, stream.Length - start);
             }
             stream.Position = start;
-            long read = 0;
-            foreach(var buff in buffers)
-            {
-                int len = Math.Max((int) Math.Min(length - read, int.MaxValue), buff.Count);
-                stream.Read(buff.Array, buff.Offset, len);
-                read += len;
-                if (length == read) break;
-            }
+            stream.Read(buffer, offset, length);
         }
 
         /// <inheritdoc/>

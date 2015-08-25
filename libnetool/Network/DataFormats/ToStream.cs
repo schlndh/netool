@@ -34,7 +34,7 @@ namespace Netool.Network.DataFormats
         public override int Read(byte[] buffer, int offset, int count)
         {
             int len = Math.Min(count, (int)(Math.Min(int.MaxValue, stream.Length - (position + offset))));
-            stream.ReadBytesToBuffer(new List<ArraySegment<byte>> { new ArraySegment<byte>(buffer) }, position + offset, len);
+            stream.ReadBytesToBuffer(buffer, position + offset, len);
             position += len;
             return len;
         }

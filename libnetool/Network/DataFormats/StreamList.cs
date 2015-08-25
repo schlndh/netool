@@ -69,10 +69,11 @@ namespace Netool.Network.DataFormats
         }
 
         /// <inheritdoc/>
-        public void ReadBytesToBuffer(IList<ArraySegment<byte>> buffers, long start, long length)
+        public void ReadBytesToBuffer(byte[] buffer, long start = 0, int length = -1, int offset = 0)
         {
+            if (length == -1) length = (int)Math.Min(int.MaxValue, Length - start);
             if (length == 0) return;
-            var workBuffers = new List<ArraySegment<byte>>(buffers);
+            var workBuffer = new ArraySegment<byte>(buffer, offset, length);
             streamsLock.EnterReadLock();
             try
             {
@@ -82,6 +83,7 @@ namespace Netool.Network.DataFormats
                 }
                 int i = 0;
                 var stream = streams[0];
+                // move to the stream containing the start
                 while (start >= stream.Length)
                 {
                     if (i == streams.Count) throw new ArgumentOutOfRangeException();
@@ -91,37 +93,18 @@ namespace Netool.Network.DataFormats
 
                 do
                 {
-                    var len = Math.Min(length, stream.Length - start);
-                    int skip = 0;
-                    long off = 0;
+                    var len = (int)Math.Min(length, stream.Length - start);
                     length -= len;
-                    stream.ReadBytesToBuffer(workBuffers, start, len);
-                    foreach(var buff in workBuffers)
+                    stream.ReadBytesToBuffer(workBuffer.Array, start, len, workBuffer.Offset);
+                    if(length > 0)
                     {
-                        len -= buff.Count;
-                        if(len < 0)
-                        {
-                            off = buff.Count  + len;
-                            break;
-                        }
-                        ++skip;
+                        workBuffer = new ArraySegment<byte>(workBuffer.Array, workBuffer.Offset + len, workBuffer.Count - len);
+                        i++;
+                        if (i == streams.Count && length > 0) throw new ArgumentOutOfRangeException();
+                        if (i == streams.Count) return;
+                        stream = streams[i];
+                        start = 0;
                     }
-
-                    len = 0;
-
-                    if (skip > 0)
-                    {
-                        workBuffers = workBuffers.GetRange(skip, workBuffers.Count - skip);
-                    }
-                    if (off > 0)
-                    {
-                        workBuffers[0] = new ArraySegment<byte>(workBuffers[0].Array, (int)(workBuffers[0].Offset + off), (int)(workBuffers[0].Count - off));
-                    }
-                    i++;
-                    if (i == streams.Count && length > 0) throw new ArgumentOutOfRangeException();
-                    if (i == streams.Count) return;
-                    stream = streams[i];
-                    start = 0;
                 } while (length > 0);
             }
             finally

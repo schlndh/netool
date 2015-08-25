@@ -57,10 +57,11 @@ namespace Netool.Network.DataFormats
 
         /// <inheritdoc/>
         /// <exception cref="ArgumentOutOfRangeException">wrong index or length</exception>
-        public void ReadBytesToBuffer(IList<ArraySegment<byte>> buffers, long start, long length)
+        public void ReadBytesToBuffer(byte[] buffer, long start = 0, int length = -1, int offset = 0)
         {
+            if (length == -1) length = (int) Math.Min(int.MaxValue, Length - start);
             if (start + length > count || start < 0 || length < 0) throw new ArgumentOutOfRangeException("wrong index or length");
-            stream.ReadBytesToBuffer(buffers, offset + start, length);
+            stream.ReadBytesToBuffer(buffer, this.offset + start, length, offset);
         }
     }
 }

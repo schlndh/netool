@@ -25,36 +25,29 @@ namespace Tests.Network.DataFormats
             Assert.Equal(1, list.ReadByte(10));
             Assert.Equal(2, list.ReadByte(11));
             Assert.Equal(11, list.ReadByte(30));
-            var arr1 = new byte[10];
-            var arr2 = new byte[15];
-            var arr3 = new byte[20];
-            arr1[2] = 99;
-            arr1[3] = 99;
-            arr1[8] = 99;
-            arr2[5] = 99;
-            var buffers = new List<ArraySegment<byte>>
-            {
-                new ArraySegment<byte>(arr1, 2, 5),
-                new ArraySegment<byte>(arr2, 0, 10),
-                new ArraySegment<byte>(arr3, 0, 20),
-            };
-            list.ReadBytesToBuffer(buffers, 5, 0);
-            Assert.Equal(99, arr1[2]);
-            list.ReadBytesToBuffer(buffers, 5, 1);
-            Assert.Equal(6, arr1[2]);
-            Assert.Equal(99, arr1[3]);
-            list.ReadBytesToBuffer(buffers, 9, 10);
-            Assert.Equal(1, arr1[3]);
-            Assert.Equal(4, arr1[6]);
-            Assert.Equal(99, arr1[8]);
-            Assert.Equal(5, arr2[0]);
-            Assert.Equal(9, arr2[4]);
-            Assert.Equal(99, arr2[5]);
+            var buffer = new byte[50];
+
+            buffer[1] = 99;
+            buffer[2] = 99;
+            buffer[3] = 99;
+            buffer[13] = 99;
+            list.ReadBytesToBuffer(buffer, 5, 0, 2);
+            Assert.Equal(99, buffer[1]);
+            Assert.Equal(99, buffer[2]);
+            list.ReadBytesToBuffer(buffer, 5, 1, 2);
+            Assert.Equal(6, buffer[2]);
+            Assert.Equal(99, buffer[3]);
+            list.ReadBytesToBuffer(buffer, 9, 10, 3);
+            Assert.Equal(10, buffer[3]);
+            Assert.Equal(4, buffer[7]);
+            Assert.Equal(5, buffer[8]);
+            Assert.Equal(9, buffer[12]);
+            Assert.Equal(99, buffer[13]);
             // test read-all for possible off-by-one errors
-            list.ReadBytesToBuffer(buffers, 0, list.Length);
+            list.ReadBytesToBuffer(buffer);
             // test start > contentData.streams[0].length
-            list.ReadBytesToBuffer(buffers, 16, 5);
-            Assert.Equal(7, arr1[2]);
+            list.ReadBytesToBuffer(buffer, 16, 5);
+            Assert.Equal(7, buffer[0]);
         }
     }
 }

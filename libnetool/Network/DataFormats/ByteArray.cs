@@ -7,11 +7,11 @@ namespace Netool.Network.DataFormats
     /// Immutable data format for in-memory byte data
     /// </summary>
     [Serializable]
-    public class ByteArray : IInMemoryData
+    public class ByteArray : IDataStream
     {
-        private IReadOnlyList<byte> arr;
+        private byte[] arr;
         /// <inheritdoc/>
-        public long Length { get { return arr.Count; } }
+        public long Length { get { return arr.Length; } }
 
         /// <summary>
         /// Creates new ByteArray from a copy of the given array
@@ -19,9 +19,8 @@ namespace Netool.Network.DataFormats
         /// <param name="arr"></param>
         public ByteArray(byte[] arr)
         {
-            byte[] narr = new byte[arr.Length];
-            Array.Copy(arr, narr, arr.Length);
-            this.arr = System.Array.AsReadOnly(narr);
+            this.arr = new byte[arr.Length];
+            Array.Copy(arr, this.arr, arr.Length);
         }
 
         /// <summary>
@@ -32,18 +31,18 @@ namespace Netool.Network.DataFormats
         /// <param name="length"></param>
         public ByteArray(byte[] arr, int start, int length)
         {
-            byte[] narr = new byte[length];
-            Array.Copy(arr, start, narr, 0, length);
-            this.arr = System.Array.AsReadOnly(narr);
+            this.arr = new byte[length];
+            Array.Copy(arr, start, this.arr, 0, length);
         }
 
         /// <summary>
         /// Creates new ByteArray from a copy of the given list
         /// </summary>
         /// <param name="arr"></param>
-        public ByteArray(IReadOnlyList<byte> arr)
+        public ByteArray(ICollection<byte> arr)
         {
-            arr = new List<byte>(arr).AsReadOnly();
+            this.arr = new byte[arr.Count];
+            arr.CopyTo(this.arr, 0);
         }
 
         /// <summary>
@@ -52,29 +51,24 @@ namespace Netool.Network.DataFormats
         /// <param name="stream"></param>
         /// <param name="start"></param>
         /// <param name="length">length to copy, or -1 to copy from start to the end</param>
-        public ByteArray(IDataStream stream, long start = 0, long length = -1)
+        public ByteArray(IDataStream stream, long start = 0, int length = -1)
         {
-            if (length == -1) length = stream.Length - start;
+            if (length == -1) length = (int)Math.Min(int.MaxValue, stream.Length - start);
             // ReadBytes copies data, so no extra copying is required
-            arr = System.Array.AsReadOnly(stream.ReadBytes(start, length));
-        }
-
-        /// <inheritdoc/>
-        public IReadOnlyList<byte> GetBytes()
-        {
-            return arr;
+            arr = stream.ReadBytes(start, length);
         }
 
         /// <inheritdoc/>
         public byte ReadByte(long index)
         {
-            return DefaultIInMemoryDataStream.ReadByte(this, (int) index);
+            return arr[index];
         }
 
         /// <inheritdoc/>
-        public void ReadBytesToBuffer(IList<ArraySegment<byte>> buffers, long start, long length)
+        public void ReadBytesToBuffer(byte[] buffer, long start = 0, int length = -1, int offset = 0)
         {
-            DefaultIInMemoryDataStream.ReadBytesToBuffer(this, buffers, (int)start, (int)length);
+            if (length == -1) length = (int)Math.Min(int.MaxValue, arr.Length - start);
+            Array.Copy(arr, start, buffer, offset, length);
         }
 
         /// <inheritdoc/>

@@ -60,7 +60,7 @@ namespace Netool.Network.Udp
             try
             {
                 // TODO: improve this
-                socket.SendTo(response.ReadBytes(0, response.Length), remoteEP);
+                socket.SendTo(response.ReadBytes(), remoteEP);
                 OnResponseSent(response);
             }
             catch (ObjectDisposedException)

@@ -7,16 +7,10 @@ namespace Netool.Network.DataFormats
     /// DataFormat to represent empty data
     /// </summary>
     [Serializable]
-    public class EmptyData : IInMemoryData
+    public class EmptyData : IDataStream
     {
         /// <inheritdoc/>
         public long Length { get { return 0; } }
-
-        /// <inheritdoc/>
-        public IReadOnlyList<byte> GetBytes()
-        {
-            return new List<byte>().AsReadOnly();
-        }
 
         /// <inheritdoc/>
         public byte ReadByte(long index)
@@ -25,9 +19,9 @@ namespace Netool.Network.DataFormats
         }
 
         /// <inheritdoc/>
-        public void ReadBytesToBuffer(IList<ArraySegment<byte>> buffers, long start, long length)
+        public void ReadBytesToBuffer(byte[] buffer, long start = 0, int length = -1, int offset = 0)
         {
-            if (length > 0) throw new ArgumentOutOfRangeException();
+            if (length > 0 || start > 0) throw new ArgumentOutOfRangeException();
         }
 
         /// <inheritdoc/>
