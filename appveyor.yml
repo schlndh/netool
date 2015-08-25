@@ -2,9 +2,18 @@ configuration: Release
 
 install:
   - git submodule update --init --recursive
-
+environment:
+  COVERALLS_REPO_TOKEN:
+    secure: U6S8SYpUfhgpfJo2cQ+7oYkk8muahx+CGpUpg9JnFPscOeohGvWM5cDOELoHdS1a
 before_build:
   - nuget restore
+  - nuget install OpenCover -Version 4.6.166
+  - nuget install xunit.runner.console -Version 2.0.0
+  - nuget install coveralls.net -Version 0.6.0
 
 build:
   project: netool.sln
+
+after_test:
+- ps: OpenCover.4.6.166\tools\OpenCover.Console.exe -register:user -target:xunit.runner.console.2.0.0/tools/xunit.console.exe "-targetargs:""Tests\bin\$env:CONFIGURATION\Tests.dll"" -noshadow -appveyor" -filter:"+[libnetool*]* +[http*]*" -output:opencoverCoverage.xml
+- ps: coveralls.net.0.6.0/tools/csmacnz.Coveralls.exe --opencover -i opencoverCoverage.xml --repoToken $env:COVERALLS_REPO_TOKEN --commitId $env:APPVEYOR_REPO_COMMIT --commitBranch $env:APPVEYOR_REPO_BRANCH --commitAuthor $env:APPVEYOR_REPO_COMMIT_AUTHOR --commitEmail $env:APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL --commitMessage $env:APPVEYOR_REPO_COMMIT_MESSAGE --jobId $env:APPVEYOR_JOB_ID
