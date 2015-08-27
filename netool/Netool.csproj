@@ -126,10 +126,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\http\http.csproj">
-      <Project>{9423974e-a2d3-4c90-9967-04df5a413d69}</Project>
-      <Name>http</Name>
-    </ProjectReference>
     <ProjectReference Include="..\libnetool\libnetool.csproj">
       <Project>{7f2d2640-8401-4ee8-917f-b1ae3cce51db}</Project>
       <Name>libnetool</Name>

@@ -6,7 +6,9 @@ using Netool.Plugins.ChannelDrivers;
 using Netool.Plugins.Protocols;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
@@ -22,6 +24,7 @@ namespace Netool.Controllers
         private Dictionary<long, IChannelDriverPlugin> channelDriverPlugins = new Dictionary<long, IChannelDriverPlugin>();
         private Dictionary<long, IEditorViewPlugin> editorViewPlugins = new Dictionary<long, IEditorViewPlugin>();
         private Dictionary<long, IEventViewPlugin> eventViewPlugins = new Dictionary<long, IEventViewPlugin>();
+        private Dictionary<string, Assembly> assemblies = new Dictionary<string, Assembly>();
 
         public MainController(MainView view)
         {
@@ -29,8 +32,6 @@ namespace Netool.Controllers
             this.view.SetController(this);
             // register built-in plugins
             IProtocolPlugin protoPlg = new TcpPlugin();
-            protocolPlugins.Add(protoPlg.ID, protoPlg);
-            protoPlg = new HttpPlugin();
             protocolPlugins.Add(protoPlg.ID, protoPlg);
 
             IChannelDriverPlugin cdPlg = new DefaultProxyChannelDriverPlugin();
@@ -40,11 +41,49 @@ namespace Netool.Controllers
             editorViewPlugins.Add(coreViewsPlugin.ID, coreViewsPlugin);
             eventViewPlugins.Add(coreViewsPlugin.ID, coreViewsPlugin);
 
-            var httpViewsPlugin = new Plugins.Views.HttpViewsPlugin();
-            editorViewPlugins.Add(httpViewsPlugin.ID, httpViewsPlugin);
-            eventViewPlugins.Add(httpViewsPlugin.ID, httpViewsPlugin);
+            loadExternalPlugins();
 
             load();
+        }
+
+        private void loadExternalPlugins()
+        {
+            var path = AppDomain.CurrentDomain.BaseDirectory + "/Plugins";
+            foreach (var dll in Directory.GetFiles(path, "*.dll"))
+            {
+                try
+                {
+                    var assembly = Assembly.LoadFile(dll);
+                    assemblies.Add(assembly.FullName, assembly);
+                    foreach(var type in assembly.GetTypes())
+                    {
+                        if(type.GetInterface(typeof(IProtocolPlugin).FullName) != null)
+                        {
+                            var plugin = (IProtocolPlugin)Activator.CreateInstance(type);
+                            protocolPlugins.Add(plugin.ID, plugin);
+                        }
+                        if (type.GetInterface(typeof(IChannelDriverPlugin).FullName) != null)
+                        {
+                            var plugin = (IChannelDriverPlugin)Activator.CreateInstance(type);
+                            channelDriverPlugins.Add(plugin.ID, plugin);
+                        }
+                        if (type.GetInterface(typeof(IEventViewPlugin).FullName) != null)
+                        {
+                            var plugin = (IEventViewPlugin)Activator.CreateInstance(type);
+                            eventViewPlugins.Add(plugin.ID, plugin);
+                        }
+                        if (type.GetInterface(typeof(IEditorViewPlugin).FullName) != null)
+                        {
+                            var plugin = (IEditorViewPlugin)Activator.CreateInstance(type);
+                            editorViewPlugins.Add(plugin.ID, plugin);
+                        }
+                    }
+                }
+                catch(Exception e)
+                {
+                    Debug.WriteLine("Failed to load Assembly {0}, exception: {1}", path, e.Message);
+                }
+            }
         }
 
         /// <summary>
@@ -65,6 +104,8 @@ namespace Netool.Controllers
                     using(var file = new FileStream(appDataDir + "/session.nest", FileMode.Open, FileAccess.Read))
                     {
                         var formatter = new BinaryFormatter();
+                        //formatter.Binder = new MyBinder();
+                        AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
                         model = (MainModel)formatter.Deserialize(file);
                         file.Close();
                     }
@@ -91,6 +132,13 @@ namespace Netool.Controllers
                     view.AddPage(instance.Name, pack.View.GetForm());
                 }
             }
+        }
+
+        Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            Assembly assembly = null;
+            assemblies.TryGetValue(args.Name, out assembly);
+            return assembly;
         }
 
         public void Close()
