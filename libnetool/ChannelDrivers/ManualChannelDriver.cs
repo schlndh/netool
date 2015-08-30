@@ -9,10 +9,16 @@ namespace Netool.ChannelDrivers
     {
         private int capacity;
         private int activeChannels = 0;
+        /// <inheritdoc/>
         public bool CanAccept(IChannel c) { return capacity == -1 || capacity > activeChannels; }
+        /// <inheritdoc/>
         public bool AllowManualControl { get { return true; } }
-        public string ID { get { return "Manual"; } }
+        /// <inheritdoc/>
+        public string Type { get { return "Manual"; } }
+        /// <inheritdoc/>
         public object Settings { get { return capacity; } }
+        /// <inheritdoc/>
+        public string Name { get; set; }
 
         /// <summary>
         /// Creates Manual channel driver with specified capacity of active connections

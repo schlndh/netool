@@ -1,4 +1,5 @@
-﻿using Netool.Dialogs;
+﻿using Netool.ChannelDrivers;
+using Netool.Dialogs;
 using Netool.Logging;
 using Netool.Network;
 using Netool.Plugins;
@@ -20,11 +21,14 @@ namespace Netool.Controllers
         private MainView view;
         private MainModel model;
         private List<IInstanceController> controllers = new List<IInstanceController>();
+        private Dictionary<int, IChannelDriver> channelDrivers = new Dictionary<int, IChannelDriver>();
         private Dictionary<long, IProtocolPlugin> protocolPlugins = new Dictionary<long, IProtocolPlugin>();
         private Dictionary<long, IChannelDriverPlugin> channelDriverPlugins = new Dictionary<long, IChannelDriverPlugin>();
         private Dictionary<long, IEditorViewPlugin> editorViewPlugins = new Dictionary<long, IEditorViewPlugin>();
         private Dictionary<long, IEventViewPlugin> eventViewPlugins = new Dictionary<long, IEventViewPlugin>();
         private Dictionary<string, Assembly> assemblies = new Dictionary<string, Assembly>();
+
+        private int itemID = 0;
 
         public MainController(MainView view)
         {
@@ -91,6 +95,8 @@ namespace Netool.Controllers
         /// </summary>
         private void load()
         {
+            // to enable deserializing types from plugins
+            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             var appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             if (appDataDir != "")
             {
@@ -104,8 +110,6 @@ namespace Netool.Controllers
                     using(var file = new FileStream(appDataDir + "/session.nest", FileMode.Open, FileAccess.Read))
                     {
                         var formatter = new BinaryFormatter();
-                        //formatter.Binder = new MyBinder();
-                        AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
                         model = (MainModel)formatter.Deserialize(file);
                         file.Close();
                     }
@@ -116,20 +120,58 @@ namespace Netool.Controllers
                 }
             }
 
+            foreach (var driver in model.ChannelDrivers)
+            {
+                try
+                {
+                    IChannelDriverPlugin plugin;
+                    itemID = Math.Max(itemID, driver.Key);
+                    if (channelDriverPlugins.TryGetValue(driver.Value.PluginID, out plugin))
+                    {
+                        var pack = plugin.CreateChannelDriver(driver.Value.Settings);
+                        pack.Driver.Name = driver.Value.Name;
+                        channelDrivers.Add(driver.Key, pack.Driver);
+                        view.AddChannelDriver(driver.Key, pack);
+                    }
+                }
+                catch
+                {
+                    // TODO: some error reporting here
+                }
+            }
+
             foreach(var instance in model.OpenInstances)
             {
-                IProtocolPlugin plugin;
-                if(protocolPlugins.TryGetValue(instance.PluginID, out plugin))
+                try
                 {
-                    // temp log file - dont bother user with log file dialogs now
-                    var logger = new InstanceLogger();
-                    logger.WritePluginID(plugin.ID);
-                    var pack = plugin.CreateInstance(logger, instance.Type, instance.Settings);
-                    pack.Controller.SetMainController(this);
-                    // TODO: setup original channel drivers here
-                    setupDrivers(pack.Controller); // placeholder
-                    controllers.Add(pack.Controller);
-                    view.AddPage(instance.Name, pack.View.GetForm());
+                    IProtocolPlugin plugin;
+                    itemID = Math.Max(itemID, instance.Key);
+                    if(protocolPlugins.TryGetValue(instance.Value.PluginID, out plugin))
+                    {
+                        // temp log file - dont bother user with log file dialogs now
+                        var logger = new InstanceLogger();
+                        logger.WritePluginID(plugin.ID);
+                        var pack = plugin.CreateInstance(logger, instance.Value.Type, instance.Value.Settings);
+                        pack.Controller.SetMainController(this);
+                        foreach(var driver in instance.Value.Drivers)
+                        {
+                            IChannelDriver d = null;
+                            if(channelDrivers.TryGetValue(driver.Key, out d))
+                            {
+                                pack.Controller.AddDriver(d, driver.Value);
+                            }
+                            else if(MessageBox.Show("Cannot load one of the attached drivers. Load the instance anyway?", "Missing Driver", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+                            {
+                                throw new Exception("Missing driver");
+                            }
+                        }
+                        controllers.Add(pack.Controller);
+                        view.AddPage(instance.Value.Name, pack.View.GetForm());
+                    }
+                }
+                catch
+                {
+                    // TODO: some error reporting here
                 }
             }
         }
@@ -148,22 +190,19 @@ namespace Netool.Controllers
                 cont.Stop();
                 cont.Close();
             }
-            if(model.OpenInstances.Count > 0)
+            var appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            if (appDataDir != "")
             {
-                var appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                if (appDataDir != "")
+                appDataDir += "/netool";
+                if (!Directory.Exists(appDataDir))
                 {
-                    appDataDir += "/netool";
-                    if (!Directory.Exists(appDataDir))
-                    {
-                        Directory.CreateDirectory(appDataDir);
-                    }
-                    using (var file = new FileStream(appDataDir + "/session.nest", FileMode.Create, FileAccess.Write))
-                    {
-                        var formatter = new BinaryFormatter();
-                        formatter.Serialize(file, model);
-                        file.Close();
-                    }
+                    Directory.CreateDirectory(appDataDir);
+                }
+                using (var file = new FileStream(appDataDir + "/session.nest", FileMode.Create, FileAccess.Write))
+                {
+                    var formatter = new BinaryFormatter();
+                    formatter.Serialize(file, model);
+                    file.Close();
                 }
             }
         }
@@ -209,11 +248,11 @@ namespace Netool.Controllers
                     pack.Controller.SetMainController(this);
                     setupDrivers(pack.Controller);
                     controllers.Add(pack.Controller);
-                    model.AddInstance(plugin.ID, name, type, pack.Controller.Instance.Settings);
+                    model.AddInstance(++itemID, plugin.ID, name, type, pack.Controller.Instance.Settings);
                     view.AddPage(name, pack.View.GetForm());
                 }
             }
-            catch (SetupAbortedByUser)
+            catch (SetupAbortedByUserException)
             {
                 if(logger != null)
                 {
@@ -238,6 +277,25 @@ namespace Netool.Controllers
             {
                 throw new UnknownPluginException(id);
             }
+        }
+
+        public void CreateChannelDriver()
+        {
+            try
+            {
+                var dialog = new CreateChannelDriverDialog(channelDriverPlugins.Values);
+                dialog.ShowDialog();
+                if (dialog.DialogResult == DialogResult.OK)
+                {
+                    var plugin = dialog.SelectedPlugin;
+                    var name = dialog.DriverName;
+                    var pack = plugin.CreateChannelDriver();
+                    pack.Driver.Name = name;
+                    model.AddChannelDriver(++itemID, plugin.ID, name, pack.Driver.Settings);
+                    view.AddChannelDriver(itemID, pack);
+                }
+            }
+            catch (SetupAbortedByUserException) { }
         }
 
         public void setupDrivers(IInstanceController cont)
@@ -265,6 +323,13 @@ namespace Netool.Controllers
                 ret.AddRange(item.Value.CreateEventViews());
             }
             return ret;
+        }
+
+        public void RemoveChannelDriver(int id)
+        {
+            channelDrivers.Remove(id);
+            model.RemoveChannelDriver(id);
+            // TODO: remove it from existing instances? if so change the ChannelDriversTab's Remove button's tooltip
         }
     }
 }

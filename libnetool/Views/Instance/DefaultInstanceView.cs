@@ -25,7 +25,7 @@ namespace Netool.Views.Instance
 
         public static ListViewItem DefaultItemFactory(IChannel c)
         {
-            return new ListViewItem(new string[] { c.ID.ToString(), (c.Driver != null ? c.Driver.ID : "-"), c.Name });
+            return new ListViewItem(new string[] { c.ID.ToString(), (c.Driver != null ? c.Driver.Type : "-"), c.Name });
         }
 
         private IInstanceController controller;

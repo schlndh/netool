@@ -5,10 +5,15 @@ namespace Netool.ChannelDrivers
     [Serializable]
     public class DefaultProxyDriver : IChannelDriver
     {
-        public string ID { get { return "DefaultProxyDriver"; } }
+        /// <inheritdoc/>
+        public string Type { get { return "DefaultProxyDriver"; } }
+        /// <inheritdoc/>
         public bool AllowManualControl { get { return allowManual; } }
         private bool allowManual;
+        /// <inheritdoc/>
         public object Settings { get { return allowManual; } }
+        /// <inheritdoc/>
+        public string Name { get; set; }
 
         public DefaultProxyDriver(bool allowManual = false)
         {

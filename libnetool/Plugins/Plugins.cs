@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Netool.Plugins
 {
-    public struct InstancePack
+    public class InstancePack
     {
         public readonly IInstanceView View;
         public readonly IInstanceController Controller;
@@ -22,7 +22,7 @@ namespace Netool.Plugins
         }
     }
 
-    public struct ChannelDriverPack
+    public class ChannelDriverPack
     {
         public readonly IChannelDriver Driver;
         /// <summary>

@@ -11,7 +11,10 @@ namespace Netool.ChannelDrivers
         public bool AllowManualControl { get { return innerDriver == null || innerDriver.AllowManualControl; } }
 
         /// <inheritdoc/>
-        public string ID { get { return "CS-Script"; } }
+        public string Type { get { return "CS-Script"; } }
+
+        /// <inheritdoc/>
+        public string Name { get; set; }
 
         /// <inheritdoc/>
         public object Settings { get { return scriptFilename; } }

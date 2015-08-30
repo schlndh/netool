@@ -34,9 +34,10 @@
             this.serverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clientToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.proxyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.channelDriverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenu.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -66,6 +67,7 @@
             this.serverToolStripMenuItem,
             this.clientToolStripMenuItem,
             this.proxyToolStripMenuItem,
+            this.channelDriverToolStripMenuItem,
             this.openToolStripMenuItem});
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
             this.newToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
@@ -92,6 +94,14 @@
             this.proxyToolStripMenuItem.Text = "Proxy";
             this.proxyToolStripMenuItem.Click += new System.EventHandler(this.proxyToolStripMenuItem_Click);
             // 
+            // openToolStripMenuItem
+            // 
+            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
+            this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.openToolStripMenuItem.Text = "Open";
+            this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
+            // 
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.ColumnCount = 1;
@@ -107,17 +117,17 @@
             this.tableLayoutPanel1.Size = new System.Drawing.Size(749, 433);
             this.tableLayoutPanel1.TabIndex = 2;
             // 
-            // openToolStripMenuItem
-            // 
-            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.openToolStripMenuItem.Text = "Open";
-            this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
-            // 
             // openFileDialog
             // 
             this.openFileDialog.Filter = "Log Files|*.nelog|All files|*.*";
             this.openFileDialog.Title = "Open log file";
+            // 
+            // channelDriverToolStripMenuItem
+            // 
+            this.channelDriverToolStripMenuItem.Name = "channelDriverToolStripMenuItem";
+            this.channelDriverToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.channelDriverToolStripMenuItem.Text = "Channel Driver";
+            this.channelDriverToolStripMenuItem.Click += new System.EventHandler(this.channelDriverToolStripMenuItem_Click);
             // 
             // MainView
             // 
@@ -149,6 +159,7 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
+        private System.Windows.Forms.ToolStripMenuItem channelDriverToolStripMenuItem;
     }
 }
 

@@ -15,7 +15,7 @@ namespace Netool.Plugins.ChannelDrivers
         public ChannelDriverPack CreateChannelDriver()
         {
             var res = MessageBox.Show("Allow manual control?", "Default proxy channel driver", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-            if (res == DialogResult.Cancel) throw new SetupAbortedByUser();
+            if (res == DialogResult.Cancel) throw new SetupAbortedByUserException();
             return new ChannelDriverPack(new DefaultProxyDriver(res == DialogResult.Yes));
         }
 
@@ -27,7 +27,7 @@ namespace Netool.Plugins.ChannelDrivers
             }
             catch(InvalidCastException)
             {
-                throw new InvalidSettingsType();
+                throw new InvalidSettingsTypeException();
             }
         }
     }

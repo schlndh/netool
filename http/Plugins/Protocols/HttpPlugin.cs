@@ -55,7 +55,7 @@ namespace Netool.Plugins.Protocols
                    // instance = createProxy();
                     break;
             }
-            if (instance == null) throw new SetupAbortedByUser();
+            if (instance == null) throw new SetupAbortedByUserException();
             // for now set manual driver to everything
             var view = new DefaultInstanceView();
             var cont = new DefaultInstanceController(view, instance, logger);
@@ -72,20 +72,20 @@ namespace Netool.Plugins.Protocols
             {
                 case InstanceType.Server:
                     var s = settings as HttpServerSettings;
-                    if (s == null) throw new InvalidSettingsType();
+                    if (s == null) throw new InvalidSettingsTypeException();
                     instance = new HttpServer(s);
                     break;
 
                 case InstanceType.Client:
                     var c = settings as HttpClientSettings;
-                    if (c == null) throw new InvalidSettingsType();
+                    if (c == null) throw new InvalidSettingsTypeException();
                     instance = new HttpClient(c);
                     break;
 
                 default:
                     throw new NotImplementedException();
                     var p = settings as DefaultProxySettings;
-                    if (p == null) throw new InvalidSettingsType();
+                    if (p == null) throw new InvalidSettingsTypeException();
                     instance = new DefaultProxy(p);
                     break;
             }

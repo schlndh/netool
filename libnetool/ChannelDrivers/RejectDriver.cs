@@ -6,10 +6,16 @@ namespace Netool.ChannelDrivers
     [Serializable]
     public class RejectDriver : IChannelDriver
     {
+        /// <inheritdoc/>
         public bool CanAccept(IChannel c) { return true; }
+        /// <inheritdoc/>
         public bool AllowManualControl { get { return false; } }
-        public string ID { get { return "Reject"; } }
+        /// <inheritdoc/>
+        public string Type { get { return "Reject"; } }
+        /// <inheritdoc/>
         public object Settings { get { return null; } }
+        /// <inheritdoc/>
+        public string Name { get; set; }
 
         public void Handle(IChannel c)
         {

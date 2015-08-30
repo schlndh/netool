@@ -39,7 +39,14 @@ namespace Netool.ChannelDrivers
         /// This field is only used when new channel view is being created
         /// </summary>
         bool AllowManualControl { get; }
-        string ID { get; }
+        /// <summary>
+        /// Name given to channel driver instance by user
+        /// </summary>
+        string Name { get; set; }
+        /// <summary>
+        /// Author-defined string identifying the driver type
+        /// </summary>
+        string Type { get; }
         /// <summary>
         /// Settings used to create this instance, can be null if the driver doesn't need any settings. Must be serializable
         /// </summary>
