@@ -74,6 +74,12 @@
     <Compile Include="Dialogs\CreateInstanceDialog.Designer.cs">
       <DependentUpon>CreateInstanceDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\SetupChannelDriversDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\SetupChannelDriversDialog.Designer.cs">
+      <DependentUpon>SetupChannelDriversDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainExceptions.cs" />
     <Compile Include="Controllers\MainController.cs" />
     <Compile Include="Models\MainModel.cs" />
@@ -96,6 +102,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\CreateInstanceDialog.resx">
       <DependentUpon>CreateInstanceDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\SetupChannelDriversDialog.resx">
+      <DependentUpon>SetupChannelDriversDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\ChannelDriversView.resx">
       <DependentUpon>ChannelDriversView.cs</DependentUpon>

@@ -246,9 +246,13 @@ namespace Netool.Controllers
                     logger.WritePluginID(plugin.ID);
                     var pack = plugin.CreateInstance(logger, type);
                     pack.Controller.SetMainController(this);
-                    setupDrivers(pack.Controller);
+                    var drivers = setupDrivers(pack.Controller);
                     controllers.Add(pack.Controller);
                     model.AddInstance(++itemID, plugin.ID, name, type, pack.Controller.Instance.Settings);
+                    foreach(var driver in drivers)
+                    {
+                        model.AddDriverToInstance(itemID, driver.Key, driver.Value);
+                    }
                     view.AddPage(name, pack.View.GetForm());
                 }
             }
@@ -292,17 +296,29 @@ namespace Netool.Controllers
                     var pack = plugin.CreateChannelDriver();
                     pack.Driver.Name = name;
                     model.AddChannelDriver(++itemID, plugin.ID, name, pack.Driver.Settings);
+                    channelDrivers.Add(itemID, pack.Driver);
                     view.AddChannelDriver(itemID, pack);
                 }
             }
             catch (SetupAbortedByUserException) { }
         }
 
-        public void setupDrivers(IInstanceController cont)
+        public Dictionary<int, int> setupDrivers(IInstanceController cont)
         {
-            // placeholder
-            var driver = new Netool.ChannelDrivers.ManualChannelDriver(-1);
-            cont.AddDriver(driver, 0);
+            var dialog = new SetupChannelDriversDialog(channelDrivers);
+            if(dialog.ShowDialog() == DialogResult.OK)
+            {
+                foreach(var item in dialog.Drivers)
+                {
+                    cont.AddDriver(channelDrivers[item.Key], item.Value);
+                }
+                return dialog.Drivers;
+            }
+            else
+            {
+                throw new SetupAbortedByUserException();
+            }
+
         }
 
         public List<Views.IEditorView> CreateEditorViews()
