@@ -40,6 +40,8 @@ namespace Netool.Controllers
 
             IChannelDriverPlugin cdPlg = new DefaultProxyChannelDriverPlugin();
             channelDriverPlugins.Add(cdPlg.ID, cdPlg);
+            cdPlg = new ManualChannelDriverPlugin();
+            channelDriverPlugins.Add(cdPlg.ID, cdPlg);
 
             var coreViewsPlugin = new CoreViewsPlugin();
             editorViewPlugins.Add(coreViewsPlugin.ID, coreViewsPlugin);

@@ -105,6 +105,13 @@
     <Compile Include="Network\Udp\UdpClient.cs" />
     <Compile Include="Network\Udp\UdpClientFactory.cs" />
     <Compile Include="Network\Udp\UdpServer.cs" />
+    <Compile Include="Plugins\ChannelDrivers\Dialogs\ManualChannelDriverSettingsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Plugins\ChannelDrivers\Dialogs\ManualChannelDriverSettingsDialog.Designer.cs">
+      <DependentUpon>ManualChannelDriverSettingsDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Plugins\ChannelDrivers\ManualChannelDriverPlugin.cs" />
     <Compile Include="Plugins\ChannelDrivers\DefaultProxyChannelDriverPlugin.cs" />
     <Compile Include="Plugins\CoreViewsPlugin.cs" />
     <Compile Include="Plugins\PluginExceptions.cs" />
@@ -163,6 +170,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\Tcp\TcpServerDialog.resx">
       <DependentUpon>TcpServerDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Plugins\ChannelDrivers\Dialogs\ManualChannelDriverSettingsDialog.resx">
+      <DependentUpon>ManualChannelDriverSettingsDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Channel\DefaultChannelView.resx">
       <DependentUpon>DefaultChannelView.cs</DependentUpon>
