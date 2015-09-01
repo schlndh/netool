@@ -42,6 +42,8 @@ namespace Netool.Controllers
             channelDriverPlugins.Add(cdPlg.ID, cdPlg);
             cdPlg = new ManualChannelDriverPlugin();
             channelDriverPlugins.Add(cdPlg.ID, cdPlg);
+            cdPlg = new CSScriptChannelDriverPlugin();
+            channelDriverPlugins.Add(cdPlg.ID, cdPlg);
 
             var coreViewsPlugin = new CoreViewsPlugin();
             editorViewPlugins.Add(coreViewsPlugin.ID, coreViewsPlugin);

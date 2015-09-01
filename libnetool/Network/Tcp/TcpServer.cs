@@ -1,6 +1,7 @@
 ﻿using Netool.Network.DataFormats;
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization;
@@ -55,6 +56,12 @@ namespace Netool.Network.Tcp
             try
             {
                 socket.BeginReceive(s.Buffer, 0, s.Buffer.Length, SocketFlags.None, handleRequest, s);
+            }
+            catch(SocketException e)
+            {
+                Debug.WriteLine("TcpServerChannel id: {0} - socket error occured in scheduleNextRecieve: {1}", ID, e);
+                // TODO: actually handle this
+                Close();
             }
             catch (ObjectDisposedException)
             { }

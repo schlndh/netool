@@ -111,6 +111,7 @@
     <Compile Include="Plugins\ChannelDrivers\Dialogs\ManualChannelDriverSettingsDialog.Designer.cs">
       <DependentUpon>ManualChannelDriverSettingsDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Plugins\ChannelDrivers\CSScriptChannelDriverPlugin.cs" />
     <Compile Include="Plugins\ChannelDrivers\ManualChannelDriverPlugin.cs" />
     <Compile Include="Plugins\ChannelDrivers\DefaultProxyChannelDriverPlugin.cs" />
     <Compile Include="Plugins\CoreViewsPlugin.cs" />
