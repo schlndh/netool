@@ -149,5 +149,15 @@ namespace Tests.Logging
             events = logReader.ReadEvents(hint, 1, 1);
             Assert.Equal(1, events.Count);
         }
+
+        [Fact]
+        public void TestReadInstanceName()
+        {
+            // no instance name has been written yet
+            Assert.Null(logReader.ReadInstanceName());
+            var instanceName = "instance name";
+            log.WriteInstanceName(instanceName);
+            Assert.Equal(instanceName, logReader.ReadInstanceName());
+        }
     }
 }

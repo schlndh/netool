@@ -265,5 +265,30 @@ namespace Tests.Logging
             }
         }
 
+        [Fact]
+        public void TestWriteInstanceName()
+        {
+            var instanceName = "instance name";
+            log.WriteInstanceName(instanceName);
+            log.Close();
+            FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
+            using (BinaryReader binReader = new BinaryReader(stream))
+            {
+                BinaryFormatter formatter = new BinaryFormatter();
+                // a pointer to instance info
+                stream.Position = 0;
+                // a pointer to instance name pointer
+                stream.Position = binReader.ReadInt64() + 3 * sizeof(long);
+                // instance name
+                var pos = binReader.ReadInt64();
+                Assert.NotEqual(0, pos);
+                stream.Position = pos;
+                object res = formatter.Deserialize(stream);
+                Assert.IsType(typeof(string), res);
+                var name = res as string;
+                Assert.Equal(instanceName, name);
+                binReader.Close();
+            }
+        }
     }
 }

@@ -43,6 +43,30 @@ namespace Netool.Logging
         }
 
         /// <summary>
+        /// Reads Instance Name
+        /// </summary>
+        /// <returns>instance name or null if it wasn't written</returns>
+        public string ReadInstanceName()
+        {
+            lock(stream)
+            {
+                stream.Position = 0;
+                // move to format info structure - pointer to instance name field
+                stream.Position = binReader.ReadInt64() + 3 * sizeof(long);
+                var pos =  binReader.ReadInt64();
+                // instance name wasn't written
+                if (pos == 0)
+                {
+                    return null;
+                }
+                else
+                {
+                    stream.Position = pos;
+                    return (string)formatter.Deserialize(stream);
+                }
+            }
+        }
+        /// <summary>
         /// Reads instance data
         /// </summary>
         /// <returns>IInstance or null if instance data have not yet been written</returns>

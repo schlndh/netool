@@ -22,7 +22,7 @@ namespace Netool.Logging
          * 8B (long) pointer to format info | 8B (long) channel count | channel table
          *
          * Format info format:
-         * 8B (long) format version | 8B (long) pointer to instance data | 8B (long) ProtocolPlugin ID
+         * 8B (long) format version | 8B (long) pointer to instance data | 8B (long) ProtocolPlugin ID | 8B (long) pointer to InstanceName
          *
          * channel table format:
          * - FileLog.blockSize bytes (must be a power of 2)
@@ -109,6 +109,8 @@ namespace Netool.Logging
                 binWriter.Write((long)0);
                 // Plugin ID
                 binWriter.Write((long)0);
+                // a pointer to instance name
+                binWriter.Write((long)0);
                 stream.Flush();
             }
         }
@@ -153,6 +155,26 @@ namespace Netool.Logging
                 stream.Position = binReader.ReadInt64() + 2 * sizeof(long);
                 binWriter.Write(ID);
                 stream.Flush();
+            }
+        }
+
+        /// <summary>
+        /// Writes instance name, should be called upon closing the instance
+        /// </summary>
+        /// <remarks>
+        /// Note that repeated calls to this method will not remove previously written content, therefore call it only once.
+        /// </remarks>
+        /// <param name="name">instance name</param>
+        public void WriteInstanceName(string name)
+        {
+            lock(stream)
+            {
+                stream.Position = 0;
+                // move to format info structure - pointer to instance name field
+                stream.Position = binReader.ReadInt64() + 3 * sizeof(long);
+                binWriter.Write(stream.Length);
+                stream.Position = stream.Length;
+                formatter.Serialize(stream, name);
             }
         }
 

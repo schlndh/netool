@@ -95,6 +95,21 @@ namespace Netool.Logging
             return id;
         }
 
+        /// <inheritdoc cref="FileLog.WriteInstanceName"/>
+        public void WriteInstanceName(string name)
+        {
+            log.WriteInstanceName(name);
+        }
+
+        /// <inheritdoc cref="FileLogReader.ReadInstanceName"/>
+        public string ReadInstanceName()
+        {
+            var reader = log.CreateReader();
+            var name = reader.ReadInstanceName();
+            reader.Close();
+            return name;
+        }
+
         /// <summary>
         /// Call this when the instance is closed
         /// </summary>

@@ -155,6 +155,7 @@ namespace Netool.Controllers
                         // temp log file - dont bother user with log file dialogs now
                         var logger = new InstanceLogger();
                         logger.WritePluginID(plugin.ID);
+                        logger.WriteInstanceName(instance.Value.Name);
                         var pack = plugin.CreateInstance(logger, instance.Value.Type, instance.Value.Settings);
                         pack.Controller.SetMainController(this);
                         foreach(var driver in instance.Value.Drivers)
@@ -248,6 +249,7 @@ namespace Netool.Controllers
                         logger = new InstanceLogger();
                     }
                     logger.WritePluginID(plugin.ID);
+                    logger.WriteInstanceName(name);
                     var pack = plugin.CreateInstance(logger, type);
                     pack.Controller.SetMainController(this);
                     var drivers = setupDrivers(pack.Controller);
@@ -276,10 +278,11 @@ namespace Netool.Controllers
             IProtocolPlugin plugin;
             if(protocolPlugins.TryGetValue(id, out plugin))
             {
+                var name = logger.ReadInstanceName();
                 var pack = plugin.RestoreInstance(logger);
                 pack.Controller.SetMainController(this);
                 controllers.Add(pack.Controller);
-                view.AddPage("placeholder", pack.View.GetForm());
+                view.AddPage(name ?? "unknown", pack.View.GetForm());
             }
             else
             {
