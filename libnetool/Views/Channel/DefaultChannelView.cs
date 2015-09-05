@@ -43,13 +43,11 @@ namespace Netool.Views.Channel
             this.logger.EventCountChanged += eventCountChanged;
             filler(this.events.Columns);
             createItem = factory;
-            mainSplitContainer.Panel2Collapsed = true;
         }
 
         public void AllowManualControl(Editor.EditorMasterView editor)
         {
-            mainSplitContainer.Panel2Collapsed = false;
-            mainSplitContainer.Panel2.Embed(editor);
+            editorTabPage.Embed(editor);
             editor.SendClicked += editorSendHandler;
             editor.CloseClicked += editorCloseHandler;
             events.ContextMenuStrip = eventsContextMenu;
