@@ -6,7 +6,7 @@ using System;
 namespace Tests
 {
     [Serializable]
-    internal class TestInstance : IInstance
+    internal class TestInstance : BaseInstance, IInstance
     {
         public object Settings { get { return null; } }
         public string Serialized;
@@ -21,17 +21,11 @@ namespace Tests
     }
 
     [Serializable]
-    internal class TestChannel : IChannel
+    internal class TestChannel : BaseChannel, IChannel
     {
-        public int id;
-        public int ID { get { return id; } }
-        public string name = "aaa";
-        public string Name { get { return name; } }
-        public IChannelDriver Driver { get { return null; } set { } }
-
-        public event ChannelReadyHandler ChannelReady;
-
-        public event ChannelClosedHandler ChannelClosed;
+        public new int id;
+        public new int ID { get { return id; } }
+        public new string name = "aaa";
 
         public void Close()
         {
