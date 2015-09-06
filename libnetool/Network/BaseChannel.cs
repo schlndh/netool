@@ -20,9 +20,14 @@ namespace Netool.Network
         /// <inheritdoc/>
         [field: NonSerialized]
         public event ChannelReadyHandler ChannelReady;
+
         /// <inheritdoc/>
         [field: NonSerialized]
         public event ChannelClosedHandler ChannelClosed;
+
+        /// <inheritdoc/>
+        [field: NonSerialized]
+        public event EventHandler<Exception> ErrorOccured;
 
         private bool channelReadyCalled = false;
 
@@ -51,6 +56,11 @@ namespace Netool.Network
                 channelReadyCalled = true;
                 if (ChannelReady != null) ChannelReady(this);
             }
+        }
+
+        protected virtual void OnErrorOccured(Exception e)
+        {
+            if (ErrorOccured != null) ErrorOccured(this, e);
         }
 
         [OnDeserialized]

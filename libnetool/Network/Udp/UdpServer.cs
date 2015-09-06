@@ -65,6 +65,10 @@ namespace Netool.Network.Udp
             }
             catch (ObjectDisposedException)
             { }
+            catch(Exception e)
+            {
+                OnErrorOccured(e);
+            }
         }
 
         public void InjectRequest(IDataStream request)
@@ -74,7 +78,7 @@ namespace Netool.Network.Udp
     }
 
     [Serializable]
-    public class UdpServer : IServer
+    public class UdpServer : BaseInstance, IServer
     {
         protected UdpServerSettings settings;
         /// <inheritdoc/>
@@ -144,6 +148,10 @@ namespace Netool.Network.Udp
                     }
                     catch (ObjectDisposedException)
                     { }
+                    catch (Exception e)
+                    {
+                        OnErrorOccured(e);
+                    }
                 }
             }
         }
@@ -158,6 +166,11 @@ namespace Netool.Network.Udp
             }
             catch (ObjectDisposedException)
             { }
+            catch (Exception e)
+            {
+                OnErrorOccured(e);
+                Stop();
+            }
         }
 
         private void handleRequest(IAsyncResult ar)
@@ -173,6 +186,11 @@ namespace Netool.Network.Udp
             catch (ObjectDisposedException)
             {
                 // socket closed
+                return;
+            }
+            catch (Exception e)
+            {
+                OnErrorOccured(e);
                 return;
             }
             client = (IPEndPoint)tmpEP;

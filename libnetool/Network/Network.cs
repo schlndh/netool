@@ -57,6 +57,13 @@ namespace Netool.Network
         /// A serializable settings that can be used to create a new instance with the same settings
         /// </summary>
         object Settings { get; }
+        /// <summary>
+        /// Indicates that error occured in instance
+        /// </summary>
+        /// <remarks>
+        /// Must be nonserialized, as nonserializable classes will bind to it
+        /// </remarks>
+        event EventHandler<Exception> ErrorOccured;
 
         void Stop();
     }
@@ -134,6 +141,14 @@ namespace Netool.Network
         /// Must be nonserialized, as nonserializable classes will bind to it
         /// </remarks>
         event ChannelClosedHandler ChannelClosed;
+
+        /// <summary>
+        /// Indicates that error occured in channel
+        /// </summary>
+        /// <remarks>
+        /// Must be nonserialized, as nonserializable classes will bind to it
+        /// </remarks>
+        event EventHandler<Exception> ErrorOccured;
 
         /// <summary>
         /// Close the channel, will raise the ChannelClosed event

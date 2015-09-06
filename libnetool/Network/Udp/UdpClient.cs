@@ -45,6 +45,11 @@ namespace Netool.Network.Udp
                 socket.BeginReceiveFrom(s.Buffer, 0, s.Buffer.Length, SocketFlags.None, ref remoteEP, handleResponse, s);
             }
             catch (ObjectDisposedException) { }
+            catch(Exception e)
+            {
+                OnErrorOccured(e);
+                Close();
+            }
         }
 
         /// <inheritdoc/>
@@ -57,6 +62,11 @@ namespace Netool.Network.Udp
             }
             catch (ObjectDisposedException)
             {
+                return;
+            }
+            catch (Exception e)
+            {
+                OnErrorOccured(e);
                 return;
             }
 
@@ -73,6 +83,11 @@ namespace Netool.Network.Udp
             }
             catch (ObjectDisposedException)
             {
+                return;
+            }
+            catch (Exception e)
+            {
+                OnErrorOccured(e);
                 return;
             }
             scheduleNextReceive();
@@ -100,11 +115,15 @@ namespace Netool.Network.Udp
                 OnChannelClosed();
             }
             catch (ObjectDisposedException) { }
+            catch (Exception e)
+            {
+                OnErrorOccured(e);
+            }
         }
     }
 
     [Serializable]
-    public class UdpClient : IClient
+    public class UdpClient : BaseInstance, IClient
     {
         protected UdpClientSettings settings;
         /// <inheritdoc/>
@@ -135,14 +154,22 @@ namespace Netool.Network.Udp
             {
                 if (stopped)
                 {
-                    stopped = false;
-                    var socket = new Socket(SocketType.Dgram, ProtocolType.Udp);
-                    socket.Bind(settings.LocalEndPoint);
-                    channel = new UdpClientChannel(socket, settings.RemoteEndPoint, Interlocked.Increment(ref channelID), ReceiveBufferSize);
-                    channel.ChannelClosed += channelClosedHandler;
-                    OnChannelCreated(channel);
-                    channel.raiseChannelReady();
-                    channel.scheduleNextReceive();
+                    try
+                    {
+                        stopped = false;
+                        var socket = new Socket(SocketType.Dgram, ProtocolType.Udp);
+                        socket.Bind(settings.LocalEndPoint);
+                        channel = new UdpClientChannel(socket, settings.RemoteEndPoint, Interlocked.Increment(ref channelID), ReceiveBufferSize);
+                        channel.ChannelClosed += channelClosedHandler;
+                        OnChannelCreated(channel);
+                        channel.raiseChannelReady();
+                        channel.scheduleNextReceive();
+                    }
+                    catch (Exception e)
+                    {
+                        stopped = true;
+                        OnErrorOccured(e);
+                    }
                 }
                 return channel;
             }

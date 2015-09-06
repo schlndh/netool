@@ -170,6 +170,7 @@ namespace Netool.Controllers
                                 throw new Exception("Missing driver");
                             }
                         }
+                        bindInstanceEvents(pack.Controller.Instance);
                         controllers.Add(pack.Controller);
                         view.AddPage(instance.Value.Name, pack.View.GetForm());
                     }
@@ -259,6 +260,7 @@ namespace Netool.Controllers
                     {
                         model.AddDriverToInstance(itemID, driver.Key, driver.Value);
                     }
+                    bindInstanceEvents(pack.Controller.Instance);
                     view.AddPage(name, pack.View.GetForm());
                 }
             }
@@ -282,6 +284,7 @@ namespace Netool.Controllers
                 var pack = plugin.RestoreInstance(logger);
                 pack.Controller.SetMainController(this);
                 controllers.Add(pack.Controller);
+                bindInstanceEvents(pack.Controller.Instance);
                 view.AddPage(name ?? "unknown", pack.View.GetForm());
             }
             else
@@ -353,6 +356,52 @@ namespace Netool.Controllers
             channelDrivers.Remove(id);
             model.RemoveChannelDriver(id);
             // TODO: remove it from existing instances? if so change the ChannelDriversTab's Remove button's tooltip
+        }
+
+        private void bindInstanceEvents(IInstance instance)
+        {
+            instance.ErrorOccured += handleErrorOccured;
+            var client = instance as IClient;
+            if(client != null)
+            {
+                client.ChannelCreated += handleTypedChannelCreated;
+            }
+            var server = instance as IServer;
+            if (server != null)
+            {
+                server.ChannelCreated += handleTypedChannelCreated;
+            }
+            var proxy = instance as IProxy;
+            if (proxy != null)
+            {
+                proxy.ChannelCreated += handleTypedChannelCreated;
+            }
+        }
+
+        private void handleErrorOccured(object sender, Exception e)
+        {
+            Debug.WriteLine("Error occured sender: {0}, Exception: {1}", sender, e);
+            view.ShowErrorMessage(sender, e);
+        }
+
+        private void handleTypedChannelCreated(object sender, IClientChannel c)
+        {
+            handleChannelCreated(sender, c);
+        }
+
+        private void handleTypedChannelCreated(object sender, IServerChannel c)
+        {
+            handleChannelCreated(sender, c);
+        }
+
+        private void handleTypedChannelCreated(object sender, IProxyChannel c)
+        {
+            handleChannelCreated(sender, c);
+        }
+
+        private void handleChannelCreated(object sender, IChannel c)
+        {
+            c.ErrorOccured += handleErrorOccured;
         }
     }
 }

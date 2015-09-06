@@ -117,7 +117,7 @@ namespace Netool.Network
     }
 
     [Serializable]
-    public class DefaultProxy : IProxy
+    public class DefaultProxy : BaseInstance, IProxy
     {
         [field: NonSerialized]
         public event EventHandler<IProxyChannel> ChannelCreated;

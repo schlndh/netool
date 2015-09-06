@@ -46,6 +46,11 @@ namespace Netool.Network.Tcp
                 socket.BeginReceive(s.Buffer, 0, s.Buffer.Length, SocketFlags.None, handleResponse, s);
             }
             catch (ObjectDisposedException) { }
+            catch (Exception e)
+            {
+                OnErrorOccured(e);
+                Close();
+            }
         }
 
         private void handleResponse(IAsyncResult ar)
@@ -60,6 +65,11 @@ namespace Netool.Network.Tcp
             {
                 // closed
                 return;
+            }
+            catch(Exception e)
+            {
+                OnErrorOccured(e);
+                Close();
             }
             if (bytesRead > 0)
             {
@@ -92,6 +102,11 @@ namespace Netool.Network.Tcp
             {
                 return;
             }
+            catch(Exception e)
+            {
+                OnErrorOccured(e);
+                return;
+            }
 
             OnRequestSent(request);
         }
@@ -111,6 +126,11 @@ namespace Netool.Network.Tcp
                     // already closed
                     return;
                 }
+                catch(Exception e)
+                {
+                    OnErrorOccured(e);
+                    return;
+                }
                 Debug.WriteLine("TcpClientChannel (id: {0}, name: {1}) calling OnChannelClosed", ID, Name);
                 OnChannelClosed();
                 Debug.WriteLine("TcpClientChannel (id: {0}, name: {1}) OnChannelClosed finished", ID, Name);
@@ -119,7 +139,7 @@ namespace Netool.Network.Tcp
     }
 
     [Serializable]
-    public class TcpClient : IClient
+    public class TcpClient : BaseInstance, IClient
     {
         protected TcpClientSettings settings;
         /// <inheritdoc />
@@ -148,16 +168,23 @@ namespace Netool.Network.Tcp
         {
             if (stopped)
             {
-                stopped = false;
-                var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-                socket.Bind(settings.LocalEndPoint);
-                socket.Connect(settings.RemoteEndPoint);
-                channel = new TcpClientChannel(socket, Interlocked.Increment(ref channelID), ReceiveBufferSize);
-                OnChannelCreated(channel);
-                channel.ChannelClosed += channelClosedHandler;
-                channel.raiseChannelReady();
-                channel.scheduleNextReceive();
-
+                try
+                {
+                    stopped = false;
+                    var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+                    socket.Bind(settings.LocalEndPoint);
+                    socket.Connect(settings.RemoteEndPoint);
+                    channel = new TcpClientChannel(socket, Interlocked.Increment(ref channelID), ReceiveBufferSize);
+                    OnChannelCreated(channel);
+                    channel.ChannelClosed += channelClosedHandler;
+                    channel.raiseChannelReady();
+                    channel.scheduleNextReceive();
+                }
+                catch (Exception e)
+                {
+                    stopped = true;
+                    OnErrorOccured(e);
+                }
             }
             return channel;
         }

@@ -78,5 +78,18 @@ namespace Netool
         {
             controller.CreateChannelDriver();
         }
+
+        public void ShowErrorMessage(object sender, Exception e)
+        {
+            this.BeginInvoke(
+                new Action(
+                    delegate()
+                    {
+                        var message = string.Format("Sender: {0}\r\nException: {1}", sender, e);
+                        MessageBox.Show(message, "Error Occured", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                )
+            );
+        }
     }
 }

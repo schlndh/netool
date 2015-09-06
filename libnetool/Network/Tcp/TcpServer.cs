@@ -57,14 +57,13 @@ namespace Netool.Network.Tcp
             {
                 socket.BeginReceive(s.Buffer, 0, s.Buffer.Length, SocketFlags.None, handleRequest, s);
             }
-            catch(SocketException e)
-            {
-                Debug.WriteLine("TcpServerChannel id: {0} - socket error occured in scheduleNextRecieve: {1}", ID, e);
-                // TODO: actually handle this
-                Close();
-            }
             catch (ObjectDisposedException)
             { }
+            catch (Exception e)
+            {
+                OnErrorOccured(e);
+                Close();
+            }
         }
 
         private void handleRequest(IAsyncResult ar)
@@ -79,6 +78,11 @@ namespace Netool.Network.Tcp
             catch (ObjectDisposedException)
             {
                 return;
+            }
+            catch (Exception e)
+            {
+                OnErrorOccured(e);
+                Close();
             }
             if (bytesRead > 0)
             {
@@ -111,6 +115,11 @@ namespace Netool.Network.Tcp
             {
                 return;
             }
+            catch (Exception e)
+            {
+                OnErrorOccured(e);
+                return;
+            }
             OnResponseSent(response);
         }
 
@@ -129,12 +138,16 @@ namespace Netool.Network.Tcp
                 {
                     // already closed
                 }
+                catch (Exception e)
+                {
+                    OnErrorOccured(e);
+                }
             }
         }
     }
 
     [Serializable]
-    public class TcpServer : IServer
+    public class TcpServer : BaseInstance, IServer
     {
         protected class ClientData
         {
@@ -192,16 +205,21 @@ namespace Netool.Network.Tcp
                 {
                     stopped = false;
                     socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-                    socket.Bind(settings.LocalEndPoint);
-                    socket.Listen(settings.MaxPendingConnections);
                     try
                     {
+                        socket.Bind(settings.LocalEndPoint);
+                        socket.Listen(settings.MaxPendingConnections);
                         socket.BeginAccept(new AsyncCallback(acceptRequest), socket);
                     }
                     catch (ObjectDisposedException)
                     {
                         // socket closed
                         return;
+                    }
+                    catch (Exception e)
+                    {
+                        stopped = true;
+                        OnErrorOccured(e);
                     }
                 }
             }
@@ -219,6 +237,11 @@ namespace Netool.Network.Tcp
             catch (ObjectDisposedException)
             {
                 // socket closed
+                return;
+            }
+            catch (Exception e)
+            {
+                OnErrorOccured(e);
                 return;
             }
             var channel = new TcpServerChannel(client, Interlocked.Increment(ref channelID), ReceiveBufferSize);

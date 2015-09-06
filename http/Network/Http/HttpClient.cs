@@ -27,6 +27,12 @@ namespace Netool.Network.Http
             channel.ChannelReady += channelReadyHandler;
             channel.ResponseReceived += responseReceivedHandler;
             channel.RequestSent += requestSentHandler;
+            channel.ErrorOccured += channel_ErrorOccured;
+        }
+
+        private void channel_ErrorOccured(object sender, Exception e)
+        {
+            OnErrorOccured(e);
         }
 
         private void responseReceivedHandler(object sender, DataEventArgs e)
@@ -95,7 +101,7 @@ namespace Netool.Network.Http
     }
 
     [Serializable]
-    public class HttpClient : IClient
+    public class HttpClient : BaseInstance, IClient
     {
         protected HttpClientSettings setttings;
         protected TcpClient client;
@@ -116,6 +122,12 @@ namespace Netool.Network.Http
             this.setttings = settings;
             client = new TcpClient(settings.TcpSettings);
             client.ChannelCreated += channelCreatedHandler;
+            client.ErrorOccured += client_ErrorOccured;
+        }
+
+        private void client_ErrorOccured(object sender, Exception e)
+        {
+            OnErrorOccured(e);
         }
 
         private void channelCreatedHandler(object sender, IClientChannel e)
