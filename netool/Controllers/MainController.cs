@@ -124,6 +124,7 @@ namespace Netool.Controllers
                 }
             }
 
+            var invalidDrivers = new List<int>();
             foreach (var driver in model.ChannelDrivers)
             {
                 try
@@ -140,10 +141,17 @@ namespace Netool.Controllers
                 }
                 catch
                 {
+                    invalidDrivers.Add(driver.Key);
                     // TODO: some error reporting here
                 }
             }
 
+            foreach(var driver in invalidDrivers)
+            {
+                model.RemoveChannelDriver(driver);
+            }
+
+            var invalidInstances = new List<int>();
             foreach(var instance in model.OpenInstances)
             {
                 try
@@ -158,6 +166,7 @@ namespace Netool.Controllers
                         logger.WriteInstanceName(instance.Value.Name);
                         var pack = plugin.CreateInstance(logger, instance.Value.Type, instance.Value.Settings);
                         pack.Controller.SetMainController(this);
+                        invalidDrivers.Clear();
                         foreach(var driver in instance.Value.Drivers)
                         {
                             IChannelDriver d = null;
@@ -169,6 +178,14 @@ namespace Netool.Controllers
                             {
                                 throw new Exception("Missing driver");
                             }
+                            else
+                            {
+                                invalidDrivers.Add(driver.Key);
+                            }
+                        }
+                        foreach (var driver in invalidDrivers)
+                        {
+                            model.RemoveDriverFromInstance(instance.Key, driver);
                         }
                         bindInstanceEvents(pack.Controller.Instance);
                         controllers.Add(pack.Controller);
@@ -177,8 +194,13 @@ namespace Netool.Controllers
                 }
                 catch
                 {
-                    // TODO: some error reporting here
+                    invalidInstances.Add(instance.Key);
                 }
+            }
+
+            foreach(var instance in invalidInstances)
+            {
+                model.RemoveInstance(instance);
             }
         }
 
