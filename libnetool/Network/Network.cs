@@ -67,7 +67,7 @@ namespace Netool.Network
         /// Indicates that new channel was created
         /// </summary>
         /// <remarks>
-        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// Must be nonserialized, as nonserializable classes will bind to it
         /// </remarks>
         event EventHandler<IServerChannel> ChannelCreated;
 
@@ -80,7 +80,7 @@ namespace Netool.Network
         /// Indicates that new channel was created. This event is raised every time the client is newly started.
         /// </summary>
         /// <remarks>
-        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// Must be nonserialized, as nonserializable classes will bind to it
         /// </remarks>
         event EventHandler<IClientChannel> ChannelCreated;
 
@@ -123,7 +123,7 @@ namespace Netool.Network
         /// Indicates, that channel is ready to receive commands, useful for drivers
         /// </summary>
         /// <remarks>
-        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// Must be nonserialized, as nonserializable classes will bind to it
         /// </remarks>
         event ChannelReadyHandler ChannelReady;
 
@@ -131,7 +131,7 @@ namespace Netool.Network
         /// Indicates that channel is closed and will receive no further commands
         /// </summary>
         /// <remarks>
-        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// Must be nonserialized, as nonserializable classes will bind to it
         /// </remarks>
         event ChannelClosedHandler ChannelClosed;
 
@@ -151,14 +151,14 @@ namespace Netool.Network
         /// Indicates that request was sent
         /// </summary>
         /// <remarks>
-        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// Must be nonserialized, as nonserializable classes will bind to it
         /// </remarks>
         event RequestSentHandler RequestSent;
         /// <summary>
         /// Indicates that response was recieved
         /// </summary>
         /// <remarks>
-        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// Must be nonserialized, as nonserializable classes will bind to it
         /// </remarks>
         event ResponseReceivedHandler ResponseReceived;
 
@@ -179,7 +179,7 @@ namespace Netool.Network
         /// Indicates that request was received
         /// </summary>
         /// <remarks>
-        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// Must be nonserialized, as nonserializable classes will bind to it
         /// </remarks>
         event RequestReceivedHandler RequestReceived;
 
@@ -187,7 +187,7 @@ namespace Netool.Network
         /// Indicates that response was sent
         /// </summary>
         /// <remarks>
-        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// Must be nonserialized, as nonserializable classes will bind to it
         /// </remarks>
         event ResponseSentHandler ResponseSent;
 
@@ -208,28 +208,28 @@ namespace Netool.Network
         /// Indicates that request was received
         /// </summary>
         /// <remarks>
-        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// Must be nonserialized, as nonserializable classes will bind to it
         /// </remarks>
         event RequestReceivedHandler RequestReceived;
         /// <summary>
         /// Indicates that request was sent
         /// </summary>
         /// <remarks>
-        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// Must be nonserialized, as nonserializable classes will bind to it
         /// </remarks>
         event RequestSentHandler RequestSent;
         /// <summary>
         /// Indicates that response was received
         /// </summary>
         /// <remarks>
-        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// Must be nonserialized, as nonserializable classes will bind to it
         /// </remarks>
         event ResponseReceivedHandler ResponseReceived;
         /// <summary>
         /// Indicates that response was received
         /// </summary>
         /// <remarks>
-        /// Must be nonserializable, as nonserializable classes will bind to it
+        /// Must be nonserialized, as nonserializable classes will bind to it
         /// </remarks>
         event ResponseSentHandler ResponseSent;
 
