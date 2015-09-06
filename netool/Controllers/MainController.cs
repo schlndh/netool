@@ -56,7 +56,7 @@ namespace Netool.Controllers
 
         private void loadExternalPlugins()
         {
-            var path = AppDomain.CurrentDomain.BaseDirectory + "/Plugins";
+            var path = AppDomain.CurrentDomain.BaseDirectory + "Plugins";
             foreach (var dll in Directory.GetFiles(path, "*.dll"))
             {
                 try
@@ -89,7 +89,7 @@ namespace Netool.Controllers
                 }
                 catch(Exception e)
                 {
-                    Debug.WriteLine("Failed to load Assembly {0}, exception: {1}", path, e.Message);
+                    Debug.WriteLine("Failed to load Assembly {0}, exception: {1}", path + "/" + dll, e.Message);
                 }
             }
         }
