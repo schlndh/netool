@@ -6,6 +6,18 @@ using System.Collections.Concurrent;
 namespace Netool.Network
 {
     [Serializable]
+    public class DefaultProxyException : Exception
+    {
+        public DefaultProxyException() { }
+        public DefaultProxyException(string message) : base(message) { }
+        public DefaultProxyException(string message, Exception inner) : base(message, inner) { }
+        protected DefaultProxyException(
+          System.Runtime.Serialization.SerializationInfo info,
+          System.Runtime.Serialization.StreamingContext context)
+            : base(info, context) { }
+    }
+
+    [Serializable]
     public class DefaultProxyChannel : BaseChannel, IProxyChannel
     {
         /// <summary>
@@ -30,16 +42,31 @@ namespace Netool.Network
         public new string Name { get { return serverChannel.Name; } }
         private volatile bool closed = false;
 
-        public DefaultProxyChannel(IClientChannel clChannel, IServerChannel srvChannel)
+        public DefaultProxyChannel(IClient client, IServerChannel srvChannel)
         {
-            clientChannel = clChannel;
-            clientChannel.ChannelClosed += channelClosedHandler;
-            clientChannel.ResponseReceived += responseReceivedHandler;
-            clientChannel.RequestSent += clientChannel_RequestSent;
-            serverChannel = srvChannel;
-            serverChannel.ChannelClosed += channelClosedHandler;
-            serverChannel.RequestReceived += requestReceivedHandler;
-            serverChannel.ResponseSent += serverChannel_ResponseSent;
+            client.ErrorOccured += handleErrorOccured;
+            clientChannel = client.Start();
+            if(clientChannel != null)
+            {
+                clientChannel.ChannelClosed += channelClosedHandler;
+                clientChannel.ResponseReceived += responseReceivedHandler;
+                clientChannel.RequestSent += clientChannel_RequestSent;
+                clientChannel.ErrorOccured += handleErrorOccured;
+                serverChannel = srvChannel;
+                serverChannel.ChannelClosed += channelClosedHandler;
+                serverChannel.RequestReceived += requestReceivedHandler;
+                serverChannel.ResponseSent += serverChannel_ResponseSent;
+                serverChannel.ErrorOccured += handleErrorOccured;
+            }
+            else
+            {
+                OnErrorOccured(new DefaultProxyException("Unable to start a client channel."));
+            }
+        }
+
+        private void handleErrorOccured(object sender, Exception e)
+        {
+            OnErrorOccured(e);
         }
 
         private void clientChannel_RequestSent(object sender, DataEventArgs e)
@@ -133,6 +160,7 @@ namespace Netool.Network
         public DefaultProxy(DefaultProxySettings settings)
         {
             this.settings = settings;
+            settings.Server.ErrorOccured += handleErrorOccured;
         }
 
         public virtual void Start()
@@ -155,7 +183,7 @@ namespace Netool.Network
 
         private void connectionCreatedHandler(object sender, IServerChannel channel)
         {
-            var pchannel = new DefaultProxyChannel(clientFactory.CreateClient().Start(), channel);
+            var pchannel = new DefaultProxyChannel(clientFactory.CreateClient(), channel);
             pchannel.ChannelClosed += channelClosedHandler;
             channels.TryAdd(pchannel.ID, pchannel);
             OnChannelCreated(pchannel);
@@ -171,6 +199,11 @@ namespace Netool.Network
         protected virtual void OnChannelCreated(IProxyChannel channel)
         {
             if (ChannelCreated != null) ChannelCreated(this, channel);
+        }
+
+        private void handleErrorOccured(object sender, Exception e)
+        {
+            OnErrorOccured(e);
         }
     }
 }
