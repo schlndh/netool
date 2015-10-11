@@ -1,4 +1,5 @@
 ﻿using Netool.ChannelDrivers;
+using Netool.Logging;
 using Netool.Network;
 using System.Collections.Generic;
 
@@ -14,6 +15,7 @@ namespace Netool.Controllers
     public interface IInstanceController
     {
         IInstance Instance { get; }
+        InstanceLogger Logger { get; }
         /// <summary>
         /// Start the associated instance.
         /// </summary>

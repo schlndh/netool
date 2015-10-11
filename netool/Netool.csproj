@@ -74,6 +74,12 @@
     <Compile Include="Dialogs\CreateInstanceDialog.Designer.cs">
       <DependentUpon>CreateInstanceDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\SaveTempLogFileDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\SaveTempLogFileDialog.Designer.cs">
+      <DependentUpon>SaveTempLogFileDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\SetupChannelDriversDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -102,6 +108,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\CreateInstanceDialog.resx">
       <DependentUpon>CreateInstanceDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\SaveTempLogFileDialog.resx">
+      <DependentUpon>SaveTempLogFileDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\SetupChannelDriversDialog.resx">
       <DependentUpon>SetupChannelDriversDialog.cs</DependentUpon>

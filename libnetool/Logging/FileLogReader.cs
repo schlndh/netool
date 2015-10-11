@@ -11,6 +11,7 @@ namespace Netool.Logging
     public class FileLogReader
     {
         private Stream stream;
+        private readonly object streamLock = new object();
         private BinaryReader binReader;
         private BinaryFormatter formatter = new BinaryFormatter();
         private FileLog log;
@@ -33,7 +34,7 @@ namespace Netool.Logging
         /// <returns>Plugin ID</returns>
         public long ReadPluginID()
         {
-            lock(stream)
+            lock (streamLock)
             {
                 stream.Position = 0;
                 // move to format info structure - plugin ID field
@@ -48,7 +49,7 @@ namespace Netool.Logging
         /// <returns>instance name or null if it wasn't written</returns>
         public string ReadInstanceName()
         {
-            lock(stream)
+            lock (streamLock)
             {
                 stream.Position = 0;
                 // move to format info structure - pointer to instance name field
@@ -72,7 +73,7 @@ namespace Netool.Logging
         /// <returns>IInstance or null if instance data have not yet been written</returns>
         public IInstance ReadInstanceData()
         {
-            lock (stream)
+            lock (streamLock)
             {
                 stream.Position = 0;
                 // format info structure - instance data field
@@ -103,7 +104,7 @@ namespace Netool.Logging
             var ret = new List<IChannel>(count);
             int off;
             var table = getChannelTableHintByID(firstID, out off);
-            lock (stream)
+            lock (streamLock)
             {
                 while(count > 0)
                 {
@@ -135,7 +136,7 @@ namespace Netool.Logging
                 int off;
                 var hint = getChannelTableHintByID(id, out off);
 
-                lock (stream)
+                lock (streamLock)
                 {
                     // move stream position to the correct channel pointer
                     stream.Position += off * sizeof(long);
@@ -169,7 +170,7 @@ namespace Netool.Logging
         /// <returns>a pointer to channel table</returns>
         private long getChannelTableHintByID(int id, out int offset)
         {
-            lock(stream)
+            lock (streamLock)
             {
                 // start of the first channel table
                 stream.Position = 2 * sizeof(long);
@@ -194,7 +195,7 @@ namespace Netool.Logging
         /// <returns>hint - a pointer to channel info structure</returns>
         public long GetChannelInfoHintByID(int id)
         {
-            lock(stream)
+            lock (streamLock)
             {
                 int off;
                 var table = getChannelTableHintByID(id, out off);
@@ -211,7 +212,7 @@ namespace Netool.Logging
         /// <returns>channel's event count</returns>
         public int GetEventCount(long hint)
         {
-            lock(stream)
+            lock (streamLock)
             {
                 // first (long) is a pointer to channel data
                 stream.Position = hint + sizeof(long);
@@ -228,7 +229,7 @@ namespace Netool.Logging
         /// <returns>Event</returns>
         public Event ReadEvent(long hint, int id)
         {
-            lock(stream)
+            lock (streamLock)
             {
                 int off;
                 // + 2*sizeof(long) to skip the pointer to channel data and event count
@@ -251,7 +252,7 @@ namespace Netool.Logging
             var ret = new List<Event>(count);
             int off;
             var table = getEventTableByIndex(hint + 2*sizeof(long), firstID, out off);
-            lock (stream)
+            lock (streamLock)
             {
                 while (count > 0)
                 {

@@ -34,10 +34,11 @@
             this.serverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clientToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.proxyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.channelDriverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.channelDriverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.logSaveDialog = new System.Windows.Forms.SaveFileDialog();
             this.mainMenu.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -94,6 +95,13 @@
             this.proxyToolStripMenuItem.Text = "Proxy";
             this.proxyToolStripMenuItem.Click += new System.EventHandler(this.proxyToolStripMenuItem_Click);
             // 
+            // channelDriverToolStripMenuItem
+            // 
+            this.channelDriverToolStripMenuItem.Name = "channelDriverToolStripMenuItem";
+            this.channelDriverToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.channelDriverToolStripMenuItem.Text = "Channel Driver";
+            this.channelDriverToolStripMenuItem.Click += new System.EventHandler(this.channelDriverToolStripMenuItem_Click);
+            // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
@@ -122,12 +130,11 @@
             this.openFileDialog.Filter = "Log Files|*.nelog|All files|*.*";
             this.openFileDialog.Title = "Open log file";
             // 
-            // channelDriverToolStripMenuItem
+            // logSaveDialog
             // 
-            this.channelDriverToolStripMenuItem.Name = "channelDriverToolStripMenuItem";
-            this.channelDriverToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.channelDriverToolStripMenuItem.Text = "Channel Driver";
-            this.channelDriverToolStripMenuItem.Click += new System.EventHandler(this.channelDriverToolStripMenuItem_Click);
+            this.logSaveDialog.DefaultExt = "nelog";
+            this.logSaveDialog.Filter = "Log files|*.nelog|All files|*.*";
+            this.logSaveDialog.Title = "Save log file";
             // 
             // MainView
             // 
@@ -160,6 +167,7 @@
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
         private System.Windows.Forms.ToolStripMenuItem channelDriverToolStripMenuItem;
+        private System.Windows.Forms.SaveFileDialog logSaveDialog;
     }
 }
 

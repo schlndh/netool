@@ -211,10 +211,54 @@ namespace Netool.Controllers
 
         public void Close()
         {
+            bool toAll = false;
+            bool yes = false;
             foreach (var cont in controllers)
             {
                 cont.Stop();
                 cont.Close();
+                var instanceName = cont.Instance.GetType().Name;
+                if(cont.Logger != null && cont.Logger.IsTempFile)
+                {
+                    if (toAll)
+                    {
+                        if(yes)
+                        {
+                            saveLogFile(cont, instanceName);
+                        }
+                        else
+                        {
+                            cont.Logger.DeleteFile();
+                        }
+                    }
+                    else
+                    {
+                        // TODO: show actual name here
+                        var res = view.ShowSaveTempLogFileDialog(instanceName);
+                        switch (res)
+                        {
+                            case MainView.SaveTempLogResult.Cancel:
+                                break;
+                            case MainView.SaveTempLogResult.YesToAll:
+                            case MainView.SaveTempLogResult.Yes:
+                                if (res == MainView.SaveTempLogResult.YesToAll)
+                                {
+                                    toAll = true;
+                                    yes = true;
+                                }
+                                saveLogFile(cont, instanceName);
+                                break;
+                            case MainView.SaveTempLogResult.No:
+                                cont.Logger.DeleteFile();
+                                break;
+                            case MainView.SaveTempLogResult.NoToAll:
+                                cont.Logger.DeleteFile();
+                                toAll = true;
+                                yes = false;
+                                break;
+                        }
+                    }
+                }
             }
             var appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             if (appDataDir != "")
@@ -230,6 +274,19 @@ namespace Netool.Controllers
                     formatter.Serialize(file, model);
                     file.Close();
                 }
+            }
+        }
+
+        private void saveLogFile(IInstanceController cont, string instanceName)
+        {
+            var filename = view.GetLogFileTargetName(instanceName);
+            if (filename == null)
+            {
+                cont.Logger.DeleteFile();
+            }
+            else
+            {
+                cont.Logger.MoveToFile(filename);
             }
         }
 

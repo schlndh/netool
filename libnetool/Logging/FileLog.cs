@@ -37,6 +37,7 @@ namespace Netool.Logging
          * - other 8B (long) items are pointers to serialized events
          **/
         private FileStream stream;
+        private readonly object streamLock = new object();
         private BinaryWriter binWriter;
         private BinaryReader binReader;
         private IFormatter formatter = new BinaryFormatter();
@@ -148,7 +149,7 @@ namespace Netool.Logging
         /// <param name="ID">plugin ID</param>
         public void WritePluginID(long ID)
         {
-            lock(stream)
+            lock (streamLock)
             {
                 stream.Position = 0;
                 // move to format info structure - plugin ID field
@@ -167,7 +168,7 @@ namespace Netool.Logging
         /// <param name="name">instance name</param>
         public void WriteInstanceName(string name)
         {
-            lock(stream)
+            lock (streamLock)
             {
                 stream.Position = 0;
                 // move to format info structure - pointer to instance name field
@@ -183,8 +184,9 @@ namespace Netool.Logging
         /// </summary>
         public void Close()
         {
-            lock (stream)
+            lock (streamLock)
             {
+                if (stream == null) return;
                 Debug.WriteLine("FileLog ({0}) closing", filename, 1);
                 stream.Position = sizeof(long);
                 binWriter.Write(channelCount);
@@ -196,13 +198,40 @@ namespace Netool.Logging
         }
 
         /// <summary>
+        /// Moves the underlying file to target.
+        /// </summary>
+        /// <remarks>This method will close the log. Also make sure that there are no active FileReaders for the same file before calling this method.</remarks>
+        /// <param name="target">target filename</param>
+        public void MoveToFile(string target)
+        {
+            Close();
+            if(File.Exists(target))
+            {
+                File.Delete(target);
+            }
+            File.Move(filename, target);
+            filename = target;
+        }
+
+        /// <summary>
+        /// Deletes the underlying file.
+        /// </summary>
+        /// <inheritdoc cref="FileLog.MoveToFile" select="remarks"/>
+        public void DeleteFile()
+        {
+            Close();
+            File.Delete(filename);
+            filename = null;
+        }
+
+        /// <summary>
         /// Initializes channel info for new channel
         /// </summary>
         /// <returns>hint - pointer to the beginnig of the channel info</returns>
         public long AddChannel()
         {
             long hint = 0;
-            lock (stream)
+            lock (streamLock)
             {
                 Interlocked.Increment(ref channelCount);
                 currentChannelTableSize++;
@@ -242,7 +271,7 @@ namespace Netool.Logging
         /// <param name="channel"></param>
         public void WriteChannelData(long hint, int eventCount, IChannel channel)
         {
-            lock (stream)
+            lock (streamLock)
             {
                 Debug.WriteLine("FileLog ({0}) writing channel data (type: {1}, id: {2}, name: {3})", filename, channel.GetType(), channel.ID, channel.Name);
                 stream.Position = hint;
@@ -261,7 +290,7 @@ namespace Netool.Logging
         /// <param name="instance"></param>
         public void WriteInstanceData(IInstance instance)
         {
-            lock (stream)
+            lock (streamLock)
             {
                 Debug.WriteLine("FileLog ({0}) writing instance data (type: {1})", filename, instance.GetType());
                 stream.Position = 0;
@@ -281,7 +310,7 @@ namespace Netool.Logging
         /// <param name="e">event to log</param>
         public void LogEvent(long hint, Event e)
         {
-            lock (stream)
+            lock (streamLock)
             {
                 Debug.WriteLine("FileLog ({0}) logging event (id: {1}, type: {2})", filename, e.ID, e.Type);
                 // move the hint to the beginning of the event table

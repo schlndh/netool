@@ -43,6 +43,7 @@ namespace Netool.Controllers
         public IInstance Instance { get { return instance; } }
         private SortedList<int, IChannelDriver> drivers = new SortedList<int, IChannelDriver>();
         private InstanceLogger logger;
+        public InstanceLogger Logger { get { return logger; } }
         private IChannelViewFactory detailFactory;
         private RejectDriver rejectDriver = new RejectDriver();
         private IMainController mainCont;

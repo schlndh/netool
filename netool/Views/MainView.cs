@@ -1,4 +1,5 @@
-﻿using Netool.Plugins;
+﻿using Netool.Dialogs;
+using Netool.Plugins;
 using Netool.Controllers;
 using Netool.Views;
 using System;
@@ -8,6 +9,7 @@ namespace Netool
 {
     public partial class MainView : Form
     {
+        public enum SaveTempLogResult { Cancel, Yes, YesToAll, No, NoToAll };
         private MainController controller;
         private ChannelDriversView channelDrivers = new ChannelDriversView();
         public MainView()
@@ -90,6 +92,38 @@ namespace Netool
                     }
                 )
             );
+        }
+
+        public SaveTempLogResult ShowSaveTempLogFileDialog(string instanceName)
+        {
+            var dialog = new SaveTempLogFileDialog(instanceName);
+            var res = dialog.ShowDialog();
+            switch (res)
+            {
+                case DialogResult.No:
+                    return dialog.ToAll ? SaveTempLogResult.NoToAll : SaveTempLogResult.No;
+                case DialogResult.Yes:
+                    return dialog.ToAll ? SaveTempLogResult.YesToAll : SaveTempLogResult.Yes;
+                case DialogResult.Cancel:
+                default:
+                    return SaveTempLogResult.Cancel;
+            }
+        }
+
+        public string GetLogFileTargetName(string instanceName)
+        {
+            logSaveDialog.Title = "Save log file for: " + instanceName;
+            var res = DialogResult.None;
+
+            while((res = logSaveDialog.ShowDialog()) == DialogResult.Cancel && MessageBox.Show("Are you sure you don't want to save the log file? It will be deleted!", "Confirm delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No) {}
+            if(res == DialogResult.OK)
+            {
+                return logSaveDialog.FileName;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

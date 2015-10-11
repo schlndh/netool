@@ -12,17 +12,20 @@ namespace Netool.Logging
         private ConcurrentDictionary<int, ChannelLogger> channelsInfo = new ConcurrentDictionary<int, ChannelLogger>();
         private LinkedList<IChannel> channels = new LinkedList<IChannel>();
         private FileLog log;
+        public bool IsTempFile { get; private set; }
 
         public event EventHandler<int> ChannelCountChanged;
 
         public InstanceLogger()
         {
             log = new FileLog(Path.GetTempFileName());
+            IsTempFile = true;
         }
 
         public InstanceLogger(string filename, FileMode mode = FileMode.OpenOrCreate)
         {
             log = new FileLog(filename, mode);
+            IsTempFile = false;
             // temporary workaround - load all channels
             GetChannelByID(log.GetChannelCount());
         }
@@ -108,6 +111,18 @@ namespace Netool.Logging
             var name = reader.ReadInstanceName();
             reader.Close();
             return name;
+        }
+
+        /// <inheritdoc cref="FileLog.MoveToFile"/>
+        public void MoveToFile(string target)
+        {
+            log.MoveToFile(target);
+        }
+
+        /// <inheritdoc cref="FileLog.DeleteFile"/>
+        public void DeleteFile()
+        {
+            log.DeleteFile();
         }
 
         /// <summary>

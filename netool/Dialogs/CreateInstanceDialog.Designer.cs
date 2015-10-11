@@ -239,6 +239,7 @@
             // 
             this.saveFileDialog.DefaultExt = "nelog";
             this.saveFileDialog.Filter = "Log files|*.nelog|All files|*.*";
+            this.saveFileDialog.Title = "Save log file";
             // 
             // CreateInstanceDialog
             // 
