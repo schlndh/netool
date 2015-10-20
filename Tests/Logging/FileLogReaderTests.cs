@@ -159,5 +159,18 @@ namespace Tests.Logging
             log.WriteInstanceName(instanceName);
             Assert.Equal(instanceName, logReader.ReadInstanceName());
         }
+
+        [Fact]
+        public void TestGetFileHint_Ok()
+        {
+            var file = log.CreateFile();
+            Assert.Equal(file.Item2, logReader.GetFileHint(file.Item1));
+        }
+
+        [Fact]
+        public void TestGetFileHint_BadId()
+        {
+            Assert.Equal(0, logReader.GetFileHint(1));
+        }
     }
 }
