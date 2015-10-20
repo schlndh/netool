@@ -15,6 +15,7 @@ namespace Netool.Logging
         private BinaryReader binReader;
         private BinaryFormatter formatter = new BinaryFormatter();
         private FileLog log;
+        private long fileTable = 0;
 
         public FileLogReader(string filename, FileLog log)
         {
@@ -299,6 +300,45 @@ namespace Netool.Logging
             // no locking, lock outside
             stream.Position = ptr;
             return (Event)formatter.Deserialize(stream);
+        }
+
+        /// <summary>
+        /// Get file hint by file ID
+        /// </summary>
+        /// <param name="fileID"></param>
+        /// <returns>a hint which can be used to access data from file. Returns 0 if ID is invalid.</returns>
+        public long GetFileHint(long fileID)
+        {
+            lock(streamLock)
+            {
+                if(fileTable == 0)
+                {
+                    stream.Position = 0;
+                    // move to format info - Ptr to file table field
+                    stream.Position = binReader.ReadInt64() + 4 * sizeof(long);
+                    fileTable = binReader.ReadInt64();
+                    if (fileTable == 0)
+                    {
+                        return 0;
+                    }
+                }
+                stream.Position = fileTable;
+                long currentFBT = fileTable;
+                // locate the correct FBT
+                while(fileID > FileLog.FilesPerBlock)
+                {
+                    fileID -= FileLog.FilesPerBlock;
+                    currentFBT = binReader.ReadInt64();
+                    if(currentFBT == 0)
+                    {
+                        // file not found
+                        return 0;
+                    }
+                    stream.Position = currentFBT;
+                }
+                stream.Position += fileID * sizeof(long);
+                return binReader.ReadInt64();
+            }
         }
     }
 }

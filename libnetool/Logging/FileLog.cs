@@ -1,4 +1,5 @@
 ﻿using Netool.Network;
+using Netool.Network.DataFormats;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -17,12 +18,15 @@ namespace Netool.Logging
          * Format info: a structure that holds information about the logging format
          * Channel info: a structure that holds information about a channel and its events
          * Channel data: serialized channel
+         * File: data stored separately from an event, all metadata (except for file size) are stored in the event (or as another file if necessary)
+         *  - files can be arbitrarily large (limited by file-system and long value range), however locating a data block requires approximatelly N + 1 steps when N is the number of gigabytes stored in the file
          *
          * FileLog format:
          * 8B (long) pointer to format info | 8B (long) channel count | channel table
          *
          * Format info format:
          * 8B (long) format version | 8B (long) pointer to instance data | 8B (long) ProtocolPlugin ID | 8B (long) pointer to InstanceName
+         * 8B (long) pointer to file table | 8B (long) file count
          *
          * channel table format:
          * - FileLog.blockSize bytes (must be a power of 2)
@@ -35,6 +39,21 @@ namespace Netool.Logging
          * - FileLog.blockSize bytes (power of 2)
          * - first 8B is a pointer to next table
          * - other 8B (long) items are pointers to serialized events
+         *
+         * file table format:
+         * - FileLog.blockSize bytes (must be a power of 2)
+         * - first long (8B) is a pointer to the next table, the rest of the table are pointers to files
+         *
+         * file format:
+         * 8B (long) file size | file block table (level 1)
+         *
+         * file block table (1) format:
+         * - FileLog.blockSize bytes (must be a power of 2)
+         * - first long (8B) is a pointer to the next table, the rest of the table are pointers to FBT level 2
+         *
+         * file block table (2) format:
+         * - FileLog.blockSize bytes (must be a power of 2)
+         * 8B (long) pointers to data blocks (FileLog.blockSize bytes)
          **/
         private FileStream stream;
         private readonly object streamLock = new object();
@@ -42,6 +61,10 @@ namespace Netool.Logging
         private BinaryReader binReader;
         private IFormatter formatter = new BinaryFormatter();
         private long channelCount = 0;
+        private long fileCount = 0;
+        private long currentFileTable = 0;
+        private long currentFileTableSize = 0;
+        private byte[] blockBuffer = null;
         /// <summary>
         /// A constant indicating current version of FileLog format, will be incremented each time a format is changed
         /// </summary>
@@ -58,6 +81,10 @@ namespace Netool.Logging
         /// The number of actual event pointers in 1 block (not counting a pointer to the next table)
         /// </summary>
         public const int EventsPerBlock = BlockSize / sizeof(long) - 1;
+        /// <summary>
+        /// The number of actual file pointers in 1 block (not counting a pointer to the next table)
+        /// </summary>
+        public const int FilesPerBlock = BlockSize / sizeof(long) - 1;
         private string filename;
 
         // first table
@@ -93,6 +120,10 @@ namespace Netool.Logging
                 stream.Position += sizeof(long);
                 channelCount = binReader.ReadInt64();
                 initCurrentChannelTable(channelCount);
+                stream.Position = 0;
+                // move to format info - file count field
+                stream.Position = binReader.ReadInt64() + 5 * sizeof(long);
+                fileCount = binReader.ReadInt64();
             }
             else
             {
@@ -111,6 +142,10 @@ namespace Netool.Logging
                 // Plugin ID
                 binWriter.Write((long)0);
                 // a pointer to instance name
+                binWriter.Write((long)0);
+                // a pointer to file table
+                binWriter.Write((long)0);
+                // file count
                 binWriter.Write((long)0);
                 stream.Flush();
             }
@@ -190,6 +225,9 @@ namespace Netool.Logging
                 Debug.WriteLine("FileLog ({0}) closing", filename, 1);
                 stream.Position = sizeof(long);
                 binWriter.Write(channelCount);
+                stream.Position = 0;
+                stream.Position = binReader.ReadInt64() + 5 * sizeof(long);
+                binWriter.Write(fileCount);
                 binWriter.Close();
                 binReader = null;
                 binWriter = null;
@@ -361,6 +399,151 @@ namespace Netool.Logging
         public FileLogReader CreateReader()
         {
             return new FileLogReader(filename, this);
+        }
+
+        /// <summary>
+        /// Creates new file for storing larger data
+        /// </summary>
+        /// <remarks>
+        /// Use the file ID to store the information about the file to the event, don't store the hint anywhere it's only valid during one run (in case there will be need to perform offline optimalization of the log file in the future).
+        /// Use FileReader.GetFileHint method to obtain a hint when you only know an ID.
+        /// ID is 1-based.
+        /// </remarks>
+        /// <returns>(file ID, file hint)</returns>
+        public Tuple<long, long> CreateFile()
+        {
+            lock(streamLock)
+            {
+                long id = ++fileCount;
+                if(currentFileTable == 0)
+                {
+                    stream.Position = 0;
+                    // move to format info
+                    stream.Position = binReader.ReadInt64() + 4*sizeof(long);
+                    // create file table and store pointer to it
+                    binWriter.Write(stream.Length);
+                    currentFileTable = stream.Length;
+                    stream.Position = stream.Length;
+                    writeNewTable();
+                }
+
+                if(++currentFileTableSize == FilesPerBlock)
+                {
+                    // current file table is full - create a new one
+                    stream.Position = currentFileTable;
+                    binWriter.Write(stream.Length);
+                    stream.Position = stream.Length;
+                    currentFileTable = stream.Length;
+                    currentFileTableSize = 1;
+                    writeNewTable();
+                }
+
+                // create new file entry
+                stream.Position = currentFileTable + currentFileTableSize * sizeof(long);
+                binWriter.Write(stream.Length);
+                long fileHint = stream.Length;
+                stream.Position = stream.Length;
+                // file size
+                binWriter.Write((long)0);
+                // file block table (1)
+                writeNewTable();
+                return new Tuple<long,long>(id,fileHint);
+            }
+        }
+
+        /// <summary>
+        /// Append data to file
+        /// </summary>
+        /// <param name="hint">as returned from FileLog.CreateFile or FileLogReader.GetFileHint</param>
+        /// <param name="input">data to append</param>
+        /// <remarks>
+        /// Note that this function only appends data, eg. be careful not to pass more data into it.
+        /// For example if you incrementaly add data to a StreamList don't pass the whole list each time, but only new data.
+        /// </remarks>
+        public void AppendDataToFile(long hint, IDataStream input)
+        {
+            long remaining = input.Length;
+            if (remaining == 0) return;
+
+            lock(streamLock)
+            {
+                if(blockBuffer == null)
+                {
+                    blockBuffer = new byte[BlockSize];
+                }
+                stream.Position = hint;
+                long size = binReader.ReadInt64();
+                stream.Position = hint;
+                binWriter.Write(size + input.Length);
+                // stream position is now the beginning of FBT
+                long blockOffset = size % BlockSize;
+                long fbt2Offset = (size / (BlockSize)) % (FilesPerBlock + 1);
+                long fbtOffset = size / (BlockSize * (FilesPerBlock + 1)) + 1;
+                // locate correct FBT
+                while(fbtOffset > FilesPerBlock)
+                {
+                    // move to the next table
+                    stream.Position = binReader.ReadInt64();
+                    fbtOffset -= FilesPerBlock;
+                }
+                long currentFBT = stream.Position;
+                while(remaining > 0)
+                {
+                    while (fbtOffset <= FilesPerBlock)
+                    {
+                        stream.Position = currentFBT + fbtOffset * sizeof(long);
+                        long currentFBT2 = binReader.ReadInt64();
+                        if (currentFBT2 == 0)
+                        {
+                            stream.Position -= sizeof(long);
+                            binWriter.Write(stream.Length);
+                            currentFBT2 = stream.Length;
+                            stream.Position = stream.Length;
+                            writeNewTable();
+                        }
+                        while (fbt2Offset <= FilesPerBlock)
+                        {
+                            int bytesRead = (int)Math.Min(BlockSize - blockOffset, remaining);
+                            input.ReadBytesToBuffer(blockBuffer, input.Length - remaining, bytesRead);
+                            stream.Position = currentFBT2 + fbt2Offset * sizeof(long);
+                            long currentBlock = binReader.ReadInt64();
+                            if (currentBlock == 0)
+                            {
+                                stream.Position -= sizeof(long);
+                                binWriter.Write(stream.Length);
+                                stream.Position = stream.Length;
+                                // blockBuffer is exactly blockSize bytes long
+                                // so don't call writeNewTable() to avoid unnecessary writes
+                                // extra data written to the block will be ovewritten later or not used at all
+                                binWriter.Write(blockBuffer);
+                            }
+                            else
+                            {
+                                stream.Position = currentBlock + blockOffset;
+                                binWriter.Write(blockBuffer, 0, bytesRead);
+                            }
+                            blockOffset = 0;
+                            remaining -= bytesRead;
+                            if (remaining == 0)
+                            {
+                                return;
+                            }
+                            // otherwise the current block has been filled completely
+                            ++fbt2Offset;
+                        }
+                        fbt2Offset = 0;
+                        fbtOffset++;
+                    }
+                    fbtOffset = 1;
+                    // create new FBT
+                    stream.Position = currentFBT;
+                    binWriter.Write(stream.Length);
+                    currentFBT = stream.Length;
+                    stream.Position = stream.Length;
+                    writeNewTable();
+                }
+            }
+
         }
     }
 }

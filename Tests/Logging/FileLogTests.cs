@@ -4,6 +4,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using Xunit;
 using Netool.Logging;
 using Netool.Network;
+using Netool.Network.DataFormats;
 using Netool.ChannelDrivers;
 
 namespace Tests.Logging
@@ -288,6 +289,265 @@ namespace Tests.Logging
                 var name = res as string;
                 Assert.Equal(instanceName, name);
                 binReader.Close();
+            }
+        }
+
+        [Fact]
+        public void TestCreateFile_None()
+        {
+            log.Close();
+            FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
+            using (BinaryReader binReader = new BinaryReader(stream))
+            {
+                // a pointer to format info
+                stream.Position = 0;
+                // a pointer to file table
+                stream.Position = binReader.ReadInt64() + 4 * sizeof(long);
+                // don't initialize file table unless some file was actually created
+                Assert.Equal(0, binReader.ReadInt64());
+                // file count == 0
+                Assert.Equal(0, binReader.ReadInt64());
+                binReader.Close();
+            }
+        }
+
+        [Fact]
+        public void TestCreateFile_One()
+        {
+            log.CreateFile();
+            log.Close();
+            FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
+            using (BinaryReader binReader = new BinaryReader(stream))
+            {
+                // a pointer to format info
+                stream.Position = 0;
+                // a pointer to file table
+                stream.Position = binReader.ReadInt64() + 4 * sizeof(long);
+                var fileTable = binReader.ReadInt64();
+                Assert.InRange(fileTable, 1, stream.Length - 1);
+                // file count
+                Assert.Equal(1, binReader.ReadInt64());
+                stream.Position = fileTable;
+                // check that there is no other file table
+                Assert.Equal(0, binReader.ReadInt64());
+                long filePtr = binReader.ReadInt64();
+                Assert.InRange(filePtr, 1, stream.Length - 1);
+                stream.Position = filePtr;
+                // file size
+                Assert.Equal(0, binReader.ReadInt64());
+                // FBT - next pointer
+                Assert.Equal(0, binReader.ReadInt64());
+                // FBT - first file entry
+                Assert.Equal(0, binReader.ReadInt64());
+                binReader.Close();
+            }
+        }
+
+        [Fact]
+        public void TestCreateFile_Many()
+        {
+            for (int i = 0; i < FileLog.FilesPerBlock + 1; ++i)
+            {
+                log.CreateFile();
+            }
+            log.Close();
+            FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
+            using (BinaryReader binReader = new BinaryReader(stream))
+            {
+                // a pointer to format info
+                stream.Position = 0;
+                // a pointer to file table
+                stream.Position = binReader.ReadInt64() + 4 * sizeof(long);
+                var fileTable = binReader.ReadInt64();
+                Assert.InRange(fileTable, 1, stream.Length - 1);
+                // file count
+                Assert.Equal(FileLog.FilesPerBlock + 1, binReader.ReadInt64());
+                stream.Position = fileTable;
+                // check that there is no other file table
+                long nextFileTable = binReader.ReadInt64();
+                Assert.InRange(nextFileTable, 1, stream.Length);
+                stream.Position = nextFileTable;
+                // no third file table
+                Assert.Equal(0, binReader.ReadInt64());
+                long filePtr = binReader.ReadInt64();
+                Assert.InRange(filePtr, 1, stream.Length - 1);
+                stream.Position = filePtr;
+                // file size
+                Assert.Equal(0, binReader.ReadInt64());
+                // FBT - next pointer
+                Assert.Equal(0, binReader.ReadInt64());
+                // FBT - first file entry
+                Assert.Equal(0, binReader.ReadInt64());
+                binReader.Close();
+            }
+        }
+
+        [Fact]
+        public void TestCreateAndAppendFile_OneBlock()
+        {
+            var file1 = log.CreateFile();
+            log.AppendDataToFile(file1.Item2, new ByteArray(new byte[] { 1, 2, 3, 4 }));
+            log.AppendDataToFile(file1.Item2, new ByteArray(new byte[] { 5, 6, 7, 8 }));
+            log.Close();
+            FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
+            using (BinaryReader binReader = new BinaryReader(stream))
+            {
+                // a pointer to format info
+                stream.Position = 0;
+                // a pointer to file table
+                stream.Position = binReader.ReadInt64() + 4 * sizeof(long);
+                var fileTable = binReader.ReadInt64();
+                Assert.InRange(fileTable, 1, stream.Length - 1);
+                // file count
+                Assert.Equal(1, binReader.ReadInt64());
+                // skip file table next pointer
+                stream.Position = fileTable + sizeof(long);
+                long filePtr = binReader.ReadInt64();
+                Assert.InRange(filePtr, 1, stream.Length - 1);
+                stream.Position = filePtr;
+                // file size
+                Assert.Equal(8, binReader.ReadInt64());
+                // FBT - next pointer
+                Assert.Equal(0, binReader.ReadInt64());
+                // FBT - first FBT2 entry
+                long fbt2Ptr = binReader.ReadInt64();
+                Assert.InRange(fbt2Ptr, 1, stream.Length - 1);
+                stream.Position = fbt2Ptr;
+                long dataPtr = binReader.ReadInt64();
+                Assert.InRange(dataPtr, 1, stream.Length - 1);
+                stream.Position = dataPtr;
+                for (int i = 1; i <= 8; i++ )
+                {
+                    Assert.Equal(i, binReader.ReadByte());
+                }
+                binReader.Close();
+            }
+        }
+
+        [Fact]
+        public void TestCreateAndAppendFile_Big()
+        {
+            var file1 = log.CreateFile();
+            log.Close();
+            // a little hack to avoid writing gigabyte of data
+            FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite);
+            long newFileSize = FileLog.FilesPerBlock * (FileLog.FilesPerBlock + 1) * FileLog.BlockSize - 1;
+            using (BinaryReader binReader = new BinaryReader(stream))
+            {
+                using(BinaryWriter binWriter = new BinaryWriter(stream))
+                {
+                    // a pointer to format info
+                    stream.Position = 0;
+                    // a pointer to file table
+                    stream.Position = binReader.ReadInt64() + 4 * sizeof(long);
+                    var fileTable = binReader.ReadInt64();
+                    // skip file table next pointer
+                    stream.Position = fileTable + sizeof(long);
+                    long filePtr = binReader.ReadInt64();
+                    stream.Position = filePtr;
+                    // file size - make it max length per FBT - 1B
+                    // to test writing when new data block, new FBT2 and new FBT are necessary
+                    binWriter.Write(newFileSize);
+                    // now create the necessary strucure
+                    // move to the last entry in FBT
+                    stream.Position += FileLog.FilesPerBlock * sizeof(long);
+                    binWriter.Write(stream.Length);
+                    stream.Position = stream.Length;
+                    for (int i = 0; i < FileLog.BlockSize; ++i)
+                    {
+                        binWriter.Write((byte)0);
+                    }
+                    // set the last entry in FBT2
+                    stream.Position -= sizeof(long);
+                    binWriter.Write(stream.Length);
+                    stream.Position = stream.Length;
+                    // prepare data block
+                    for (int i = 0; i < FileLog.BlockSize; ++i)
+                    {
+                        binWriter.Write((byte) (i % 128));
+                    }
+                    binWriter.Close();
+                }
+            }
+            log = new FileLog(filename, FileMode.Open);
+            // Don't use hint from previously open log file
+            log.AppendDataToFile(file1.Item2, new ByteArray(new byte[] { 233, 234, 235, 236 }));
+            log.AppendDataToFile(file1.Item2, new ByteArray(new byte[] { 237, 238, 239 }));
+            log.Close();
+            stream = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite);
+            using (BinaryReader binReader = new BinaryReader(stream))
+            {
+                stream.Position = 0;
+                // move to file table pointer
+                stream.Position = binReader.ReadInt64() + 4*sizeof(long);
+                // move to pointer to file 1
+                stream.Position = binReader.ReadInt64() + sizeof(long);
+                // move to file 1 - file size
+                stream.Position = binReader.ReadInt64();
+                Assert.Equal(newFileSize + 7, binReader.ReadInt64());
+                long nextFBT = binReader.ReadInt64();
+                Assert.InRange(nextFBT, 1, stream.Length);
+                // move to last FBT entry (next pointer was read already)
+                stream.Position += (FileLog.FilesPerBlock - 1) * sizeof(long);
+                // move to last FBT2 entry
+                stream.Position = binReader.ReadInt64() + FileLog.FilesPerBlock * sizeof(long);
+                // move to data block
+                stream.Position = binReader.ReadInt64();
+                for(int i = 0; i <  FileLog.BlockSize - 1; ++i)
+                {
+                    // check that previous data were not altered
+                    Assert.Equal(i % 128, binReader.ReadByte());
+                }
+                Assert.Equal(233, binReader.ReadByte());
+                // move to second FBT
+                stream.Position = nextFBT;
+                // no third FBT
+                Assert.Equal(0, binReader.ReadInt64());
+                long fbt2Ptr = binReader.ReadInt64();
+                Assert.InRange(fbt2Ptr, 1, stream.Length);
+                // no other entry in the second FBT
+                Assert.Equal(0, binReader.ReadInt64());
+                stream.Position = fbt2Ptr;
+                long dataPtr = binReader.ReadInt64();
+                Assert.InRange(dataPtr, 1, stream.Length);
+                stream.Position = dataPtr;
+                for(int i = 0; i < 6; ++i)
+                {
+                    var b = binReader.ReadByte();
+                    Assert.Equal(234 + i, b);
+                }
+            }
+        }
+
+        [Fact]
+        public void TestCreateAndAppendFile_Empty()
+        {
+            var file1 = log.CreateFile();
+            log.AppendDataToFile(file1.Item2, new EmptyData());
+            log.AppendDataToFile(file1.Item2, new EmptyData());
+            log.Close();
+            FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
+            using (BinaryReader binReader = new BinaryReader(stream))
+            {
+                // a pointer to format info
+                stream.Position = 0;
+                // a pointer to file table
+                stream.Position = binReader.ReadInt64() + 4 * sizeof(long);
+                var fileTable = binReader.ReadInt64();
+                Assert.InRange(fileTable, 1, stream.Length - 1);
+                // file count
+                Assert.Equal(1, binReader.ReadInt64());
+                // skip file table next pointer
+                stream.Position = fileTable + sizeof(long);
+                long filePtr = binReader.ReadInt64();
+                Assert.InRange(filePtr, 1, stream.Length - 1);
+                stream.Position = filePtr;
+                // file size
+                Assert.Equal(0, binReader.ReadInt64());
+                // FBT - next pointer
+                Assert.Equal(0, binReader.ReadInt64());
+                // FBT - first FBT2 entry
+                Assert.Equal(0, binReader.ReadInt64());
             }
         }
     }
