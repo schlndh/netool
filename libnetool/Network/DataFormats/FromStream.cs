@@ -43,6 +43,7 @@ namespace Netool.Network.DataFormats
                 var buffer = new byte[4096];
                 do
                 {
+                    // ByteArray's constructor copies the data, so there is no need to clear the buffer
                     bytesRead = stream.Read(buffer, 0, buffer.Length);
                     if (bytesRead > 0)
                     {
@@ -70,7 +71,13 @@ namespace Netool.Network.DataFormats
                 length = (int) Math.Min(int.MaxValue, stream.Length - start);
             }
             stream.Position = start;
-            stream.Read(buffer, offset, length);
+            int read = 0;
+            while(length > 0 && (read = stream.Read(buffer, offset, length)) != 0)
+            {
+                length -= read;
+                offset += read;
+            }
+
         }
 
         /// <inheritdoc/>
