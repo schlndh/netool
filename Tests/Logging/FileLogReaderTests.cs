@@ -4,6 +4,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using Xunit;
 using Netool.Logging;
 using Netool.Network;
+using Netool.Network.DataFormats;
 using Netool.ChannelDrivers;
 
 namespace Tests.Logging
@@ -171,6 +172,57 @@ namespace Tests.Logging
         public void TestGetFileHint_BadId()
         {
             Assert.Equal(0, logReader.GetFileHint(1));
+        }
+
+        [Fact]
+        public void TestGetFileLength()
+        {
+            var hint = log.CreateFile().Item2;
+            Assert.Equal(0, logReader.GetFileLength(hint));
+            log.AppendDataToFile(hint, new ByteArray(new byte[] { 1, 2, 3, 4 }));
+            Assert.Equal(4, logReader.GetFileLength(hint));
+            log.AppendDataToFile(hint, new ByteArray(new byte[] { 1, 2, 3, 4 }));
+            Assert.Equal(8, logReader.GetFileLength(hint));
+            logReader.Close();
+            log.Close();
+        }
+
+        [Fact]
+        public void TestReadFileDataToBuffer_Normal()
+        {
+            var hint = log.CreateFile().Item2;
+            byte[] buffer = new byte[128];
+            buffer[0] = 15;
+            Assert.Throws(typeof(IndexOutOfRangeException), () => logReader.ReadFileDataToBuffer(hint, buffer, 0, 1, 0));
+            Assert.Throws(typeof(IndexOutOfRangeException), () => logReader.ReadFileDataToBuffer(hint, buffer, 1, 0, 0));
+            Assert.Throws(typeof(IndexOutOfRangeException), () => logReader.ReadFileDataToBuffer(hint, buffer, 1, 1, 0));
+            logReader.ReadFileDataToBuffer(hint, buffer, 0, 0, 0);
+            Assert.Equal(15, buffer[0]);
+            log.AppendDataToFile(hint, new ByteArray(new byte[] { 1, 2, 3, 4 }));
+            Assert.Throws(typeof(IndexOutOfRangeException), () => logReader.ReadFileDataToBuffer(hint, buffer, 4, 1, 0));
+            Assert.Equal(15, buffer[0]);
+            logReader.ReadFileDataToBuffer(hint, buffer, 1, 2, 1);
+            Assert.Equal(15, buffer[0]);
+            Assert.Equal(2, buffer[1]);
+            Assert.Equal(3, buffer[2]);
+        }
+
+        [Fact]
+        public void TestReadFileDataToBuffer_Big()
+        {
+            var hint = log.CreateFile().Item2;
+            log.Close();
+            var stream = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite);
+            var newFileSize = FileLogTestsHelper.CreateBigLogFile(hint, stream);
+            stream.Close();
+            log = new FileLog(filename, FileMode.Open);
+            log.AppendDataToFile(hint, new ByteArray(new byte[] { 1, 2, 3, 4 }));
+            byte[] buffer = new byte[128];
+            buffer[0] = 15;
+            logReader.ReadFileDataToBuffer(hint, buffer, newFileSize, 4, 1);
+            Assert.Equal(15, buffer[0]);
+            Assert.Equal(1, buffer[1]);
+            Assert.Equal(2, buffer[2]);
         }
     }
 }

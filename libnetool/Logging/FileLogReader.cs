@@ -10,10 +10,22 @@ namespace Netool.Logging
 {
     public class FileLogReader
     {
+        /// <summary>
+        /// Context passed to deserialized objects
+        /// </summary>
+        public class DeserializationContext
+        {
+            public readonly FileLog Log;
+
+            public DeserializationContext(FileLog log)
+            {
+                Log = log;
+            }
+        }
         private Stream stream;
         private readonly object streamLock = new object();
         private BinaryReader binReader;
-        private BinaryFormatter formatter = new BinaryFormatter();
+        private BinaryFormatter formatter;
         private FileLog log;
         private long fileTable = 0;
 
@@ -22,6 +34,7 @@ namespace Netool.Logging
             stream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             binReader = new BinaryReader(stream);
             this.log = log;
+            formatter = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, new DeserializationContext(log)));
         }
 
         public void Close()
@@ -338,6 +351,96 @@ namespace Netool.Logging
                 }
                 stream.Position += fileID * sizeof(long);
                 return binReader.ReadInt64();
+            }
+        }
+
+        /// <summary>
+        /// Get file lentgh
+        /// </summary>
+        /// <param name="hint">file hint as returned from GetFileHint</param>
+        /// <returns>file length</returns>
+        public long GetFileLength(long hint)
+        {
+            lock(streamLock)
+            {
+                stream.Position = hint;
+                return binReader.ReadInt64();
+            }
+        }
+
+        /// <summary>
+        /// Read file data to buffer
+        /// </summary>
+        /// <param name="hint">file hint as returned from GetFileHint</param>
+        /// <param name="buffer">output buffer</param>
+        /// <param name="start">file offset to start reading at</param>
+        /// <param name="length">how many data to read</param>
+        /// <param name="offset">start offset in the output buffer</param>
+        /// <exception cref="ArgumentNullException">Buffer is null</exception>
+        /// <exception cref="BufferNotLargeEnoughException"></exception>
+        /// <exception cref="IndexOutOfRangeException">Data outside the file requested.</exception>
+        /// <exception cref="LoggedFileCorruptedException">The logged file is somehow corrupted - eg. invalid pointers, missing data, ...</exception>
+        public void ReadFileDataToBuffer(long hint, byte[] buffer, long start, int length, int offset)
+        {
+            if (buffer == null) throw new ArgumentNullException("buffer");
+            if (buffer.Length - offset < length) throw new BufferNotLargeEnoughException();
+            lock (streamLock)
+            {
+                stream.Position = hint;
+                long size = binReader.ReadInt64();
+                if(size < start + length)
+                {
+                    throw new IndexOutOfRangeException("Data outside the file requested.");
+                }
+                long blockOffset = start % FileLog.BlockSize;
+                long fbt2Offset = (start / (FileLog.BlockSize)) % (FileLog.FilesPerBlock + 1);
+                long fbtOffset = start / (FileLog.BlockSize * (FileLog.FilesPerBlock + 1)) + 1;
+                long currentFbt = stream.Position;
+                long currentFbt2 = -1;
+                while(length > 0)
+                {
+                    while(fbtOffset <= FileLog.FilesPerBlock)
+                    {
+                        while(fbt2Offset <= FileLog.FilesPerBlock)
+                        {
+                            if(currentFbt2 < 0)
+                            {
+                                stream.Position = currentFbt + fbtOffset * sizeof(long);
+                                currentFbt2 = binReader.ReadInt64();
+                                if(currentFbt2 <=0 || currentFbt2 > stream.Length - FileLog.BlockSize) throw new LoggedFileCorruptedException(string.Format("Expected valid pointer to FBT2 at {0}! File hint: {1}.", stream.Position - sizeof(long), hint));
+                            }
+                            while(blockOffset < FileLog.BlockSize)
+                            {
+                                stream.Position = currentFbt2 + fbt2Offset * sizeof(long);
+                                long dataBlock = binReader.ReadInt64();
+                                if (dataBlock <= 0 || dataBlock > stream.Length - FileLog.BlockSize) throw new LoggedFileCorruptedException(string.Format("Expected valid pointer to data block at {0}! File hint: {1}.", stream.Position - sizeof(long), hint));
+                                stream.Position = dataBlock + blockOffset;
+                                int toRead = Math.Min(length,(int) (FileLog.BlockSize - blockOffset));
+                                int read = 0;
+                                // although all data should be available the implementation may not return them all at once
+                                while (toRead > 0 && (read = stream.Read(buffer, offset, toRead)) != 0)
+                                {
+                                    toRead -= read;
+                                    offset += read;
+                                    length -= read;
+                                    blockOffset += read;
+                                }
+                                if(toRead > 0) throw new LoggedFileCorruptedException(string.Format("Expected to read {0} more bytes from data block starting at {1}. File hint: {2}.", toRead, dataBlock, hint));
+                                if (length == 0) return;
+                            }
+                            blockOffset = 0;
+                            fbt2Offset++;
+                        }
+                        fbt2Offset = 0;
+                        fbtOffset++;
+                    }
+                    stream.Position = currentFbt;
+                    currentFbt = binReader.ReadInt64();
+                    if (currentFbt <= 0 || currentFbt > stream.Length - FileLog.BlockSize) throw new LoggedFileCorruptedException(string.Format("Expected valid pointer to next FBT at {0}! File hint: {1}.", stream.Position - sizeof(long), hint));
+                    stream.Position = currentFbt;
+                    fbtOffset -= FileLog.FilesPerBlock;
+                    currentFbt2 = -1;
+                }
             }
         }
     }

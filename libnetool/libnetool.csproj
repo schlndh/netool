@@ -83,6 +83,7 @@
     </Compile>
     <Compile Include="Logging\ChannelLogger.cs" />
     <Compile Include="Logging\Event.cs" />
+    <Compile Include="Logging\Exceptions.cs" />
     <Compile Include="Logging\FileLog.cs" />
     <Compile Include="Logging\FileLogReader.cs" />
     <Compile Include="Logging\InstanceLogger.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Network\BaseInstance.cs" />
     <Compile Include="Network\BaseServerChannel.cs" />
     <Compile Include="Network\DataFormats\FromStream.cs" />
+    <Compile Include="Network\DataFormats\LoggedFile.cs" />
     <Compile Include="Network\DataFormats\StreamSegment.cs" />
     <Compile Include="Network\DataFormats\StreamList.cs" />
     <Compile Include="Network\DataFormats\EmptyData.cs" />

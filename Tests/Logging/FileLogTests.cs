@@ -9,6 +9,51 @@ using Netool.ChannelDrivers;
 
 namespace Tests.Logging
 {
+    public static class FileLogTestsHelper
+    {
+
+        /// <summary>
+        /// Creates a mock of big file (Max size per FBT - 1B) inside a FileLog's file specified by the hint. Use only with empty file.
+        /// </summary>
+        /// <param name="hint"></param>
+        /// <param name="stream"></param>
+        /// <returns>new file size</returns>
+        public static long CreateBigLogFile(long hint, FileStream stream)
+        {
+            long newFileSize = FileLog.FilesPerBlock * (FileLog.FilesPerBlock + 1) * FileLog.BlockSize - 1;
+            using (BinaryReader binReader = new BinaryReader(stream))
+            {
+                using (BinaryWriter binWriter = new BinaryWriter(stream))
+                {
+                    // a pointer to file
+                    stream.Position = hint;
+                    // file size - make it max length per FBT - 1B
+                    // to test writing when new data block, new FBT2 and new FBT are necessary
+                    binWriter.Write(newFileSize);
+                    // now create the necessary strucure
+                    // move to the last entry in FBT
+                    stream.Position += FileLog.FilesPerBlock * sizeof(long);
+                    binWriter.Write(stream.Length);
+                    stream.Position = stream.Length;
+                    for (int i = 0; i < FileLog.BlockSize; ++i)
+                    {
+                        binWriter.Write((byte)0);
+                    }
+                    // set the last entry in FBT2
+                    stream.Position -= sizeof(long);
+                    binWriter.Write(stream.Length);
+                    stream.Position = stream.Length;
+                    // prepare data block
+                    for (int i = 0; i < FileLog.BlockSize; ++i)
+                    {
+                        binWriter.Write((byte)(i % 128));
+                    }
+                    binWriter.Close();
+                }
+            }
+            return newFileSize;
+        }
+    }
     public class FileLogTests : IDisposable
     {
         private string filename;
@@ -431,44 +476,7 @@ namespace Tests.Logging
             log.Close();
             // a little hack to avoid writing gigabyte of data
             FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite);
-            long newFileSize = FileLog.FilesPerBlock * (FileLog.FilesPerBlock + 1) * FileLog.BlockSize - 1;
-            using (BinaryReader binReader = new BinaryReader(stream))
-            {
-                using(BinaryWriter binWriter = new BinaryWriter(stream))
-                {
-                    // a pointer to format info
-                    stream.Position = 0;
-                    // a pointer to file table
-                    stream.Position = binReader.ReadInt64() + 4 * sizeof(long);
-                    var fileTable = binReader.ReadInt64();
-                    // skip file table next pointer
-                    stream.Position = fileTable + sizeof(long);
-                    long filePtr = binReader.ReadInt64();
-                    stream.Position = filePtr;
-                    // file size - make it max length per FBT - 1B
-                    // to test writing when new data block, new FBT2 and new FBT are necessary
-                    binWriter.Write(newFileSize);
-                    // now create the necessary strucure
-                    // move to the last entry in FBT
-                    stream.Position += FileLog.FilesPerBlock * sizeof(long);
-                    binWriter.Write(stream.Length);
-                    stream.Position = stream.Length;
-                    for (int i = 0; i < FileLog.BlockSize; ++i)
-                    {
-                        binWriter.Write((byte)0);
-                    }
-                    // set the last entry in FBT2
-                    stream.Position -= sizeof(long);
-                    binWriter.Write(stream.Length);
-                    stream.Position = stream.Length;
-                    // prepare data block
-                    for (int i = 0; i < FileLog.BlockSize; ++i)
-                    {
-                        binWriter.Write((byte) (i % 128));
-                    }
-                    binWriter.Close();
-                }
-            }
+            var newFileSize = FileLogTestsHelper.CreateBigLogFile(file1.Item2, stream);
             log = new FileLog(filename, FileMode.Open);
             // Don't use hint from previously open log file
             log.AppendDataToFile(file1.Item2, new ByteArray(new byte[] { 233, 234, 235, 236 }));
