@@ -447,6 +447,7 @@ namespace Netool.Logging
                 binWriter.Write((long)0);
                 // file block table (1)
                 writeNewTable();
+                stream.Flush();
                 return new Tuple<long,long>(id,fileHint);
             }
         }
@@ -542,6 +543,7 @@ namespace Netool.Logging
                     stream.Position = stream.Length;
                     writeNewTable();
                 }
+                stream.Flush();
             }
 
         }
