@@ -17,10 +17,12 @@ namespace Tests.Logging
         /// </summary>
         /// <param name="hint"></param>
         /// <param name="stream"></param>
+        /// <param name="full">create file exactly Max size per FBT large? (false)</param>
         /// <returns>new file size</returns>
-        public static long CreateBigLogFile(long hint, FileStream stream)
+        public static long CreateBigLogFile(long hint, FileStream stream, bool full = false)
         {
             long newFileSize = FileLog.FilesPerBlock * (FileLog.FilesPerBlock + 1) * FileLog.BlockSize - 1;
+            if (full) newFileSize += 1;
             using (BinaryReader binReader = new BinaryReader(stream))
             {
                 using (BinaryWriter binWriter = new BinaryWriter(stream))
@@ -523,6 +525,65 @@ namespace Tests.Logging
                 {
                     var b = binReader.ReadByte();
                     Assert.Equal(234 + i, b);
+                }
+            }
+        }
+
+        [Fact]
+        public void TestCreateAndAppendFile_Bigger()
+        {
+            // this method test FileLog's behaviour when file size is exactly max size per FBT and new data is appended
+            // there was a problem before with new FBT not being created in this case
+            var file1 = log.CreateFile();
+            log.Close();
+            // a little hack to avoid writing gigabyte of data
+            FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite);
+            var newFileSize = FileLogTestsHelper.CreateBigLogFile(file1.Item2, stream, true);
+            log = new FileLog(filename, FileMode.Open);
+            // Don't use hint from previously open log file
+            log.AppendDataToFile(file1.Item2, new ByteArray(new byte[] { 233, 234, 235, 236 }));
+            log.AppendDataToFile(file1.Item2, new ByteArray(new byte[] { 237, 238, 239 }));
+            log.Close();
+            stream = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite);
+            using (BinaryReader binReader = new BinaryReader(stream))
+            {
+                stream.Position = 0;
+                // move to file table pointer
+                stream.Position = binReader.ReadInt64() + 4 * sizeof(long);
+                // move to pointer to file 1
+                stream.Position = binReader.ReadInt64() + sizeof(long);
+                // move to file 1 - file size
+                stream.Position = binReader.ReadInt64();
+                Assert.Equal(newFileSize + 7, binReader.ReadInt64());
+                long nextFBT = binReader.ReadInt64();
+                Assert.InRange(nextFBT, 1, stream.Length);
+                // move to last FBT entry (next pointer was read already)
+                stream.Position += (FileLog.FilesPerBlock - 1) * sizeof(long);
+                // move to last FBT2 entry
+                stream.Position = binReader.ReadInt64() + FileLog.FilesPerBlock * sizeof(long);
+                // move to data block
+                stream.Position = binReader.ReadInt64();
+                for (int i = 0; i < FileLog.BlockSize; ++i)
+                {
+                    // check that previous data were not altered
+                    Assert.Equal(i % 128, binReader.ReadByte());
+                }
+                // move to second FBT
+                stream.Position = nextFBT;
+                // no third FBT
+                Assert.Equal(0, binReader.ReadInt64());
+                long fbt2Ptr = binReader.ReadInt64();
+                Assert.InRange(fbt2Ptr, 1, stream.Length);
+                // no other entry in the second FBT
+                Assert.Equal(0, binReader.ReadInt64());
+                stream.Position = fbt2Ptr;
+                long dataPtr = binReader.ReadInt64();
+                Assert.InRange(dataPtr, 1, stream.Length);
+                stream.Position = dataPtr;
+                for (int i = 0; i < 7; ++i)
+                {
+                    var b = binReader.ReadByte();
+                    Assert.Equal(233 + i, b);
                 }
             }
         }

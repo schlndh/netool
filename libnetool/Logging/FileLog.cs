@@ -474,8 +474,6 @@ namespace Netool.Logging
                 }
                 stream.Position = hint;
                 long size = binReader.ReadInt64();
-                stream.Position = hint;
-                binWriter.Write(size + input.Length);
                 // stream position is now the beginning of FBT
                 long blockOffset = size % BlockSize;
                 long fbt2Offset = (size / (BlockSize)) % (FilesPerBlock + 1);
@@ -484,7 +482,9 @@ namespace Netool.Logging
                 while(fbtOffset > FilesPerBlock)
                 {
                     // move to the next table
-                    stream.Position = binReader.ReadInt64();
+                    long nextFBT = binReader.ReadInt64();
+                    if (nextFBT == 0) nextFBT = createNewFBT(stream.Position - sizeof(long));
+                    stream.Position = nextFBT;
                     fbtOffset -= FilesPerBlock;
                 }
                 long currentFBT = stream.Position;
@@ -527,6 +527,9 @@ namespace Netool.Logging
                             remaining -= bytesRead;
                             if (remaining == 0)
                             {
+                                stream.Position = hint;
+                                binWriter.Write(size + input.Length);
+                                stream.Flush();
                                 return;
                             }
                             // otherwise the current block has been filled completely
@@ -536,16 +539,22 @@ namespace Netool.Logging
                         fbtOffset++;
                     }
                     fbtOffset = 1;
-                    // create new FBT
-                    stream.Position = currentFBT;
-                    binWriter.Write(stream.Length);
-                    currentFBT = stream.Length;
-                    stream.Position = stream.Length;
-                    writeNewTable();
+                    currentFBT = createNewFBT(currentFBT);
                 }
-                stream.Flush();
+                // unreachable
+                throw new InvalidOperationException("There is something terribly wrong - more bytes were written than it was supposed to.");
             }
 
+        }
+
+        private long createNewFBT(long currentFBT)
+        {
+            stream.Position = currentFBT;
+            binWriter.Write(stream.Length);
+            currentFBT = stream.Length;
+            stream.Position = stream.Length;
+            writeNewTable();
+            return currentFBT;
         }
     }
 }
