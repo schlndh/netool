@@ -165,7 +165,7 @@ namespace Tests.Logging
         public void TestGetFileHint_Ok()
         {
             var file = log.CreateFile();
-            Assert.Equal(file.Item2, logReader.GetFileHint(file.Item1));
+            Assert.Equal(file.Hint, logReader.GetFileHint(file.ID));
         }
 
         [Fact]
@@ -177,7 +177,7 @@ namespace Tests.Logging
         [Fact]
         public void TestGetFileLength()
         {
-            var hint = log.CreateFile().Item2;
+            var hint = log.CreateFile().Hint;
             Assert.Equal(0, logReader.GetFileLength(hint));
             log.AppendDataToFile(hint, new ByteArray(new byte[] { 1, 2, 3, 4 }));
             Assert.Equal(4, logReader.GetFileLength(hint));
@@ -190,7 +190,7 @@ namespace Tests.Logging
         [Fact]
         public void TestReadFileDataToBuffer_Normal()
         {
-            var hint = log.CreateFile().Item2;
+            var hint = log.CreateFile().Hint;
             byte[] buffer = new byte[128];
             buffer[0] = 15;
             Assert.Throws(typeof(IndexOutOfRangeException), () => logReader.ReadFileDataToBuffer(hint, buffer, 0, 1, 0));
@@ -210,7 +210,7 @@ namespace Tests.Logging
         [Fact]
         public void TestReadFileDataToBuffer_Big()
         {
-            var hint = log.CreateFile().Item2;
+            var hint = log.CreateFile().Hint;
             log.Close();
             var stream = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite);
             var newFileSize = FileLogTestsHelper.CreateBigLogFile(hint, stream);

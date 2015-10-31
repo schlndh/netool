@@ -55,6 +55,17 @@ namespace Netool.Logging
          * - FileLog.blockSize bytes (must be a power of 2)
          * 8B (long) pointers to data blocks (FileLog.blockSize bytes)
          **/
+        public struct LoggedFileInfo
+        {
+            public long ID { get; private set; }
+            public long Hint { get; private set; }
+
+            public LoggedFileInfo(long id, long hint) : this()
+            {
+                ID = id;
+                Hint = hint;
+            }
+        }
         private FileStream stream;
         private readonly object streamLock = new object();
         private BinaryWriter binWriter;
@@ -229,6 +240,8 @@ namespace Netool.Logging
                 stream.Position = binReader.ReadInt64() + 5 * sizeof(long);
                 binWriter.Write(fileCount);
                 binWriter.Close();
+                binReader.Close();
+                stream.Close();
                 binReader = null;
                 binWriter = null;
                 stream = null;
@@ -409,8 +422,8 @@ namespace Netool.Logging
         /// Use FileReader.GetFileHint method to obtain a hint when you only know an ID.
         /// ID is 1-based.
         /// </remarks>
-        /// <returns>(file ID, file hint)</returns>
-        public Tuple<long, long> CreateFile()
+        /// <returns></returns>
+        public LoggedFileInfo CreateFile()
         {
             lock(streamLock)
             {
@@ -448,7 +461,7 @@ namespace Netool.Logging
                 // file block table (1)
                 writeNewTable();
                 stream.Flush();
-                return new Tuple<long,long>(id,fileHint);
+                return new LoggedFileInfo(id, fileHint);
             }
         }
 

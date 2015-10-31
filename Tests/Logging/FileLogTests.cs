@@ -433,8 +433,8 @@ namespace Tests.Logging
         public void TestCreateAndAppendFile_OneBlock()
         {
             var file1 = log.CreateFile();
-            log.AppendDataToFile(file1.Item2, new ByteArray(new byte[] { 1, 2, 3, 4 }));
-            log.AppendDataToFile(file1.Item2, new ByteArray(new byte[] { 5, 6, 7, 8 }));
+            log.AppendDataToFile(file1.Hint, new ByteArray(new byte[] { 1, 2, 3, 4 }));
+            log.AppendDataToFile(file1.Hint, new ByteArray(new byte[] { 5, 6, 7, 8 }));
             log.Close();
             FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
             using (BinaryReader binReader = new BinaryReader(stream))
@@ -478,11 +478,11 @@ namespace Tests.Logging
             log.Close();
             // a little hack to avoid writing gigabyte of data
             FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite);
-            var newFileSize = FileLogTestsHelper.CreateBigLogFile(file1.Item2, stream);
+            var newFileSize = FileLogTestsHelper.CreateBigLogFile(file1.Hint, stream);
             log = new FileLog(filename, FileMode.Open);
             // Don't use hint from previously open log file
-            log.AppendDataToFile(file1.Item2, new ByteArray(new byte[] { 233, 234, 235, 236 }));
-            log.AppendDataToFile(file1.Item2, new ByteArray(new byte[] { 237, 238, 239 }));
+            log.AppendDataToFile(file1.Hint, new ByteArray(new byte[] { 233, 234, 235, 236 }));
+            log.AppendDataToFile(file1.Hint, new ByteArray(new byte[] { 237, 238, 239 }));
             log.Close();
             stream = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite);
             using (BinaryReader binReader = new BinaryReader(stream))
@@ -538,11 +538,11 @@ namespace Tests.Logging
             log.Close();
             // a little hack to avoid writing gigabyte of data
             FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite);
-            var newFileSize = FileLogTestsHelper.CreateBigLogFile(file1.Item2, stream, true);
+            var newFileSize = FileLogTestsHelper.CreateBigLogFile(file1.Hint, stream, true);
             log = new FileLog(filename, FileMode.Open);
             // Don't use hint from previously open log file
-            log.AppendDataToFile(file1.Item2, new ByteArray(new byte[] { 233, 234, 235, 236 }));
-            log.AppendDataToFile(file1.Item2, new ByteArray(new byte[] { 237, 238, 239 }));
+            log.AppendDataToFile(file1.Hint, new ByteArray(new byte[] { 233, 234, 235, 236 }));
+            log.AppendDataToFile(file1.Hint, new ByteArray(new byte[] { 237, 238, 239 }));
             log.Close();
             stream = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite);
             using (BinaryReader binReader = new BinaryReader(stream))
@@ -592,8 +592,8 @@ namespace Tests.Logging
         public void TestCreateAndAppendFile_Empty()
         {
             var file1 = log.CreateFile();
-            log.AppendDataToFile(file1.Item2, new EmptyData());
-            log.AppendDataToFile(file1.Item2, new EmptyData());
+            log.AppendDataToFile(file1.Hint, new EmptyData());
+            log.AppendDataToFile(file1.Hint, new EmptyData());
             log.Close();
             FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
             using (BinaryReader binReader = new BinaryReader(stream))
