@@ -212,7 +212,7 @@ namespace Tests.Logging
         {
             var hint = log.CreateFile().Hint;
             log.Close();
-            var stream = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite);
+            var stream = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
             var newFileSize = FileLogTestsHelper.CreateBigLogFile(hint, stream);
             stream.Close();
             log = new FileLog(filename, FileMode.Open);
