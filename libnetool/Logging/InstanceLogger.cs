@@ -168,5 +168,10 @@ namespace Netool.Logging
             }
             return curr;
         }
+
+        public LoggedFileBuilder CreateFileBuilder()
+        {
+            return new LoggedFileBuilder(log);
+        }
     }
 }

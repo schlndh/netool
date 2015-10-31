@@ -87,6 +87,7 @@
     <Compile Include="Logging\FileLog.cs" />
     <Compile Include="Logging\FileLogReader.cs" />
     <Compile Include="Logging\InstanceLogger.cs" />
+    <Compile Include="Logging\LoggedFileBuilder.cs" />
     <Compile Include="Network\BaseChannel.cs" />
     <Compile Include="Network\BaseClientChannel.cs" />
     <Compile Include="Network\BaseInstance.cs" />
