@@ -31,7 +31,7 @@ namespace Netool.Logging
         /// Append data to the logged file
         /// </summary>
         /// <param name="data">data to be appended</param>
-        public void AppendData(IDataStream data)
+        public void Append(IDataStream data)
         {
             log.AppendDataToFile(hint, data);
         }
