@@ -9,7 +9,7 @@ namespace Netool.Network.DataFormats
     /// </summary>
     public class ThresholdedDataBuilder
     {
-        private FileLog log;
+        private InstanceLogger logger;
         private long threshold;
         private long length = 0;
         private StreamList list = new StreamList();
@@ -23,15 +23,15 @@ namespace Netool.Network.DataFormats
         /// <summary>
         ///
         /// </summary>
-        /// <param name="log"></param>
+        /// <param name="logger"></param>
         /// <param name="lengthThreshold">how long the stream must be to switch to LoggedFile (default 5 Mib)</param>
         /// <exception cref="ArgumentNullException">log</exception>
         /// <exception cref="ArgumentOutOfRangeException">lengthThreshold</exception>
-        public ThresholdedDataBuilder(FileLog log, long lengthThreshold = 5*1024*1024)
+        public ThresholdedDataBuilder(InstanceLogger logger, long lengthThreshold = 5*1024*1024)
         {
-            if (log == null) throw new ArgumentNullException("log");
+            if (logger == null) throw new ArgumentNullException("log");
             if (lengthThreshold <= 0) throw new ArgumentOutOfRangeException("lengthThreshold must be positive!");
-            this.log = log;
+            this.logger = logger;
             this.threshold = lengthThreshold;
         }
 
@@ -52,7 +52,7 @@ namespace Netool.Network.DataFormats
             }
             else if (length + data.Length >= threshold)
             {
-                fileBuilder = new LoggedFileBuilder(log);
+                fileBuilder = logger.CreateFileBuilder();
                 fileBuilder.Append(list);
                 fileBuilder.Append(data);
                 list = null;
@@ -70,7 +70,7 @@ namespace Netool.Network.DataFormats
         /// <returns></returns>
         public IDataStream Close()
         {
-            log = null;
+            logger = null;
             if (length >= threshold) return fileBuilder.Close();
             return list;
         }
