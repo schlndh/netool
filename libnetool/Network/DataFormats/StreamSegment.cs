@@ -48,17 +48,16 @@ namespace Netool.Network.DataFormats
         }
 
         /// <inheritdoc/>
-        /// <exception cref="ArgumentOutOfRangeException">wrong index</exception>
         public byte ReadByte(long index)
         {
-            if (index > offset || index < 0) throw new ArgumentOutOfRangeException("wrong index");
+            IDataStreamHelpers.ReadByteArgsCheck(this, index);
             return stream.ReadByte(offset + index);
         }
 
         /// <inheritdoc/>
-        /// <exception cref="ArgumentOutOfRangeException">wrong index or length</exception>
         public void ReadBytesToBuffer(byte[] buffer, long start = 0, int length = -1, int offset = 0)
         {
+            IDataStreamHelpers.ReadBytesToBufferArgsCheck(this, buffer, start, ref length, offset);
             if (length == -1) length = (int) Math.Min(int.MaxValue, Length - start);
             if (start + length > count || start < 0 || length < 0) throw new ArgumentOutOfRangeException("wrong index or length");
             stream.ReadBytesToBuffer(buffer, this.offset + start, length, offset);

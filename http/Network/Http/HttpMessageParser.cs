@@ -1,4 +1,5 @@
-﻿using Netool.Network.DataFormats;
+﻿using Netool.Logging;
+using Netool.Network.DataFormats;
 using Netool.Network.DataFormats.Http;
 using System;
 
@@ -12,28 +13,33 @@ namespace Netool.Network.Http
 
     public class HttpMessageParser
     {
-        private ByteArray headerData = null;
+        private object contentLock = new object();
         private StreamList contentData = new StreamList();
-        private StreamList decodedChunkedData = new StreamList();
-        private ChunkedDecoder chunkedDecoder = new ChunkedDecoder();
+        private ThresholdedDataBuilder dataBuilder;
+        private long headerLength = 0;
+        private long dechunkedLength = 0;
 
         private HttpHeaderParser parser = new HttpHeaderParser();
         private HttpBodyLengthInfo info;
         private bool readingBody = false;
         public HttpRequestMethod LastRequestMethod = HttpRequestMethod.Null;
-
+        private InstanceLogger logger;
         private bool isResponse;
 
-        public HttpMessageParser(bool isResponse)
+        public HttpMessageParser(InstanceLogger logger, bool isResponse)
         {
+            if (logger == null) throw new ArgumentNullException("logger");
+            this.logger = logger;
             this.isResponse = isResponse;
+            dataBuilder = new ThresholdedDataBuilder(logger);
         }
 
         public HttpData Receive(IDataStream s)
         {
-            lock (contentData)
+            lock (contentLock)
             {
                 contentData.Add(s);
+                dataBuilder.Append(s);
                 if (!readingBody)
                 {
                     try
@@ -57,7 +63,7 @@ namespace Netool.Network.Http
                                 {
                                     info = parser.GetBodyLengthInfo(!isResponse);
                                 }
-                                headerData = new ByteArray(contentData, 0, parser.HeaderLength);
+                                headerLength = parser.HeaderLength;
                                 if (contentData.Length - parser.HeaderLength > 0)
                                 {
                                     var tmpList = new StreamList();
@@ -83,14 +89,10 @@ namespace Netool.Network.Http
                 }
                 if (readingBody)
                 {
-                    if (info.Type == HttpBodyLengthInfo.LengthType.Exact && info.Length <= contentData.Length)
+                    if (info.Type == HttpBodyLengthInfo.LengthType.Exact && info.Length <= dataBuilder.Length - headerLength)
                     {
-                        IDataStream bodyData = contentData;
-                        if (contentData.Length > info.Length)
-                        {
-                            bodyData = new StreamSegment(contentData, 0, info.Length);
-                        }
-                        return parser.Create(headerData, bodyData);
+                        var resStream = dataBuilder.Close();
+                        return parser.Create(new StreamSegment(resStream, 0, headerLength), new StreamSegment(resStream, headerLength, info.Length));
                     }
                     else if (info.Type == HttpBodyLengthInfo.LengthType.Chunked)
                     {
@@ -99,28 +101,43 @@ namespace Netool.Network.Http
                             // wait for some data
                             return null;
                         }
-                        try
+
+                        var seg = new StreamSegment(contentData);
+                        while(seg.Length > 0)
                         {
-                            var chunkInfo = chunkedDecoder.Decode(contentData);
-                            contentData = new StreamList();
-                            if (chunkInfo.DecodedData.Length > 0)
+                            ChunkedDecoder.DecodeOneInfo chunkInfo;
+                            try
                             {
-                                decodedChunkedData.Add(chunkInfo.DecodedData);
+                                chunkInfo = ChunkedDecoder.DecodeOneChunk(seg);
                             }
-                            if (chunkInfo.Finished)
+                            catch (PartialChunkException)
                             {
-                                return parser.Create(headerData, decodedChunkedData);
+                                // wait for more data
+                                contentData = new StreamList();
+                                if (seg.Length > 0)
+                                {
+                                    contentData.Add(new ByteArray(seg));
+                                }
+                                return null;
+                            }
+                            catch
+                            {
+                                throw new HttpInvalidMessageException();
+                            }
+                            // finished
+                            if(chunkInfo.DataLength == 0)
+                            {
+                                contentData = new StreamList();
+                                var resStream = dataBuilder.Close();
+                                return parser.Create(new StreamSegment(resStream, 0, headerLength), new DechunkedStream(new StreamSegment(resStream, headerLength), dechunkedLength));
+                            }
+                            else
+                            {
+                                dechunkedLength += chunkInfo.DataLength;
+                                seg = new StreamSegment(contentData, seg.Offset + chunkInfo.ChunkLength, seg.Length - chunkInfo.ChunkLength);
                             }
                         }
-                        catch (PartialChunkException)
-                        {
-                            // wait for more data
-                            return null;
-                        }
-                        catch
-                        {
-                            throw new HttpInvalidMessageException();
-                        }
+                        contentData = new StreamList();
                     }
                 }
             }
@@ -129,11 +146,12 @@ namespace Netool.Network.Http
 
         public HttpData Close()
         {
-            lock (contentData)
+            lock (contentLock)
             {
                 if (readingBody && info.Type == HttpBodyLengthInfo.LengthType.CloseConnection)
                 {
-                    return parser.Create(headerData, contentData);
+                    var resStream = dataBuilder.Close();
+                    return parser.Create(new StreamSegment(resStream, 0, headerLength), new StreamSegment(resStream, headerLength));
                 }
             }
             return null;

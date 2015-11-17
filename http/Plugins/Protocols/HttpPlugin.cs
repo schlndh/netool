@@ -43,11 +43,11 @@ namespace Netool.Plugins.Protocols
             switch (type)
             {
                 case InstanceType.Server:
-                    instance = createServer();
+                    instance = createServer(logger);
                     break;
 
                 case InstanceType.Client:
-                    instance = createClient();
+                    instance = createClient(logger);
                     break;
 
                 default:
@@ -73,13 +73,13 @@ namespace Netool.Plugins.Protocols
                 case InstanceType.Server:
                     var s = settings as HttpServerSettings;
                     if (s == null) throw new InvalidSettingsTypeException();
-                    instance = new HttpServer(s);
+                    instance = new HttpServer(s, logger);
                     break;
 
                 case InstanceType.Client:
                     var c = settings as HttpClientSettings;
                     if (c == null) throw new InvalidSettingsTypeException();
-                    instance = new HttpClient(c);
+                    instance = new HttpClient(c, logger);
                     break;
 
                 default:
@@ -105,26 +105,26 @@ namespace Netool.Plugins.Protocols
             return new InstancePack(view, cont, cont.GetInstanceType());
         }
 
-        private HttpServer createServer()
+        private HttpServer createServer(InstanceLogger logger)
         {
             var dialog = new TcpServerDialog();
             dialog.ShowDialog();
             if (dialog.DialogResult == DialogResult.OK)
             {
                 var settings = dialog.Settings;
-                return new HttpServer(new HttpServerSettings { TcpSettings = settings });
+                return new HttpServer(new HttpServerSettings { TcpSettings = settings }, logger);
             }
             return null;
         }
 
-        private HttpClient createClient()
+        private HttpClient createClient(InstanceLogger logger)
         {
             var dialog = new TcpClientDialog();
             dialog.ShowDialog();
             if (dialog.DialogResult == DialogResult.OK)
             {
                 var settings = dialog.Settings;
-                return new HttpClient(new HttpClientSettings { TcpSettings = settings });
+                return new HttpClient(new HttpClientSettings { TcpSettings = settings }, logger);
             }
             return null;
         }

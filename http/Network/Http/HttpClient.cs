@@ -1,4 +1,5 @@
-﻿using Netool.Network.DataFormats;
+﻿using Netool.Logging;
+using Netool.Network.DataFormats;
 using Netool.Network.DataFormats.Http;
 using Netool.Network.Tcp;
 using System;
@@ -15,10 +16,14 @@ namespace Netool.Network.Http
     public class HttpClientChannel : BaseClientChannel, IClientChannel
     {
         private IClientChannel channel;
-        [NonSerialized]
-        private HttpMessageParser parser = new HttpMessageParser(true);
 
-        public HttpClientChannel(IClientChannel channel)
+        [NonSerialized]
+        private HttpMessageParser parser;
+
+        [NonSerialized]
+        private InstanceLogger logger;
+
+        public HttpClientChannel(IClientChannel channel, InstanceLogger logger)
         {
             this.channel = channel;
             this.id = channel.ID;
@@ -28,6 +33,8 @@ namespace Netool.Network.Http
             channel.ResponseReceived += responseReceivedHandler;
             channel.RequestSent += requestSentHandler;
             channel.ErrorOccured += channel_ErrorOccured;
+            parser = new HttpMessageParser(logger, true);
+            this.logger = logger;
         }
 
         private void channel_ErrorOccured(object sender, Exception e)
@@ -53,7 +60,7 @@ namespace Netool.Network.Http
                 if(data != null)
                 {
                     OnResponseReceived(data);
-                    parser = new HttpMessageParser(true);
+                    parser = new HttpMessageParser(logger, true);
                 }
             }
         }
@@ -76,7 +83,7 @@ namespace Netool.Network.Http
                 if(data != null)
                 {
                     OnResponseReceived(data);
-                    parser = new HttpMessageParser(true);
+                    parser = new HttpMessageParser(logger, true);
                 }
             }
             OnChannelClosed();
@@ -117,12 +124,16 @@ namespace Netool.Network.Http
         [field: NonSerialized]
         public event EventHandler<IClientChannel> ChannelCreated;
 
-        public HttpClient(HttpClientSettings settings)
+        [NonSerialized]
+        private InstanceLogger logger;
+
+        public HttpClient(HttpClientSettings settings, InstanceLogger logger)
         {
             this.setttings = settings;
             client = new TcpClient(settings.TcpSettings);
             client.ChannelCreated += channelCreatedHandler;
             client.ErrorOccured += client_ErrorOccured;
+            this.logger = logger;
         }
 
         private void client_ErrorOccured(object sender, Exception e)
@@ -132,7 +143,7 @@ namespace Netool.Network.Http
 
         private void channelCreatedHandler(object sender, IClientChannel e)
         {
-            channel = new HttpClientChannel(e);
+            channel = new HttpClientChannel(e, logger);
             if (ChannelCreated != null) ChannelCreated(this, channel);
         }
 

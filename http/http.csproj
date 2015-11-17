@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Network\DataFormats\Http\ChunkedEncoding.cs" />
+    <Compile Include="Network\DataFormats\Http\DechunkedStream.cs" />
     <Compile Include="Network\DataFormats\Http\HttpData.cs" />
     <Compile Include="Network\DataFormats\Http\HttpHeaderParser.cs" />
     <Compile Include="Network\Http\HttpMessageParser.cs" />

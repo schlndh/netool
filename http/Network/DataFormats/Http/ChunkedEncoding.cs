@@ -14,79 +14,29 @@ namespace Netool.Network.DataFormats.Http
     public class PartialChunkException : ChunkedDecoderException { }
 
 
-    public class ChunkedDecoder
+    public static class ChunkedDecoder
     {
         public struct DecodeOneInfo
         {
-            public readonly ByteArray Data;
-            public readonly long BytesRead;
+            /// <summary>
+            /// Offset from the begining of the stream where the actual data starts
+            /// </summary>
+            public readonly long DataStart;
+            public readonly int DataLength;
+            /// <summary>
+            /// Length of the whole chunk including header and footer
+            /// </summary>
+            public readonly int ChunkLength;
 
-            public DecodeOneInfo(ByteArray data, long bytesRead)
+            public DecodeOneInfo(long dataStart, int dataLength, int chunkLength)
             {
-                Data = data;
-                BytesRead = bytesRead;
-            }
-        }
-
-        public struct DecodeInfo
-        {
-            public readonly IDataStream DecodedData;
-            public readonly bool Finished;
-
-            public DecodeInfo(IDataStream data, bool finished = false)
-            {
-                DecodedData = data;
-                Finished = finished;
+                DataStart = dataStart;
+                DataLength = dataLength;
+                ChunkLength = chunkLength;
             }
         }
 
         private static Regex chunkHeaderRegex = new Regex(@"^(?<Size>[0-9A-Fa-f]+)(?<ChunkExt>;[^\r\n]*)?(?<HeaderEnd>\r\n)?");
-
-        private StreamList input = new StreamList();
-
-        public DecodeInfo Decode(IDataStream data)
-        {
-            var output = new StreamList();
-            input.Add(data);
-            var segment = new StreamSegment(input);
-            try
-            {
-                while (true)
-                {
-                    var chunkInfo = ChunkedDecoder.DecodeOneChunk(segment);
-                    // last chunk
-                    if (chunkInfo.Data.Length == 0)
-                    {
-                        return new DecodeInfo(output, true);
-                    }
-                    else
-                    {
-                        output.Add(chunkInfo.Data);
-                        segment = new StreamSegment(segment.Stream, segment.Offset + chunkInfo.BytesRead);
-                        // no more data to read from current packet
-                        if (segment.Length == 0) break;
-                    }
-                }
-            }
-            catch (PartialChunkException) { }
-            finally
-            {
-                if (segment.Length > 0)
-                {
-                    if(segment.Length < input.Length)
-                    {
-                        var d = new ByteArray(segment);
-                        input = new StreamList();
-                        input.Add(d);
-                    }
-                }
-                else
-                {
-                    input = new StreamList();
-                }
-            }
-            return new DecodeInfo(output, false);
-        }
 
         private static int findFirst(IDataStream stream, string needle, int offset)
         {
@@ -155,7 +105,7 @@ namespace Netool.Network.DataFormats.Http
                         len = findFirst(stream, "\r\n", len);
                     }
                     // len points to the beggining of chunk data
-
+                    long dataStart = len;
                     // last chunk
                     if(size == 0)
                     {
@@ -163,7 +113,7 @@ namespace Netool.Network.DataFormats.Http
                         len -= 2;
                         // skip over the trailer part
                         len = findFirst(stream, "\r\n\r\n", len);
-                        return new DecodeOneInfo(new ByteArray(new byte[0]), len);
+                        return new DecodeOneInfo(dataStart, 0, len);
                     }
                     // size > 0
                     // not enough data
@@ -172,8 +122,7 @@ namespace Netool.Network.DataFormats.Http
                     buff = stream.ReadBytes(len + size, 2);
                     if (buff[0] != 13 || buff[1] != 10) throw new InvalidChunkException();
 
-                    ByteArray ret = new ByteArray(stream, len, size);
-                    return new DecodeOneInfo(ret, len + size + 2);
+                    return new DecodeOneInfo(len, size, len + size + 2);
                 }
                 catch(ChunkedDecoderException)
                 {

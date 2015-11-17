@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="HelperClasses.cs" />
     <Compile Include="Http\Network\DataFormats\ChunkedEncodingTests.cs" />
+    <Compile Include="Http\Network\DataFormats\DechunkedStreamTests.cs" />
     <Compile Include="Http\Network\DataFormats\HttpDataTests.cs" />
     <Compile Include="Http\Network\DataFormats\HttpHeaderParserTests.cs" />
     <Compile Include="Http\Network\Http\HttpServerTests.cs" />

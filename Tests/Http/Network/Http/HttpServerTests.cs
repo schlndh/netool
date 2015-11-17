@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
+using Netool.Logging;
 using Netool.Network;
 using Netool.Network.Http;
 using Netool.Network.DataFormats;
@@ -9,14 +10,26 @@ using Netool.Network.DataFormats.Http;
 
 namespace Tests.Http.Network.Http
 {
-    public class HttpServerTests
+    public class HttpServerTests : IDisposable
     {
+        private InstanceLogger logger;
+
+        public HttpServerTests()
+        {
+            logger = new InstanceLogger();
+        }
+
+        void IDisposable.Dispose()
+        {
+            logger.DeleteFile();
+        }
+
         [Fact]
         public void TestReceiveValidRequest()
         {
             var receivedList = new List<HttpData>();
             var innerChannel = new TestServerChannel();
-            var httpChannel = new HttpServerChannel(innerChannel);
+            var httpChannel = new HttpServerChannel(innerChannel, logger);
             httpChannel.RequestReceived += delegate(object sender, DataEventArgs e) {
                 Assert.NotNull(e.Data);
                 Assert.IsType(typeof(HttpData), e.Data);
@@ -89,7 +102,7 @@ namespace Tests.Http.Network.Http
         public void TestReceiveInvalidResponse(string response)
         {
             var innerChannel = new TestServerChannel();
-            var httpChannel = new HttpServerChannel(innerChannel);
+            var httpChannel = new HttpServerChannel(innerChannel, logger);
             httpChannel.RequestReceived += delegate(object sender, DataEventArgs e)
             {
                 // this is not a valid response
