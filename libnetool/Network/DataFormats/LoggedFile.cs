@@ -1,4 +1,5 @@
 ﻿using Netool.Logging;
+using Netool.Network.DataFormats.Utils;
 using System;
 using System.Runtime.Serialization;
 
@@ -34,11 +35,7 @@ namespace Netool.Network.DataFormats
         [NonSerialized]
         private FileLog log;
         [NonSerialized]
-        private byte[] byteCache;
-        [NonSerialized]
-        private long cacheStart = 0;
-        [NonSerialized]
-        private int cacheLength = 0;
+        private ByteCache cache = new ByteCache(256);
 
         public LoggedFile(long ID, FileLog log)
         {
@@ -52,18 +49,22 @@ namespace Netool.Network.DataFormats
         public byte ReadByte(long index)
         {
             IDataStreamHelpers.ReadByteArgsCheck(this, index);
-            if(byteCache == null || index < cacheStart || index >= cacheStart + cacheLength)
+            byte ret;
+            if(!cache.TryReadByte(index, out ret))
             {
-
-                if (byteCache == null) byteCache = new byte[256];
-                var reader = log.CreateReader();
-                // the file is more likely to be read from the beginning to the end
-                cacheStart = Math.Max(0, index - 32);
-                cacheLength = (int)Math.Min(256, length - index + 64);
-                reader.ReadFileDataToBuffer(hint, byteCache, cacheStart, cacheLength, 0);
-                reader.Close();
+                ByteCache.FillCache callback = delegate(byte[] buffer, out long cacheStart, out int cacheLength)
+                {
+                    var reader = log.CreateReader();
+                    // the file is more likely to be read from the beginning to the end
+                    cacheStart = Math.Max(0, index - 32);
+                    cacheLength = (int)Math.Min(buffer.Length, Math.Min(int.MaxValue, length - cacheStart));
+                    reader.ReadFileDataToBuffer(hint, buffer, cacheStart, cacheLength, 0);
+                    ret = buffer[index - cacheStart];
+                    reader.Close();
+                };
+                cache.Cache(callback);
             }
-            return byteCache[index - cacheStart];
+            return ret;
         }
 
         /// <inheritdoc />
