@@ -42,10 +42,7 @@ namespace Netool.Network.DataFormats
             streamsLock.EnterReadLock();
             try
             {
-                if(index < 0 || index >= length)
-                {
-                    throw new ArgumentOutOfRangeException();
-                }
+                IDataStreamHelpers.ReadByteArgsCheck(this, index);
                 int i = 0;
                 while(index >= 0)
                 {
@@ -71,16 +68,12 @@ namespace Netool.Network.DataFormats
         /// <inheritdoc/>
         public void ReadBytesToBuffer(byte[] buffer, long start = 0, int length = -1, int offset = 0)
         {
-            if (length == -1) length = (int)Math.Min(int.MaxValue, Length - start);
-            if (length == 0) return;
-            var workBuffer = new ArraySegment<byte>(buffer, offset, length);
             streamsLock.EnterReadLock();
             try
             {
-                if (start < 0 || start + length > this.length)
-                {
-                    throw new ArgumentOutOfRangeException();
-                }
+                IDataStreamHelpers.ReadBytesToBufferArgsCheck(this, buffer, start, ref length, offset);
+                if (length == 0) return;
+                var workBuffer = new ArraySegment<byte>(buffer, offset, length);
                 int i = 0;
                 var stream = streams[0];
                 // move to the stream containing the start

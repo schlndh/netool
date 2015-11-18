@@ -57,7 +57,7 @@ namespace Netool.Network.DataFormats
         /// <inheritdoc/>
         public byte ReadByte(long index)
         {
-            if (index < 0 || index >= stream.Length) throw new ArgumentOutOfRangeException();
+            IDataStreamHelpers.ReadByteArgsCheck(this, index);
             stream.Position = index;
             return (byte) stream.ReadByte();
         }
@@ -65,11 +65,7 @@ namespace Netool.Network.DataFormats
         /// <inheritdoc/>
         public void ReadBytesToBuffer(byte[] buffer, long start = 0, int length = -1, int offset = 0)
         {
-            if (start < 0 || start >= stream.Length) throw new ArgumentOutOfRangeException();
-            if(length == -1)
-            {
-                length = (int) Math.Min(int.MaxValue, stream.Length - start);
-            }
+            IDataStreamHelpers.ReadBytesToBufferArgsCheck(this, buffer, start, ref length, offset);
             stream.Position = start;
             int read = 0;
             while(length > 0 && (read = stream.Read(buffer, offset, length)) != 0)

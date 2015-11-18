@@ -61,13 +61,14 @@ namespace Netool.Network.DataFormats
         /// <inheritdoc/>
         public byte ReadByte(long index)
         {
+            IDataStreamHelpers.ReadByteArgsCheck(this, index);
             return arr[index];
         }
 
         /// <inheritdoc/>
         public void ReadBytesToBuffer(byte[] buffer, long start = 0, int length = -1, int offset = 0)
         {
-            if (length == -1) length = (int)Math.Min(int.MaxValue, arr.Length - start);
+            IDataStreamHelpers.ReadBytesToBufferArgsCheck(this, buffer, start, ref length, offset);
             Array.Copy(arr, start, buffer, offset, length);
         }
 

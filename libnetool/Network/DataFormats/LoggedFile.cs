@@ -51,6 +51,7 @@ namespace Netool.Network.DataFormats
         /// <remarks>Assumes nearly sequential access.</remarks>
         public byte ReadByte(long index)
         {
+            IDataStreamHelpers.ReadByteArgsCheck(this, index);
             if(byteCache == null || index < cacheStart || index >= cacheStart + cacheLength)
             {
 
@@ -68,7 +69,7 @@ namespace Netool.Network.DataFormats
         /// <inheritdoc />
         public void ReadBytesToBuffer(byte[] buffer, long start = 0, int length = -1, int offset = 0)
         {
-            if (length == -1) length = (int)Math.Min(int.MaxValue, Length);
+            IDataStreamHelpers.ReadBytesToBufferArgsCheck(this, buffer, start, ref length, offset);
             var reader = log.CreateReader();
             reader.ReadFileDataToBuffer(hint, buffer, start, length, offset);
             reader.Close();
