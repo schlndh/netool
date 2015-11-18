@@ -72,6 +72,7 @@
     <Compile Include="Logging\FileLogTests.cs" />
     <Compile Include="NetworkHelpersTests.cs" />
     <Compile Include="Network\DataFormats\StreamListTests.cs" />
+    <Compile Include="Network\DataFormats\Utils\ByteCacheTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

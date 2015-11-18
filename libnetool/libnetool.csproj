@@ -101,6 +101,7 @@
     <Compile Include="Network\DataFormats\DataFormats.cs" />
     <Compile Include="Network\DataFormats\ToStream.cs" />
     <Compile Include="Network\DataFormats\ThresholdedDataBuilder.cs" />
+    <Compile Include="Network\DataFormats\Utils\ByteCache.cs" />
     <Compile Include="Network\DefaultProxy.cs" />
     <Compile Include="Network\Helpers.cs" />
     <Compile Include="Network\Network.cs" />
