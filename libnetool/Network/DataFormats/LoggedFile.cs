@@ -23,6 +23,7 @@ namespace Netool.Network.DataFormats
                 {
                     var reader = log.CreateReader();
                     length = reader.GetFileLength(hint);
+                    reader.Close();
                 }
                 return length;
             }
@@ -100,6 +101,7 @@ namespace Netool.Network.DataFormats
         {
             var reader = log.CreateReader();
             hint = reader.GetFileHint(id);
+            reader.Close();
         }
     }
 }
