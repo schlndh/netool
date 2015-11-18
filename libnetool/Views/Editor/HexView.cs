@@ -38,7 +38,8 @@ namespace Netool.Views.Editor
 
         public void SetValue(IDataStream s)
         {
-            // TODO: improve this
+            // can't really improve this, because the data has to be in memory in order to manipulate them
+            // effectively
             data.ByteProvider = new Be.Windows.Forms.DynamicByteProvider(s.ReadBytes());
         }
     }

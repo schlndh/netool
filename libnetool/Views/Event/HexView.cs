@@ -1,4 +1,5 @@
 ﻿using Netool.Network.DataFormats;
+using Netool.Network.DataFormats.Bridges.HexBox;
 using System.Windows.Forms;
 
 namespace Netool.Views.Event
@@ -15,7 +16,7 @@ namespace Netool.Views.Event
         public void Show(IDataStream s)
         {
             // TODO: improve this
-            data.ByteProvider = new Be.Windows.Forms.DynamicByteProvider(s.ReadBytes());
+            data.ByteProvider = new DataStreamByteProvider(s);
         }
 
         public Form GetForm()
