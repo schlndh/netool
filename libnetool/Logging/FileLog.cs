@@ -1,6 +1,7 @@
 ﻿using Netool.Network;
 using Netool.Network.DataFormats;
 using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization;
@@ -66,6 +67,58 @@ namespace Netool.Logging
                 Hint = hint;
             }
         }
+
+        private class FileLogReaderPoolPrivate : FileLogReaderPool
+        {
+            public FileLogReaderPoolPrivate(FileLog log)
+            {
+                this.log = log;
+            }
+            /// <summary>
+            /// Closes all readers in the pool.
+            /// </summary>
+            public void Close()
+            {
+                var p = new ConcurrentBag<FileLogReader>();
+                p = Interlocked.Exchange(ref pool, p);
+                FileLogReader r;
+                while (p.TryTake(out r)) r.Close();
+            }
+        }
+
+        public class FileLogReaderPool
+        {
+            protected ConcurrentBag<FileLogReader> pool = new ConcurrentBag<FileLogReader>();
+            protected FileLog log;
+
+            /// <summary>
+            /// Gets a reader from the pool or creates a new one if none is available.
+            /// </summary>
+            /// <remarks>
+            /// Don't forget to return it when you no longer need it!
+            /// </remarks>
+            /// <returns></returns>
+            public FileLogReader Get()
+            {
+                FileLogReader ret;
+                if (!pool.TryTake(out ret)) ret = new FileLogReader(log.filename, log);
+                return ret;
+            }
+
+            /// <summary>
+            /// Returns a reader to the pool and sets the parameter to null.
+            /// </summary>
+            /// <remarks>
+            /// You shouldn't ever keep another reference to the already returned reader!
+            /// </remarks>
+            /// <param name="reader"></param>
+            public void Return(ref FileLogReader reader)
+            {
+                pool.Add(reader);
+                reader = null;
+            }
+        }
+
         private FileStream stream;
         private readonly object streamLock = new object();
         private BinaryWriter binWriter;
@@ -76,6 +129,13 @@ namespace Netool.Logging
         private long currentFileTable = 0;
         private long currentFileTableSize = 0;
         private byte[] blockBuffer = null;
+
+        private FileLogReaderPoolPrivate readerPool;
+        /// <summary>
+        /// Get a reader pool
+        /// </summary>
+        public FileLogReaderPool ReaderPool { get { return readerPool; } }
+
         /// <summary>
         /// A constant indicating current version of FileLog format, will be incremented each time a format is changed
         /// </summary>
@@ -122,6 +182,7 @@ namespace Netool.Logging
 
         private void init()
         {
+            readerPool = new FileLogReaderPoolPrivate(this);
             // TODO: add some checks here
             binReader = new BinaryReader(stream);
             binWriter = new BinaryWriter(stream);
@@ -245,6 +306,7 @@ namespace Netool.Logging
                 binReader = null;
                 binWriter = null;
                 stream = null;
+                readerPool.Close();
             }
         }
 
@@ -409,6 +471,13 @@ namespace Netool.Logging
             return (int)channelCount;
         }
 
+        /// <summary>
+        /// Creates new FileLogReader for this log
+        /// </summary>
+        /// <remarks>
+        /// Unless you really need to create a new one use FileLog.ReaderPool.Get()
+        /// </remarks>
+        /// <returns></returns>
         public FileLogReader CreateReader()
         {
             return new FileLogReader(filename, this);
