@@ -56,16 +56,16 @@ namespace Netool.Network.DataFormats.Http
             /// <remarks>
             /// This method doesn't copy the headers
             /// </remarks>
-            public HttpData CreateAndClear(IDataStream payload = null, IDataStream headerData = null)
+            public HttpData CreateAndClear(IDataStream payload = null, IDataStream headerData = null, IDataStream messageData = null)
             {
                 HttpData data;
                 if (IsRequest)
                 {
-                    data = HttpData.CreateRequest(headers, headerKeys, HttpVersion, Method, RequestTarget, payload, headerData);
+                    data = HttpData.CreateRequest(headers, headerKeys, HttpVersion, Method, RequestTarget, payload, headerData, messageData);
                 }
                 else
                 {
-                    data = HttpData.CreateResponse(headers, headerKeys, HttpVersion, StatusCode, ReasonPhrase, payload, headerData);
+                    data = HttpData.CreateResponse(headers, headerKeys, HttpVersion, StatusCode, ReasonPhrase, payload, headerData, messageData);
                 }
 
                 headers = new Dictionary<string, string>();
@@ -149,14 +149,21 @@ namespace Netool.Network.DataFormats.Http
         /// <inheritdoc/>
         public long Length { get { return MessageData.Length; } }
 
-        private HttpData(IDataStream headerData, IReadOnlyDictionary<string, string> headers, IReadOnlyList<string> headerKeys, bool isRequest, string version, int code, string reasonPhrase, HttpRequestMethod method, string requestTarget, IDataStream bodyData = null)
+        private HttpData(IDataStream headerData, IReadOnlyDictionary<string, string> headers, IReadOnlyList<string> headerKeys, bool isRequest, string version, int code, string reasonPhrase, HttpRequestMethod method, string requestTarget, IDataStream bodyData = null, IDataStream messageData = null)
         {
             HeaderData = headerData;
             BodyData = bodyData ?? new EmptyData();
-            var list = new StreamList();
-            list.Add(HeaderData);
-            list.Add(BodyData);
-            MessageData = list;
+            if(messageData == null)
+            {
+                var list = new StreamList();
+                list.Add(HeaderData);
+                list.Add(BodyData);
+                MessageData = list;
+            }
+            else
+            {
+                MessageData = messageData;
+            }
             Headers = headers;
             HeaderKeys = headerKeys;
             IsRequest = isRequest;
@@ -169,7 +176,7 @@ namespace Netool.Network.DataFormats.Http
 
         public static HttpData CreateResponse(IReadOnlyDictionary<string, string> headers,
             IReadOnlyList<string> headerKeys, string version, int code, string reasonPhrase,
-            IDataStream payload = null, IDataStream headerData = null)
+            IDataStream payload = null, IDataStream headerData = null, IDataStream messageData = null)
         {
             if(headerData == null)
             {
@@ -182,12 +189,12 @@ namespace Netool.Network.DataFormats.Http
                 headerData = new ByteArray(ASCIIEncoding.ASCII.GetBytes(stringBuilder.ToString()));
             }
 
-            return new HttpData(headerData, headers, headerKeys, false, version, code, reasonPhrase, HttpRequestMethod.Null, "", payload);
+            return new HttpData(headerData, headers, headerKeys, false, version, code, reasonPhrase, HttpRequestMethod.Null, "", payload, messageData);
         }
 
         public static HttpData CreateRequest(IReadOnlyDictionary<string, string> headers,
             IReadOnlyList<string> headerKeys, string version, HttpRequestMethod method,
-            string requestTarget, IDataStream payload = null, IDataStream headerData = null)
+            string requestTarget, IDataStream payload = null, IDataStream headerData = null, IDataStream messageData = null)
         {
             if(headerData == null)
             {
@@ -200,7 +207,7 @@ namespace Netool.Network.DataFormats.Http
                 headerData = new ByteArray(ASCIIEncoding.ASCII.GetBytes(stringBuilder.ToString()));
             }
 
-            return new HttpData(headerData, headers, headerKeys, true, version, -1, "", method, requestTarget, payload);
+            return new HttpData(headerData, headers, headerKeys, true, version, -1, "", method, requestTarget, payload, messageData);
         }
 
         /// <inheritdoc/>

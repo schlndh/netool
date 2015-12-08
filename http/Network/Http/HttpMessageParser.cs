@@ -92,7 +92,7 @@ namespace Netool.Network.Http
                     if (info.Type == HttpBodyLengthInfo.LengthType.Exact && info.Length <= dataBuilder.Length - headerLength)
                     {
                         var resStream = dataBuilder.Close();
-                        return parser.Create(new StreamSegment(resStream, 0, headerLength), new StreamSegment(resStream, headerLength, info.Length));
+                        return parser.Create(new StreamSegment(resStream, 0, headerLength), new StreamSegment(resStream, headerLength, info.Length), resStream);
                     }
                     else if (info.Type == HttpBodyLengthInfo.LengthType.Chunked)
                     {
@@ -129,7 +129,7 @@ namespace Netool.Network.Http
                             {
                                 contentData = new StreamList();
                                 var resStream = dataBuilder.Close();
-                                return parser.Create(new StreamSegment(resStream, 0, headerLength), new DechunkedStream(new StreamSegment(resStream, headerLength), dechunkedLength));
+                                return parser.Create(new StreamSegment(resStream, 0, headerLength), new DechunkedStream(new StreamSegment(resStream, headerLength), dechunkedLength), resStream);
                             }
                             else
                             {
@@ -151,7 +151,7 @@ namespace Netool.Network.Http
                 if (readingBody && info.Type == HttpBodyLengthInfo.LengthType.CloseConnection)
                 {
                     var resStream = dataBuilder.Close();
-                    return parser.Create(new StreamSegment(resStream, 0, headerLength), new StreamSegment(resStream, headerLength));
+                    return parser.Create(new StreamSegment(resStream, 0, headerLength), new StreamSegment(resStream, headerLength), resStream);
                 }
             }
             return null;

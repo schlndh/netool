@@ -212,15 +212,16 @@ namespace Netool.Network.DataFormats.Http
         /// </summary>
         /// <param name="headerData"></param>
         /// <param name="bodyData"></param>
+        /// <param name="messageData"></param>
         /// <returns>parsed http response</returns>
         /// <exception cref="ParsingNotFinishedException">if this method is called before parsing is finished</exception>
-        public HttpData Create(IDataStream headerData, IDataStream bodyData)
+        public HttpData Create(IDataStream headerData, IDataStream bodyData, IDataStream messageData = null)
         {
             lock(builder)
             {
                 if (stage == ParsingStage.Finished)
                 {
-                    return builder.CreateAndClear(bodyData, headerData);
+                    return builder.CreateAndClear(bodyData, headerData, messageData);
                 }
                 else
                 {

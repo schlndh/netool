@@ -23,7 +23,7 @@ namespace Netool.Network.Tcp
 
         public int ReceiveBufferSize { get; set; }
 
-        public TcpClientChannel(Socket socket, int id, int receiveBufferSize = 2048)
+        public TcpClientChannel(Socket socket, int id, int receiveBufferSize = 8192)
         {
             this.socket = socket;
             this.id = id;
@@ -160,7 +160,7 @@ namespace Netool.Network.Tcp
         public TcpClient(TcpClientSettings settings)
         {
             this.settings = settings;
-            ReceiveBufferSize = 2048;
+            ReceiveBufferSize = 8192;
         }
 
         /// <inheritdoc />

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.Serialization;
 
 namespace Netool.Network.DataFormats.Http
 {
@@ -17,7 +15,9 @@ namespace Netool.Network.DataFormats.Http
     {
         private IDataStream stream;
         private long length;
+        [NonSerialized]
         private List<ChunkHint> chunkHints = new List<ChunkHint>();
+        [NonSerialized]
         private object dataLock = new object();
 
         private struct ChunkHint
@@ -85,7 +85,7 @@ namespace Netool.Network.DataFormats.Http
                     i = chunkHints.Count - 1;
                     hint = chunkHints[i];
                 }
-                while (notFound || hint.DataStart + hint.DataLength < index)
+                while (notFound || hint.DataStart + hint.DataLength <= index)
                 {
                     notFound = false;
                     var seg = new StreamSegment(stream, hint.StreamStart + hint.StreamLength);
@@ -151,6 +151,13 @@ namespace Netool.Network.DataFormats.Http
             // DechunkedStream is immutable unless underlying stream is mutable
             if (object.ReferenceEquals(stream, clone)) return this;
             return new DechunkedStream(clone, Length);
+        }
+
+        [OnDeserialized]
+        internal void OnDeserialized(StreamingContext context)
+        {
+            chunkHints = new List<ChunkHint>();
+            dataLock = new object();
         }
     }
 }

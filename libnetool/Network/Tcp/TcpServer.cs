@@ -36,7 +36,7 @@ namespace Netool.Network.Tcp
         public int ReceiveBufferSize { get; set; }
         private object stopLock = new object();
 
-        public TcpServerChannel(Socket socket, int id, int receiveBufferSize = 2048)
+        public TcpServerChannel(Socket socket, int id, int receiveBufferSize = 8192)
         {
             this.socket = socket;
             this.id = id;
@@ -174,7 +174,7 @@ namespace Netool.Network.Tcp
         public TcpServer(TcpServerSettings settings)
         {
             this.settings = settings;
-            ReceiveBufferSize = 2048;
+            ReceiveBufferSize = 8192;
         }
 
         /// <inheritdoc />

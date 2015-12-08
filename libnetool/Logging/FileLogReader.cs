@@ -397,6 +397,7 @@ namespace Netool.Logging
                 long fbtOffset = start / (FileLog.BlockSize * (FileLog.FilesPerBlock + 1)) + 1;
                 long currentFbt = stream.Position;
                 long currentFbt2 = -1;
+                var streamLength = stream.Length;
                 while(length > 0)
                 {
                     while(fbtOffset <= FileLog.FilesPerBlock)
@@ -407,13 +408,13 @@ namespace Netool.Logging
                             {
                                 stream.Position = currentFbt + fbtOffset * sizeof(long);
                                 currentFbt2 = binReader.ReadInt64();
-                                if(currentFbt2 <=0 || currentFbt2 > stream.Length - FileLog.BlockSize) throw new LoggedFileCorruptedException(string.Format("Expected valid pointer to FBT2 at {0}! File hint: {1}.", stream.Position - sizeof(long), hint));
+                                if (currentFbt2 <= 0 || currentFbt2 > streamLength - FileLog.BlockSize) throw new LoggedFileCorruptedException(string.Format("Expected valid pointer to FBT2 at {0}! File hint: {1}.", stream.Position - sizeof(long), hint));
                             }
                             while(blockOffset < FileLog.BlockSize)
                             {
                                 stream.Position = currentFbt2 + fbt2Offset * sizeof(long);
                                 long dataBlock = binReader.ReadInt64();
-                                if (dataBlock <= 0 || dataBlock > stream.Length - FileLog.BlockSize) throw new LoggedFileCorruptedException(string.Format("Expected valid pointer to data block at {0}! File hint: {1}.", stream.Position - sizeof(long), hint));
+                                if (dataBlock <= 0 || dataBlock > streamLength - FileLog.BlockSize) throw new LoggedFileCorruptedException(string.Format("Expected valid pointer to data block at {0}! File hint: {1}.", stream.Position - sizeof(long), hint));
                                 stream.Position = dataBlock + blockOffset;
                                 int toRead = Math.Min(length,(int) (FileLog.BlockSize - blockOffset));
                                 int read = 0;
@@ -436,7 +437,7 @@ namespace Netool.Logging
                     }
                     stream.Position = currentFbt;
                     currentFbt = binReader.ReadInt64();
-                    if (currentFbt <= 0 || currentFbt > stream.Length - FileLog.BlockSize) throw new LoggedFileCorruptedException(string.Format("Expected valid pointer to next FBT at {0}! File hint: {1}.", stream.Position - sizeof(long), hint));
+                    if (currentFbt <= 0 || currentFbt > streamLength - FileLog.BlockSize) throw new LoggedFileCorruptedException(string.Format("Expected valid pointer to next FBT at {0}! File hint: {1}.", stream.Position - sizeof(long), hint));
                     stream.Position = currentFbt;
                     fbtOffset -= FileLog.FilesPerBlock;
                     currentFbt2 = -1;
