@@ -26,7 +26,7 @@ namespace Netool.Controllers
         private Dictionary<long, IChannelDriverPlugin> channelDriverPlugins = new Dictionary<long, IChannelDriverPlugin>();
         private Dictionary<long, IEditorViewPlugin> editorViewPlugins = new Dictionary<long, IEditorViewPlugin>();
         private Dictionary<long, IEventViewPlugin> eventViewPlugins = new Dictionary<long, IEventViewPlugin>();
-        private Dictionary<string, Assembly> assemblies = new Dictionary<string, Assembly>();
+        private PluginLoader pluginLoader = new PluginLoader();
 
         private int itemID = 0;
 
@@ -41,54 +41,30 @@ namespace Netool.Controllers
         private void loadExternalPlugins()
         {
             // load plugins from libnetool
-            loadPluginsFromAssembly(typeof(IPlugin).Assembly);
-            var path = AppDomain.CurrentDomain.BaseDirectory + "Plugins";
-            foreach (var dll in Directory.GetFiles(path, "*.dll"))
+            pluginLoader.LoadPluginsFromAssembly(typeof(IPlugin).Assembly);
+            pluginLoader.LoadPluginsFromDirectory(AppDomain.CurrentDomain.BaseDirectory + "Plugins");
+            foreach(var pl in pluginLoader.Plugins)
             {
-                try
+                var proto = pl as IProtocolPlugin;
+                if (proto != null)
                 {
-                    var assembly = Assembly.LoadFile(dll);
-                    assemblies.Add(assembly.FullName, assembly);
-                    loadPluginsFromAssembly(assembly);
+                    protocolPlugins.Add(proto.ID, proto);
                 }
-                catch(Exception e)
+                var cd = pl as IChannelDriverPlugin;
+                if (cd != null)
                 {
-                    Debug.WriteLine("Failed to load Assembly {0}, exception: {1}", path + "/" + dll, e.Message);
+                    channelDriverPlugins.Add(cd.ID, cd);
                 }
-            }
-        }
-
-        private void loadPluginsFromAssembly(Assembly assembly)
-        {
-            try
-            {
-                foreach (var type in assembly.GetTypes())
+                var evt = pl as IEventViewPlugin;
+                if (evt != null)
                 {
-                    if (type.GetInterface(typeof(IProtocolPlugin).FullName) != null)
-                    {
-                        var plugin = (IProtocolPlugin)Activator.CreateInstance(type);
-                        protocolPlugins.Add(plugin.ID, plugin);
-                    }
-                    if (type.GetInterface(typeof(IChannelDriverPlugin).FullName) != null)
-                    {
-                        var plugin = (IChannelDriverPlugin)Activator.CreateInstance(type);
-                        channelDriverPlugins.Add(plugin.ID, plugin);
-                    }
-                    if (type.GetInterface(typeof(IEventViewPlugin).FullName) != null)
-                    {
-                        var plugin = (IEventViewPlugin)Activator.CreateInstance(type);
-                        eventViewPlugins.Add(plugin.ID, plugin);
-                    }
-                    if (type.GetInterface(typeof(IEditorViewPlugin).FullName) != null)
-                    {
-                        var plugin = (IEditorViewPlugin)Activator.CreateInstance(type);
-                        editorViewPlugins.Add(plugin.ID, plugin);
-                    }
+                    eventViewPlugins.Add(evt.ID, evt);
                 }
-            }
-            catch(Exception e)
-            {
-                Debug.WriteLine("Failed to load types from Assembly {0}, exception: {1}", assembly.FullName, e.Message);
+                var ed = pl as IEditorViewPlugin;
+                if (ed != null)
+                {
+                    editorViewPlugins.Add(ed.ID, ed);
+                }
             }
         }
 
@@ -205,7 +181,7 @@ namespace Netool.Controllers
         Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
             Assembly assembly = null;
-            assemblies.TryGetValue(args.Name, out assembly);
+            pluginLoader.TryGetAssembly(args.Name, out assembly);
             return assembly;
         }
 

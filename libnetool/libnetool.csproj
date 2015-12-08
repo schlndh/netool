@@ -123,6 +123,7 @@
     <Compile Include="Plugins\ChannelDrivers\DefaultProxyChannelDriverPlugin.cs" />
     <Compile Include="Plugins\CoreViewsPlugin.cs" />
     <Compile Include="Plugins\PluginExceptions.cs" />
+    <Compile Include="Plugins\PluginLoader.cs" />
     <Compile Include="Plugins\Plugins.cs" />
     <Compile Include="Plugins\Protocols\TcpPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

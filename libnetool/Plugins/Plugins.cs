@@ -53,6 +53,23 @@ namespace Netool.Plugins
     }
 
     /// <summary>
+    /// Interface for plugins that want to communicate with other plugins
+    /// </summary>
+    public interface IExtensiblePlugin
+    {
+        /// <summary>
+        /// Callback method for loading other plugins and subscribing to PluginLoader's events.
+        /// </summary>
+        /// <remarks>
+        /// This method will be called by PluginLoader after the plugin is created and its PluginLoaded event called.
+        /// Don't forget that other plugins can be loaded after this method is called, if you want to know about them
+        /// subscribe to the PluginLoaded event.
+        /// </remarks>
+        /// <param name="loader"></param>
+        void AfterLoad(PluginLoader loader);
+    }
+
+    /// <summary>
     /// Basic interface for plugins providing a protocol support
     /// </summary>
     public interface IProtocolPlugin : IPlugin
