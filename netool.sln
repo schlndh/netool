@@ -3,6 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Netool", "netool\Netool.csproj", "{3A81ECAD-FDC9-4940-AE59-3019A62E7F3B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9423974E-A2D3-4C90-9967-04DF5A413D69} = {9423974E-A2D3-4C90-9967-04DF5A413D69}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IPEndPointControl", "IPEndPointControl\IPEndPointControl\IPEndPointControl.csproj", "{4027CC4F-182C-49C9-BEF5-63AD7E1FFABC}"
 EndProject

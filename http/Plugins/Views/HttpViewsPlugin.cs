@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Netool.Plugins.Views
 {
-    public class HttpViewsPlugin : IEditorViewPlugin, IEventViewPlugin
+    public class HttpViewsPlugin : IEditorViewPlugin, IEventViewPlugin, IExtensiblePlugin
     {
         /// <inheritdoc/>
         public long ID { get { return 3002; } }
@@ -17,16 +17,37 @@ namespace Netool.Plugins.Views
         /// <inheritdoc/>
         public string Author { get { return "Hynek Schlindenbuch"; } }
 
+        private List<IEditorViewPlugin> editors = new List<IEditorViewPlugin>();
+        private List<IEventViewPlugin> eventViews = new List<IEventViewPlugin>();
+
         /// <inheritdoc/>
         public List<IEditorView> CreateEditorViews()
         {
-            return new List<IEditorView> { new HttpDataView(true) };
+            return new List<IEditorView> { new HttpDataView(editors) };
         }
 
         /// <inheritdoc/>
         public List<IEventView> CreateEventViews()
         {
-            return new List<IEventView> { new HttpDataView(false) };
+            return new List<IEventView> { new HttpDataView(eventViews) };
+        }
+
+        public void AfterLoad(PluginLoader loader)
+        {
+            foreach(var p in loader.Plugins)
+            {
+                loader_PluginLoaded(null, p);
+            }
+            loader.PluginLoaded += loader_PluginLoaded;
+        }
+
+        private void loader_PluginLoaded(object sender, IPlugin e)
+        {
+            if (e == this || e == null || e is HttpViewsPlugin) return;
+            var editor = e as IEditorViewPlugin;
+            var eventView = e as IEventViewPlugin;
+            if (editor != null) editors.Add(editor);
+            if (eventView != null) eventViews.Add(eventView);
         }
     }
 }

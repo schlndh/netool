@@ -19,7 +19,7 @@ namespace Netool.Plugins
         /// <summary>
         /// Loaded plugins
         /// </summary>
-        public ICollection<IPlugin> Plugins { get { return plugins.Values; } }
+        public IEnumerable<IPlugin> Plugins { get { return plugins.Values; } }
 
         /// <summary>
         /// Try get loaded assembly by its full name

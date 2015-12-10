@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Netool.Network.DataFormats;
 using Netool.Network.DataFormats.Http;
+using Netool.Plugins;
 namespace Netool.Views
 {
     public partial class HttpDataView : Form, IEventView, IEditorView
@@ -19,26 +20,53 @@ namespace Netool.Views
         /// <inheritdoc />
         public string ID { get { return "HttpDataView"; } }
 
-        public HttpDataView(bool isEditor)
+        public HttpDataView(IEnumerable<IEventViewPlugin> eventViews)
         {
-            this.isEditor = isEditor;
             InitializeComponent();
-
-            // TODO: offer all available EventViews
-            if (isEditor)
+            isEditor = false;
+            foreach(var pl in eventViews)
             {
-                innerViewSelect.Items.Add(new Editor.HexView());
+                foreach(var v in pl.CreateEventViews())
+                {
+                    innerViewSelect.Items.Add(v);
+                    // prevent inifinite embedding
+                    if(v is Event.HexView)
+                    {
+                        innerViewSelect.SelectedIndex = innerViewSelect.Items.Count - 1;
+                    }
+                }
             }
-            else
+            init();
+        }
+
+        public HttpDataView(IEnumerable<IEditorViewPlugin> editors)
+        {
+            InitializeComponent();
+            isEditor = true;
+            foreach (var pl in editors)
             {
-                innerViewSelect.Items.Add(new Event.HexView());
+                foreach (var v in pl.CreateEditorViews())
+                {
+                    innerViewSelect.Items.Add(v);
+                    // prevent inifinite embedding
+                    if (v is Editor.HexView)
+                    {
+                        innerViewSelect.SelectedIndex = innerViewSelect.Items.Count - 1;
+                    }
+                }
+            }
+            init();
+        }
+
+        private void init()
+        {
+            if(!isEditor)
+            {
                 statusLine.ReadOnly = true;
                 headers.ReadOnly = true;
             }
-
             if (innerViewSelect.SelectedIndex < 0) innerViewSelect.SelectedIndex = 0;
         }
-
         /// <inheritdoc />
         void IEventView.Show(IDataStream s)
         {
