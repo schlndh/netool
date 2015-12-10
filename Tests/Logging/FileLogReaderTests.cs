@@ -211,14 +211,16 @@ namespace Tests.Logging
         public void TestReadFileDataToBuffer_Big()
         {
             var hint = log.CreateFile().Hint;
+            logReader.Close();
             log.Close();
-            var stream = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
+            var stream = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
             var newFileSize = FileLogTestsHelper.CreateBigLogFile(hint, stream);
             stream.Close();
             log = new FileLog(filename, FileMode.Open);
             log.AppendDataToFile(hint, new ByteArray(new byte[] { 1, 2, 3, 4 }));
             byte[] buffer = new byte[128];
             buffer[0] = 15;
+            logReader = log.CreateReader();
             logReader.ReadFileDataToBuffer(hint, buffer, newFileSize, 4, 1);
             Assert.Equal(15, buffer[0]);
             Assert.Equal(1, buffer[1]);
