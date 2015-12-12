@@ -10,7 +10,7 @@ namespace Netool.Views.Components
 {
     public partial class DataViewSelection : UserControl
     {
-        private class TypedIListAdapter : IList<IEventView>
+        private class TypedIListAdapter<T> : IList<T>
         {
             private IList inner;
 
@@ -19,21 +19,21 @@ namespace Netool.Views.Components
                 inner = innerList;
             }
 
-            public int IndexOf(IEventView item)
+            public int IndexOf(T item)
             {
                 return inner.IndexOf(item);
             }
 
-            public void Insert(int index, IEventView item)
+            public void Insert(int index, T item)
             {
                 inner.Insert(index, item);
             }
 
-            public IEventView this[int index]
+            public T this[int index]
             {
                 get
                 {
-                    return (IEventView)inner[index];
+                    return (T)inner[index];
                 }
                 set
                 {
@@ -41,22 +41,22 @@ namespace Netool.Views.Components
                 }
             }
 
-            public void Add(IEventView item)
+            public void Add(T item)
             {
                 inner.Add(item);
             }
 
-            public bool Contains(IEventView item)
+            public bool Contains(T item)
             {
                 return inner.Contains(item);
             }
 
-            public void CopyTo(IEventView[] array, int arrayIndex)
+            public void CopyTo(T[] array, int arrayIndex)
             {
                 inner.CopyTo(array, arrayIndex);
             }
 
-            public bool Remove(IEventView item)
+            public bool Remove(T item)
             {
                 if (inner.Contains(item))
                 {
@@ -66,12 +66,12 @@ namespace Netool.Views.Components
                 return false;
             }
 
-            public IEnumerator<IEventView> GetEnumerator()
+            public IEnumerator<T> GetEnumerator()
             {
                 var e = inner.GetEnumerator();
                 while (e.MoveNext())
                 {
-                    yield return (IEventView)e.Current;
+                    yield return (T)e.Current;
                 }
             }
 
@@ -109,29 +109,79 @@ namespace Netool.Views.Components
 
         private IDataStream stream;
         private IEventView currentView;
+        private IEditorView currentEditor;
+
+        private bool isEditor = false;
+
+        /// <summary>
+        /// Gets or sets whether this component should behave as an editor.
+        /// </summary>
+        /// <remarks>
+        /// If you change the value you have to add inner views/editors again!
+        /// </remarks>
+        public bool IsEditor
+        {
+            get { return isEditor; }
+            set
+            {
+                if (isEditor != value)
+                {
+                    innerViewSelect.Items.Clear();
+                }
+                isEditor = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets stream to display. Set it to null if there is no data to be displayed.
         /// </summary>
-        public IDataStream Stream { get { return stream; } set { stream = value; showStream(); } }
+        /// <remarks>
+        /// Getter calls GetValue() if IsEditor is true.
+        /// Setter calls Clear() if IsEditor and value == null.
+        /// </remarks>
+        public IDataStream Stream
+        {
+            get { return !isEditor ? stream : (currentEditor != null ? currentEditor.GetValue() : null); }
+            set
+            {
+                if(isEditor)
+                {
+                    if (currentEditor == null) return;
+                    if (stream == null) currentEditor.Clear();
+                    else currentEditor.SetValue(value);
+                }
+                else
+                {
+                    stream = value;
+                    showStream();
+                }
+            }
+        }
 
         public string Label { get { return innerViewSelectLabel.Text; } set { innerViewSelectLabel.Text = value; } }
-        private TypedIListAdapter innerViews;
+        private TypedIListAdapter<IEventView> innerViews;
+        private TypedIListAdapter<IEditorView> innerEditors;
 
         /// <summary>
-        /// Get a list of possible inner views.
+        /// Get a list of possible inner views or null if IsEditor
         /// </summary>
-        public IList<IEventView> InnerViews { get { return innerViews; } }
+        public IList<IEventView> InnerViews { get { return isEditor ? null : innerViews; } }
 
         /// <summary>
-        /// Get an index of the selected view.
+        /// Get a list of possible inner editors or null if !IsEditor
+        /// </summary>
+        public IList<IEditorView> InnerEditors { get { return !isEditor ? null : innerEditors; } }
+
+        /// <summary>
+        /// Get an index of the selected view/editor.
         /// </summary>
         public int SelectedIndex { get { return innerViewSelect.SelectedIndex; } set { innerViewSelect.SelectedIndex = value; } }
 
         public DataViewSelection()
         {
             InitializeComponent();
-            innerViews = new TypedIListAdapter(innerViewSelect.Items);
+            innerViews = new TypedIListAdapter<IEventView>(innerViewSelect.Items);
+            innerEditors = new TypedIListAdapter<IEditorView>(innerViewSelect.Items);
         }
 
         private void exportBtn_Click(object sender, EventArgs e)
@@ -142,8 +192,8 @@ namespace Netool.Views.Components
                 btn.Text = "Cancel";
                 btn.Click -= exportBtn_Click;
                 btn.Click += cancelBtn_Click;
-                var args = new ExportArgs { Input = stream, Filename = exportSaveFileDialog.FileName };
-                exportBackgroundWorker.RunWorkerAsync(args);
+                var args = new ExportArgs { Input = Stream, Filename = exportSaveFileDialog.FileName };
+                if(args.Input != null) exportBackgroundWorker.RunWorkerAsync(args);
             }
         }
 
@@ -160,11 +210,19 @@ namespace Netool.Views.Components
         {
             if (innerViewSelect.SelectedIndex > -1)
             {
-                currentView = ((IEventView)innerViewSelect.SelectedItem);
+                if(!isEditor)
+                {
+                    currentView = ((IEventView)innerViewSelect.SelectedItem);
+                }
+                else
+                {
+                    currentEditor = ((IEditorView)innerViewSelect.SelectedItem);
+                }
             }
             else
             {
                 currentView = null;
+                currentEditor = null;
             }
             showStream();
         }
@@ -172,10 +230,18 @@ namespace Netool.Views.Components
         private void showStream()
         {
             innerViewPanel.Controls.Clear();
-            exportBtn.Enabled = stream != null;
-            if (currentView == null || stream == null) return;
-            currentView.Show(stream);
-            innerViewPanel.Embed(currentView.GetForm());
+            if(!isEditor)
+            {
+                exportBtn.Enabled = stream != null;
+                if (currentView == null || stream == null) return;
+                currentView.Show(stream);
+                innerViewPanel.Embed(currentView.GetForm());
+            }
+            else
+            {
+                if (currentEditor == null) return;
+                exportBtn.Enabled = true;
+            }
         }
 
         private void exportBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
