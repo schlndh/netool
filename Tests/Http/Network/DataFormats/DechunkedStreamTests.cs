@@ -11,7 +11,7 @@ namespace Tests.Http.Network.DataFormats
         [Fact]
         public void TestEmptyStream()
         {
-            var stream = new DechunkedStream(new EmptyData());
+            var stream = new DechunkedStream(EmptyData.Instance);
             Assert.Equal(0, stream.Length);
             Assert.Throws(typeof(IndexOutOfRangeException), delegate() { stream.ReadByte(0); });
             Assert.Throws(typeof(IndexOutOfRangeException), delegate() { stream.ReadBytesToBuffer(new byte[]{5}, 0, 1, 0); });

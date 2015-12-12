@@ -152,7 +152,7 @@ namespace Netool.Network.DataFormats.Http
         private HttpData(IDataStream headerData, IReadOnlyDictionary<string, string> headers, IReadOnlyList<string> headerKeys, bool isRequest, string version, int code, string reasonPhrase, HttpRequestMethod method, string requestTarget, IDataStream bodyData = null, IDataStream messageData = null)
         {
             HeaderData = headerData;
-            BodyData = bodyData ?? new EmptyData();
+            BodyData = bodyData ?? EmptyData.Instance;
             if(messageData == null)
             {
                 var list = new StreamList();

@@ -9,6 +9,14 @@ namespace Netool.Network.DataFormats
     [Serializable]
     public class EmptyData : IDataStream
     {
+        private EmptyData() { }
+
+        private static EmptyData instance;
+        /// <summary>
+        /// Get EmptyData singleton instance
+        /// </summary>
+        public static EmptyData Instance { get { if (instance == null) { instance = new EmptyData(); } return instance; } }
+
         /// <inheritdoc/>
         public long Length { get { return 0; } }
 

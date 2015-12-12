@@ -17,7 +17,7 @@ namespace Tests.Network.DataFormats
             Assert.Equal(10, list.Length);
             list.Add(stream);
             Assert.Equal(20, list.Length);
-            list.Add(new EmptyData());
+            list.Add(EmptyData.Instance);
             Assert.Equal(20, list.Length);
             list.Add(new ByteArray(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }));
             Assert.Equal(31, list.Length);

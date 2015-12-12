@@ -35,7 +35,7 @@ namespace Tests.Http.Network.DataFormats
             Assert.Equal("Apache", parser.GetHeader("Server"));
             Assert.Equal("\"34aa387-d-1568eb00\"", parser.GetHeader("ETag"));
 
-            var data = parser.Create(stream, new EmptyData());
+            var data = parser.Create(stream, EmptyData.Instance);
         }
 
         [Fact]
@@ -64,7 +64,7 @@ namespace Tests.Http.Network.DataFormats
             Assert.Equal("Wed, 22 Jul 2009 19:15:56 GMT", parser.GetHeader("Last-Modified"));
             Assert.Equal("\"34aa387-d-1568eb00\"", parser.GetHeader("ETag"));
 
-            var data = parser.Create(stream, new EmptyData());
+            var data = parser.Create(stream, EmptyData.Instance);
         }
 
         [Fact]
@@ -93,7 +93,7 @@ namespace Tests.Http.Network.DataFormats
             Assert.Equal("Wed, 22 Jul 2009 19:15:56 GMT", parser.GetHeader("Last-Modified"));
             Assert.Equal("\"34aa387-d-1568eb00\"", parser.GetHeader("ETag"));
 
-            var data = parser.Create(stream, new EmptyData());
+            var data = parser.Create(stream, EmptyData.Instance);
         }
 
         [Theory,

@@ -592,8 +592,8 @@ namespace Tests.Logging
         public void TestCreateAndAppendFile_Empty()
         {
             var file1 = log.CreateFile();
-            log.AppendDataToFile(file1.Hint, new EmptyData());
-            log.AppendDataToFile(file1.Hint, new EmptyData());
+            log.AppendDataToFile(file1.Hint, EmptyData.Instance);
+            log.AppendDataToFile(file1.Hint, EmptyData.Instance);
             log.Close();
             FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
             using (BinaryReader binReader = new BinaryReader(stream))
