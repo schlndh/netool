@@ -20,12 +20,36 @@ namespace Netool.Network.DataFormats.Http
         [NonSerialized]
         private object dataLock = new object();
 
-        private struct ChunkHint
+        private class ChunkHint
         {
+            /// <summary>
+            /// Start of chunk data in the stream (excluding the chunk header)
+            /// </summary>
             public long StreamStart;
-            public long StreamLength;
+
+            /// <summary>
+            /// Stream position of next chunk in the stream
+            /// </summary>
+            public long NextChunk;
+
+            /// <summary>
+            /// Index of the first byte of the chunk in dechunked stream
+            /// </summary>
             public long DataStart;
+
+            /// <summary>
+            /// Length of data in this chunk
+            /// </summary>
             public long DataLength;
+
+            public ChunkHint ComputeNextHint(DechunkedStream stream)
+            {
+                var seg = new StreamSegment(stream.stream, NextChunk);
+                var chunkInfo = ChunkedDecoder.DecodeOneChunk(seg);
+                // last chunk
+                if (chunkInfo.DataLength == 0) return null;
+                else return new ChunkHint { StreamStart = this.NextChunk + chunkInfo.DataStart, NextChunk = this.NextChunk + chunkInfo.ChunkLength, DataLength = chunkInfo.DataLength, DataStart = this.DataStart + this.DataLength };
+            }
         }
 
         /// <inheritdoc/>
@@ -38,21 +62,12 @@ namespace Netool.Network.DataFormats.Http
                     if (length == -1)
                     {
                         length = 0;
-                        var seg = new StreamSegment(stream);
-                        long streamStart = 0, dataStart = 0;
-                        while (seg.Length > 0)
+                        if (stream.Length == 0) return length;
+                        var hint = new ChunkHint();
+                        while((hint = hint.ComputeNextHint(this)) != null)
                         {
-                            var chunkInfo = ChunkedDecoder.DecodeOneChunk(seg);
-                            var dl = chunkInfo.DataLength;
-                            chunkHints.Add(new ChunkHint { StreamStart = streamStart, StreamLength = chunkInfo.ChunkLength, DataStart = dataStart, DataLength = dl });
-                            streamStart += chunkInfo.ChunkLength;
-                            dataStart += dl;
-                            length += dl;
-                            if (dl == 0)
-                            {
-                                return length;
-                            }
-                            seg = new StreamSegment(stream, seg.Offset + chunkInfo.ChunkLength, seg.Length - chunkInfo.ChunkLength);
+                            length += hint.DataLength;
+                            chunkHints.Add(hint);
                         }
                     }
                     return length;
@@ -66,17 +81,16 @@ namespace Netool.Network.DataFormats.Http
             this.length = length;
         }
 
-        private ChunkHint locateChunk(long index)
+        private int locateChunk(long index)
         {
             if (index >= Length) throw new IndexOutOfRangeException();
-            lock (dataLock)
-            {
+
                 ChunkHint hint;
                 int i = 0;
                 bool notFound = false;
                 if (chunkHints.Count == 0)
                 {
-                    hint = new ChunkHint { StreamStart = 0, StreamLength = 0, DataStart = 0, DataLength = 0 };
+                    hint = new ChunkHint { StreamStart = 0, NextChunk = 0, DataStart = 0, DataLength = 0 };
                     notFound = true;
                 }
                 else
@@ -88,12 +102,9 @@ namespace Netool.Network.DataFormats.Http
                 while (notFound || hint.DataStart + hint.DataLength <= index)
                 {
                     notFound = false;
-                    var seg = new StreamSegment(stream, hint.StreamStart + hint.StreamLength);
-                    var chunkInfo = ChunkedDecoder.DecodeOneChunk(seg);
-                    hint = new ChunkHint { StreamStart = seg.Offset, StreamLength = chunkInfo.ChunkLength, DataStart = hint.DataStart + hint.DataLength, DataLength = chunkInfo.DataLength };
-                    if (hint.DataLength == 0) throw new InvalidChunkException();
+                    hint = hint.ComputeNextHint(this);
                     chunkHints.Add(hint);
-                    i++;
+                    i = chunkHints.Count - 1;
                 }
                 int interval = chunkHints.Count / 2;
                 while (hint.DataStart > index || index >= hint.DataStart + hint.DataLength)
@@ -109,18 +120,21 @@ namespace Netool.Network.DataFormats.Http
                     interval = Math.Max(interval/2, 1);
                     hint = chunkHints[i];
                 }
-                return hint;
-            }
+                return i;
         }
 
         /// <inheritdoc/>
         public byte ReadByte(long index)
         {
             IDataStreamHelpers.ReadByteArgsCheck(this, index);
-            var hint = locateChunk(index);
+            ChunkHint hint;
+            lock (dataLock)
+            {
+                var hintIdx = locateChunk(index);
+                hint = chunkHints[hintIdx];
+            }
             var seg = new StreamSegment(stream, hint.StreamStart);
-            var chunkInfo = ChunkedDecoder.DecodeOneChunk(seg);
-            return seg.ReadByte(chunkInfo.DataStart + index - hint.DataStart);
+            return seg.ReadByte(index - hint.DataStart);
         }
 
         /// <inheritdoc/>
@@ -128,19 +142,31 @@ namespace Netool.Network.DataFormats.Http
         {
             IDataStreamHelpers.ReadBytesToBufferArgsCheck(this, buffer, start, ref length, offset);
             var remaining = length;
-            var hint = locateChunk(start);
+            var hintIdx = locateChunk(start);
+            var hint = chunkHints[hintIdx];
             // these 2 must be close together, 2GiB chunks are too big
             int chunkOffset = (int)(start - hint.DataStart);
-            var seg = new StreamSegment(stream, hint.StreamStart);
             while (remaining > 0)
             {
-                var chunkInfo = ChunkedDecoder.DecodeOneChunk(seg);
-                var read = Math.Min(chunkInfo.DataLength, remaining);
-                seg.ReadBytesToBuffer(buffer, chunkInfo.DataStart + chunkOffset, read, offset);
+                lock (dataLock)
+                {
+                    if (chunkHints.Count <= hintIdx)
+                    {
+                        hint = hint.ComputeNextHint(this);
+                        chunkHints.Add(hint);
+                    }
+                    else
+                    {
+                        hint = chunkHints[hintIdx];
+                    }
+                }
+                var seg = new StreamSegment(stream, hint.StreamStart);
+                var read = (int)Math.Min(hint.DataLength - chunkOffset, remaining);
+                seg.ReadBytesToBuffer(buffer, chunkOffset, read, offset);
                 offset += read;
                 remaining -= read;
                 chunkOffset = 0;
-                seg = new StreamSegment(stream, seg.Offset + chunkInfo.ChunkLength);
+                ++hintIdx;
             }
         }
 

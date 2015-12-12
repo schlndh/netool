@@ -28,7 +28,9 @@ namespace Tests.Http.Network.DataFormats
         }
 
         [Theory,
-        InlineData("5\r\n01234\r\n1\r\n5\r\n0\r\n\r\n", 2, 3,  "234")]
+        InlineData("5\r\n01234\r\n1\r\n5\r\n0\r\n\r\n", 2, 3,  "234"),
+        InlineData("5\r\n01234\r\n1\r\n5\r\n0\r\n\r\n", 2, 4,  "2345"),
+        ]
         public void TestPartialRead(string chunkedData, long start, int length, string dechunkedData)
         {
             var stream = new DechunkedStream(new ByteArray(ASCIIEncoding.ASCII.GetBytes(chunkedData)));

@@ -34,7 +34,7 @@ namespace Netool.Network.DataFormats.Bridges.HexBox
                 {
                     // the file is more likely to be read from the beginning to the end
                     cacheStart = Math.Max(0, index - 512);
-                    cacheLength = (int)Math.Min(buffer.Length, Math.Min(int.MaxValue, stream.Length - cacheStart));
+                    cacheLength = (int)Math.Min(buffer.Length, stream.Length - cacheStart);
                     stream.ReadBytesToBuffer(buffer, cacheStart, cacheLength);
                     ret = buffer[index - cacheStart];
                 };
