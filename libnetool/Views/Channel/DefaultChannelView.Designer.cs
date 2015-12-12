@@ -31,10 +31,6 @@
             this.components = new System.ComponentModel.Container();
             this.events = new System.Windows.Forms.ListView();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.eventViewsSelect = new System.Windows.Forms.ComboBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.eventViewPanel = new System.Windows.Forms.Panel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.label3 = new System.Windows.Forms.Label();
             this.idLabel = new System.Windows.Forms.Label();
@@ -43,21 +39,21 @@
             this.label4 = new System.Windows.Forms.Label();
             this.timeLabel = new System.Windows.Forms.Label();
             this.mainSplitContainer = new System.Windows.Forms.SplitContainer();
-            this.eventsContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.eventsEditMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewsTabControl = new System.Windows.Forms.TabControl();
             this.eventTabPage = new System.Windows.Forms.TabPage();
             this.editorTabPage = new System.Windows.Forms.TabPage();
+            this.eventsContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.eventsEditMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.dataView = new Netool.Views.Components.DataViewSelection();
             this.tableLayoutPanel2.SuspendLayout();
-            this.panel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mainSplitContainer)).BeginInit();
             this.mainSplitContainer.Panel1.SuspendLayout();
             this.mainSplitContainer.Panel2.SuspendLayout();
             this.mainSplitContainer.SuspendLayout();
-            this.eventsContextMenu.SuspendLayout();
             this.viewsTabControl.SuspendLayout();
             this.eventTabPage.SuspendLayout();
+            this.eventsContextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // events
@@ -82,57 +78,17 @@
             // 
             this.tableLayoutPanel2.ColumnCount = 1;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Controls.Add(this.panel1, 0, 1);
-            this.tableLayoutPanel2.Controls.Add(this.eventViewPanel, 0, 2);
             this.tableLayoutPanel2.Controls.Add(this.flowLayoutPanel1, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.dataView, 0, 1);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 3;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.tableLayoutPanel2.RowCount = 2;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(656, 244);
             this.tableLayoutPanel2.TabIndex = 1;
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.eventViewsSelect);
-            this.panel1.Controls.Add(this.label1);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(3, 43);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(650, 34);
-            this.panel1.TabIndex = 1;
-            // 
-            // eventViewsSelect
-            // 
-            this.eventViewsSelect.DisplayMember = "ID";
-            this.eventViewsSelect.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.eventViewsSelect.Location = new System.Drawing.Point(98, 4);
-            this.eventViewsSelect.Name = "eventViewsSelect";
-            this.eventViewsSelect.Size = new System.Drawing.Size(121, 21);
-            this.eventViewsSelect.TabIndex = 0;
-            this.eventViewsSelect.ValueMember = "Value";
-            this.eventViewsSelect.SelectedIndexChanged += new System.EventHandler(this.eventViewsSelect_SelectedIndexChanged);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 7);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(86, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Event view type:";
-            // 
-            // eventViewPanel
-            // 
-            this.eventViewPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.eventViewPanel.Location = new System.Drawing.Point(3, 83);
-            this.eventViewPanel.Name = "eventViewPanel";
-            this.eventViewPanel.Size = new System.Drawing.Size(650, 158);
-            this.eventViewPanel.TabIndex = 2;
             // 
             // flowLayoutPanel1
             // 
@@ -222,20 +178,6 @@
             this.mainSplitContainer.SplitterDistance = 139;
             this.mainSplitContainer.TabIndex = 1;
             // 
-            // eventsContextMenu
-            // 
-            this.eventsContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.eventsEditMenuItem});
-            this.eventsContextMenu.Name = "eventsContextMenu";
-            this.eventsContextMenu.Size = new System.Drawing.Size(95, 26);
-            // 
-            // eventsEditMenuItem
-            // 
-            this.eventsEditMenuItem.Name = "eventsEditMenuItem";
-            this.eventsEditMenuItem.Size = new System.Drawing.Size(94, 22);
-            this.eventsEditMenuItem.Text = "Edit";
-            this.eventsEditMenuItem.Click += new System.EventHandler(this.editToolStripMenuItem_Click);
-            // 
             // viewsTabControl
             // 
             this.viewsTabControl.Controls.Add(this.eventTabPage);
@@ -268,6 +210,31 @@
             this.editorTabPage.Text = "Editor";
             this.editorTabPage.UseVisualStyleBackColor = true;
             // 
+            // eventsContextMenu
+            // 
+            this.eventsContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.eventsEditMenuItem});
+            this.eventsContextMenu.Name = "eventsContextMenu";
+            this.eventsContextMenu.Size = new System.Drawing.Size(95, 26);
+            // 
+            // eventsEditMenuItem
+            // 
+            this.eventsEditMenuItem.Name = "eventsEditMenuItem";
+            this.eventsEditMenuItem.Size = new System.Drawing.Size(94, 22);
+            this.eventsEditMenuItem.Text = "Edit";
+            this.eventsEditMenuItem.Click += new System.EventHandler(this.editToolStripMenuItem_Click);
+            // 
+            // dataView
+            // 
+            this.dataView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataView.Label = "Data view type:";
+            this.dataView.Location = new System.Drawing.Point(3, 43);
+            this.dataView.Name = "dataView";
+            this.dataView.SelectedIndex = -1;
+            this.dataView.Size = new System.Drawing.Size(650, 198);
+            this.dataView.Stream = null;
+            this.dataView.TabIndex = 4;
+            // 
             // DefaultChannelView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -278,17 +245,15 @@
             this.Text = "DefaultServerChannelView";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.DefaultServerChannelView_FormClosed);
             this.tableLayoutPanel2.ResumeLayout(false);
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
             this.mainSplitContainer.Panel1.ResumeLayout(false);
             this.mainSplitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.mainSplitContainer)).EndInit();
             this.mainSplitContainer.ResumeLayout(false);
-            this.eventsContextMenu.ResumeLayout(false);
             this.viewsTabControl.ResumeLayout(false);
             this.eventTabPage.ResumeLayout(false);
+            this.eventsContextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -297,10 +262,6 @@
 
         private System.Windows.Forms.ListView events;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.ComboBox eventViewsSelect;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Panel eventViewPanel;
         private System.Windows.Forms.SplitContainer mainSplitContainer;
         private System.Windows.Forms.ContextMenuStrip eventsContextMenu;
         private System.Windows.Forms.ToolStripMenuItem eventsEditMenuItem;
@@ -314,5 +275,6 @@
         private System.Windows.Forms.TabControl viewsTabControl;
         private System.Windows.Forms.TabPage eventTabPage;
         private System.Windows.Forms.TabPage editorTabPage;
+        private Components.DataViewSelection dataView;
     }
 }

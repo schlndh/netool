@@ -27,7 +27,6 @@ namespace Netool.Views.Channel
         private List<ListViewItem> cache = null;
         private int cacheStart = 0;
         private ItemFactory createItem;
-        private IEventView currentViewForm = null;
         private Editor.EditorMasterView editor = null;
 
         public DefaultChannelView(ChannelLogger logger)
@@ -60,8 +59,8 @@ namespace Netool.Views.Channel
 
         public void AddEventView(IEventView v)
         {
-            eventViewsSelect.Items.Add(v);
-            if (eventViewsSelect.SelectedIndex < 0) eventViewsSelect.SelectedIndex = 0;
+            dataView.InnerViews.Add(v);
+            if (dataView.SelectedIndex < 0) dataView.SelectedIndex = 0;
         }
 
         public Form GetForm()
@@ -102,21 +101,6 @@ namespace Netool.Views.Channel
             } while (++i < e.EndIndex - e.StartIndex);
         }
 
-        private void eventViewsSelect_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (eventViewsSelect.SelectedIndex > -1)
-            {
-                eventViewPanel.Controls.Clear();
-                currentViewForm = ((IEventView)eventViewsSelect.SelectedItem);
-
-                if(events.SelectedIndices.Count > 0)
-                {
-                    var evt = getEventByPosition(events.SelectedIndices[0]);
-                    showEvent(evt);
-                }
-            }
-        }
-
         private void events_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (events.SelectedIndices.Count > 0)
@@ -137,17 +121,15 @@ namespace Netool.Views.Channel
             idLabel.Text = e.ID.ToString();
             typeLabel.Text = e.Type.ToString();
             timeLabel.Text = e.Time.ToString("dd. MM. yyyy HH:mm:ss.ff");
-            eventViewPanel.Controls.Clear();
-            if(currentViewForm != null)
+            if (e.Data != null && e.Data.Data != null)
             {
-                if (e.Data != null && e.Data.Data != null)
-                {
-                    var frm = currentViewForm.GetForm();
-                    eventViewPanel.Embed(frm);
-                    currentViewForm.Show(e.Data.Data);
-                }
-
+                dataView.Stream = e.Data.Data;
             }
+            else
+            {
+                dataView.Stream = null;
+            }
+
         }
 
         private void editorSendHandler(object sender, Editor.EditorMasterView.SendEventArgs e)
