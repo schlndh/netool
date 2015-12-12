@@ -14,8 +14,6 @@ namespace Netool.Views
 {
     public partial class HttpDataView : Form, IEventView, IEditorView
     {
-        IEventView innerEventView = null;
-        IEditorView innerEditorView = null;
         private bool isEditor;
         /// <inheritdoc />
         public string ID { get { return "HttpDataView"; } }
@@ -23,16 +21,16 @@ namespace Netool.Views
         public HttpDataView(IEnumerable<IEventViewPlugin> eventViews)
         {
             InitializeComponent();
-            isEditor = false;
+            isEditor = dataViewSelection.IsEditor = false;
             foreach(var pl in eventViews)
             {
                 foreach(var v in pl.CreateEventViews())
                 {
-                    innerViewSelect.Items.Add(v);
+                    dataViewSelection.InnerViews.Add(v);
                     // prevent inifinite embedding
                     if(v is Event.HexView)
                     {
-                        innerViewSelect.SelectedIndex = innerViewSelect.Items.Count - 1;
+                        dataViewSelection.SelectedIndex = dataViewSelection.InnerViews.Count - 1;
                     }
                 }
             }
@@ -42,16 +40,16 @@ namespace Netool.Views
         public HttpDataView(IEnumerable<IEditorViewPlugin> editors)
         {
             InitializeComponent();
-            isEditor = true;
+            isEditor = dataViewSelection.IsEditor = true;
             foreach (var pl in editors)
             {
                 foreach (var v in pl.CreateEditorViews())
                 {
-                    innerViewSelect.Items.Add(v);
+                    dataViewSelection.InnerEditors.Add(v);
                     // prevent inifinite embedding
                     if (v is Editor.HexView)
                     {
-                        innerViewSelect.SelectedIndex = innerViewSelect.Items.Count - 1;
+                        dataViewSelection.SelectedIndex = dataViewSelection.InnerEditors.Count - 1;
                     }
                 }
             }
@@ -65,8 +63,9 @@ namespace Netool.Views
                 statusLine.ReadOnly = true;
                 headers.ReadOnly = true;
             }
-            if (innerViewSelect.SelectedIndex < 0) innerViewSelect.SelectedIndex = 0;
+            if (dataViewSelection.SelectedIndex < 0) dataViewSelection.SelectedIndex = 0;
         }
+
         /// <inheritdoc />
         void IEventView.Show(IDataStream s)
         {
@@ -78,42 +77,12 @@ namespace Netool.Views
             return this;
         }
 
-        private void innerViewsSelect_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if(innerViewSelect.SelectedIndex > -1)
-            {
-                if(isEditor)
-                {
-                    innerEditorView = ((IEditorView)innerViewSelect.SelectedItem);
-                    innerDataView.Embed(innerEditorView.GetForm());
-                }
-                else
-                {
-                    innerEventView = ((IEventView)innerViewSelect.SelectedItem);
-                }
-            }
-            else
-            {
-                if(isEditor)
-                {
-                    innerEditorView = null;
-                }
-                else
-                {
-                    innerEventView = null;
-                }
-            }
-        }
-
         /// <inheritdoc />
         void IEditorView.Clear()
         {
             statusLine.Text = "";
             headers.Rows.Clear();
-            if(innerEditorView != null)
-            {
-                innerEditorView.Clear();
-            }
+            dataViewSelection.Stream = null;
         }
 
         /// <inheritdoc />
@@ -139,18 +108,14 @@ namespace Netool.Views
                     builder.AddHeader(key, val);
                 }
             }
-            IDataStream payload = null;
-            if(innerEditorView != null)
-            {
-                payload = innerEditorView.GetValue();
-            }
+            IDataStream payload = dataViewSelection.Stream;
             return builder.CreateAndClear(payload);
         }
 
         /// <inheritdoc />
         void IEditorView.SetValue(IDataStream s)
         {
-            setValue(s);
+            dataViewSelection.Stream = s;
         }
 
         private void setValue(IDataStream s)
@@ -173,16 +138,7 @@ namespace Netool.Views
                     var decompressed = new System.IO.Compression.GZipStream(new ToStream(data.BodyData), System.IO.Compression.CompressionMode.Decompress);
                     innerData = FromStream.ToIDataStream(decompressed);
                 }
-                if (!isEditor && innerEventView != null)
-                {
-                    innerEventView.Show(innerData);
-                    innerDataView.Embed(innerEventView.GetForm());
-                }
-                if(isEditor && innerEditorView != null)
-                {
-                    innerEditorView.SetValue(innerData);
-                    innerDataView.Embed(innerEditorView.GetForm());
-                }
+                dataViewSelection.Stream = innerData;
             }
             else
             {
