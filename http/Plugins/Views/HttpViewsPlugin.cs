@@ -21,15 +21,15 @@ namespace Netool.Plugins.Views
         private List<IEventViewPlugin> eventViews = new List<IEventViewPlugin>();
 
         /// <inheritdoc/>
-        public List<IEditorView> CreateEditorViews()
+        public IEnumerable<IEditorView> CreateEditorViews()
         {
-            return new List<IEditorView> { new HttpDataView(editors) };
+            return new IEditorView[] { new HttpDataView(editors) };
         }
 
         /// <inheritdoc/>
-        public List<IEventView> CreateEventViews()
+        public IEnumerable<IEventView> CreateEventViews()
         {
-            return new List<IEventView> { new HttpDataView(eventViews) };
+            return new IEventView[] { new HttpDataView(eventViews) };
         }
 
         public void AfterLoad(PluginLoader loader)

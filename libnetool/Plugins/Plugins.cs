@@ -132,7 +132,7 @@ namespace Netool.Plugins
         /// Create Event Views for one channel view
         /// </summary>
         /// <returns></returns>
-        List<IEventView> CreateEventViews();
+        IEnumerable<IEventView> CreateEventViews();
     }
 
     /// <summary>
@@ -144,7 +144,7 @@ namespace Netool.Plugins
         /// Create Editor Views for one channel view
         /// </summary>
         /// <returns></returns>
-        List<IEditorView> CreateEditorViews();
+        IEnumerable<IEditorView> CreateEditorViews();
     }
 
     public static class ProtocolPluginExtensions

@@ -18,15 +18,15 @@ namespace Netool.Plugins
         public string Author { get { return "Hynek Schlindenbuch"; } }
 
         /// <inheritdoc/>
-        public List<IEditorView> CreateEditorViews()
+        public IEnumerable<IEditorView> CreateEditorViews()
         {
-            return new List<IEditorView>{new Views.Editor.HexView()};
+            return new IEditorView[] {new Views.Editor.HexView()};
         }
 
         /// <inheritdoc/>
-        public List<IEventView> CreateEventViews()
+        public IEnumerable<IEventView> CreateEventViews()
         {
-            return new List<IEventView> { new Views.Event.HexView() };
+            return new IEventView[] { new Views.Event.HexView() };
         }
     }
 }
