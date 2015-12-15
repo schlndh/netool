@@ -241,6 +241,7 @@ namespace Netool.Views.Components
             {
                 if (currentEditor == null) return;
                 exportBtn.Enabled = true;
+                innerViewPanel.Embed(currentEditor.GetForm());
             }
         }
 
