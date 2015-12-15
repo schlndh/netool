@@ -2,6 +2,7 @@
 using Netool.Controllers;
 using Netool.Logging;
 using Netool.Network;
+using Netool.Network.DataFormats;
 using Netool.Views;
 using System;
 using System.Collections.Generic;
@@ -145,6 +146,14 @@ namespace Netool.Plugins
         /// </summary>
         /// <returns></returns>
         IEnumerable<IEditorView> CreateEditorViews();
+    }
+
+    /// <summary>
+    /// Basic interface for stream wrapper plugins
+    /// </summary>
+    public interface IStreamWrapperPlugin : IPlugin
+    {
+        IStreamWrapper CreateWrapper();
     }
 
     public static class ProtocolPluginExtensions

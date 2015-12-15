@@ -37,6 +37,31 @@ namespace Netool.Network.DataFormats
         void ReadBytesToBuffer(byte[] buffer, long start = 0, int length = -1, int offset = 0);
     }
 
+    /// <summary>
+    /// Basic interface for StreamWrappers
+    /// </summary>
+    /// <remarks>
+    /// Use sane wrapperName and wrapperParams, it will be used to put together
+    /// a function-style representation of used wrappers. For example:
+    /// segment(dechunk(segment(DATA, 0, 100)), 10, 20)
+    ///
+    /// I recommend using camelCase for wrapperName separate wrapper parameters by comma followed by a space.
+    /// </remarks>
+    public interface IStreamWrapper
+    {
+        /// <summary>
+        /// camelCase name of the wrapper
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
+        /// comma-separated wrapper params
+        /// </summary>
+        string Params { get; }
+
+        IDataStream Wrap(IDataStream s);
+    }
+
     public static class IDataStreamExtensions
     {
         /// <summary>
