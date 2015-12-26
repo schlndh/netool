@@ -35,8 +35,11 @@ namespace Netool.Dialogs
                 try
                 {
                     var w = plugin.CreateWrapper();
-                    usedWrappers.Add(w);
-                    wrappersListView.Items.Add(w.Name + "(" + w.Params + ")");
+                    if (w != null)
+                    {
+                        usedWrappers.Add(w);
+                        wrappersListView.Items.Add(w.Name + "(" + w.Params + ")");
+                    }
                 }
                 catch { }
             }
