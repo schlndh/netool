@@ -34,7 +34,6 @@
             this.okBtn = new System.Windows.Forms.Button();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.wrappersListView = new System.Windows.Forms.ListView();
-            this.Order = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Wrapper = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.topBtn = new System.Windows.Forms.Button();
@@ -121,16 +120,21 @@
             // wrappersListView
             // 
             this.wrappersListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.Order,
             this.Wrapper});
             this.wrappersListView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wrappersListView.GridLines = true;
+            this.wrappersListView.HideSelection = false;
             this.wrappersListView.Location = new System.Drawing.Point(3, 3);
             this.wrappersListView.Name = "wrappersListView";
             this.wrappersListView.Size = new System.Drawing.Size(358, 169);
             this.wrappersListView.TabIndex = 0;
             this.wrappersListView.UseCompatibleStateImageBehavior = false;
             this.wrappersListView.View = System.Windows.Forms.View.Details;
+            // 
+            // Wrapper
+            // 
+            this.Wrapper.Text = "Wrapper";
+            this.Wrapper.Width = 354;
             // 
             // flowLayoutPanel2
             // 
@@ -265,7 +269,6 @@
         private System.Windows.Forms.Button okBtn;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.ListView wrappersListView;
-        private System.Windows.Forms.ColumnHeader Order;
         private System.Windows.Forms.ColumnHeader Wrapper;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
         private System.Windows.Forms.Button topBtn;

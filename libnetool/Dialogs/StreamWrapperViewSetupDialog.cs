@@ -14,6 +14,7 @@ namespace Netool.Dialogs
         public StreamWrapperViewSetupDialog(IEnumerable<IStreamWrapperPlugin> plugins, IEnumerable<IStreamWrapper> currentWrappers)
         {
             InitializeComponent();
+
             foreach (var p in plugins)
             {
                 wrapperSelect.Items.Add(p);
@@ -73,27 +74,93 @@ namespace Netool.Dialogs
                     var tmp = usedWrappers[i];
                     var tmpItem = wrappersListView.Items[i];
                     usedWrappers.RemoveAt(i);
-                    usedWrappers.Insert(i + moved, tmp);
+                    usedWrappers.Insert(moved, tmp);
                     wrappersListView.Items.RemoveAt(i);
-                    wrappersListView.Items.Insert(i + moved, tmpItem);
+                    wrappersListView.Items.Insert(moved, tmpItem);
                     ++moved;
                 }
+                wrappersListView.SelectedIndices.Clear();
+                for (int i = 0; i < selected.Count; ++i) wrappersListView.SelectedIndices.Add(i);
             }
         }
 
         private void upBtn_Click(object sender, EventArgs e)
         {
-            // TODO: implement this
+            if (wrappersListView.SelectedIndices.Count > 0)
+            {
+                var selected = getSelectedIndices();
+                selected.Sort();
+                int lastSelected = -1;
+                foreach (var i in selected)
+                {
+                    if(lastSelected != i - 1)
+                    {
+                        var tmp = usedWrappers[i];
+                        var tmpItem = wrappersListView.Items[i];
+                        usedWrappers[i] = usedWrappers[i - 1];
+                        usedWrappers[i - 1] = tmp;
+                        wrappersListView.Items[i] = (ListViewItem)wrappersListView.Items[i - 1].Clone();
+                        wrappersListView.Items[i - 1] = tmpItem;
+                        wrappersListView.SelectedIndices.Remove(i);
+                        wrappersListView.SelectedIndices.Add(i - 1);
+                    }
+                    else
+                    {
+                        lastSelected = i;
+                    }
+                }
+            }
         }
 
         private void downBtn_Click(object sender, EventArgs e)
         {
-            // TODO: implement this
+            if (wrappersListView.SelectedIndices.Count > 0)
+            {
+                var selected = getSelectedIndices();
+                selected.Sort();
+                selected.Reverse();
+                int lastSelected = wrappersListView.Items.Count;
+                foreach (var i in selected)
+                {
+                    if (lastSelected != i + 1)
+                    {
+                        var tmp = usedWrappers[i];
+                        var tmpItem = wrappersListView.Items[i];
+                        usedWrappers[i] = usedWrappers[i + 1];
+                        usedWrappers[i + 1] = tmp;
+                        wrappersListView.Items[i] = (ListViewItem)wrappersListView.Items[i + 1].Clone();
+                        wrappersListView.Items[i + 1] = tmpItem;
+                        wrappersListView.SelectedIndices.Remove(i);
+                        wrappersListView.SelectedIndices.Add(i + 1);
+                    }
+                    else
+                    {
+                        lastSelected = i;
+                    }
+                }
+            }
         }
 
         private void bottomBtn_Click(object sender, EventArgs e)
         {
-            // TODO: implement this
+            if (wrappersListView.SelectedIndices.Count > 0)
+            {
+                var selected = getSelectedIndices();
+                selected.Sort();
+                int moved = 0;
+                foreach (var i in selected)
+                {
+                    var tmp = usedWrappers[i - moved];
+                    var tmpItem = wrappersListView.Items[i - moved];
+                    usedWrappers.RemoveAt(i - moved);
+                    usedWrappers.Add(tmp);
+                    wrappersListView.Items.RemoveAt(i - moved);
+                    wrappersListView.Items.Add(tmpItem);
+                    ++moved;
+                }
+                wrappersListView.SelectedIndices.Clear();
+                for (int i = 0; i < selected.Count; ++i) wrappersListView.SelectedIndices.Add(wrappersListView.Items.Count - i - 1);
+            }
         }
 
         private List<int> getSelectedIndices()
