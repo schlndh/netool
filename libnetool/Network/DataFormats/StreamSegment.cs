@@ -30,9 +30,15 @@ namespace Netool.Network.DataFormats
         /// <param name="stream"></param>
         /// <param name="offset"></param>
         /// <param name="count">-1 to make the segment from offset to the end of the stream</param>
+        /// <exception cref="ArgumentOutOfRangeException">wrong offset or count</exception>
+        /// <exception cref="ArgumentNullException">stream</exception>
         public StreamSegment(IDataStream stream, long offset = 0, long count = -1)
         {
+            if (stream == null) throw new ArgumentNullException("stream");
+            if (offset < 0) offset = stream.Length + offset;
+            if (offset < 0 || offset > stream.Length) throw new ArgumentOutOfRangeException("invalid offset");
             if (count == -1) count = stream.Length - offset;
+            if (count < 0 || offset + count > stream.Length) throw new ArgumentOutOfRangeException("invalid count");
             this.stream = stream;
             this.offset = offset;
             this.count = count;

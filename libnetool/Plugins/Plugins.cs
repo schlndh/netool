@@ -153,6 +153,10 @@ namespace Netool.Plugins
     /// </summary>
     public interface IStreamWrapperPlugin : IPlugin
     {
+        /// <summary>
+        /// Create a wrapper, you can show setup dialog to user if you have to.
+        /// </summary>
+        /// <returns>stream wrapper or null if user aborted the setup or problems occured</returns>
         IStreamWrapper CreateWrapper();
     }
 
