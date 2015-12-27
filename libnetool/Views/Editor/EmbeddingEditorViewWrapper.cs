@@ -12,6 +12,7 @@
         public string ID { get; private set; }
 
         private IEditorView view;
+        public IEditorView View { get { if (view == null) view = factory(); return view; } }
 
         private EditorViewFactory factory;
 
@@ -23,38 +24,22 @@
 
         public void Clear()
         {
-            if (view == null)
-            {
-                view = factory();
-            }
-            view.Clear();
+            View.Clear();
         }
 
         public Network.DataFormats.IDataStream GetValue()
         {
-            if (view == null)
-            {
-                view = factory();
-            }
-            return view.GetValue();
+            return View.GetValue();
         }
 
         public void SetValue(Network.DataFormats.IDataStream s)
         {
-            if (view == null)
-            {
-                view = factory();
-            }
-            view.SetValue(s);
+            View.SetValue(s);
         }
 
         public System.Windows.Forms.Form GetForm()
         {
-            if (view == null)
-            {
-                view = factory();
-            }
-            return view.GetForm();
+            return View.GetForm();
         }
     }
 }

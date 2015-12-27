@@ -12,6 +12,7 @@
         public string ID { get; private set; }
 
         private IEventView view;
+        public IEventView View { get { if (view == null) view = factory(); return view; } }
 
         private EventViewFactory factory;
 
@@ -24,21 +25,13 @@
         /// <inheritdoc/>
         public void Show(Network.DataFormats.IDataStream s)
         {
-            if (view == null)
-            {
-                view = factory();
-            }
-            view.Show(s);
+            View.Show(s);
         }
 
         /// <inheritdoc/>
         public System.Windows.Forms.Form GetForm()
         {
-            if (view == null)
-            {
-                view = factory();
-            }
-            return view.GetForm();
+            return View.GetForm();
         }
     }
 }

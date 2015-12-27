@@ -9,9 +9,14 @@ namespace Netool.Views
 {
     public partial class StreamWrapperView : Form, IEventView, IEditorView
     {
+        /// <inheritdoc />
+        public string ID { get { return "StreamWrapper"; } }
+
         private bool isEditor;
         private IEnumerable<IStreamWrapperPlugin> wrapperPlugins;
         private IEnumerable<IStreamWrapper> usedWrappers = new List<IStreamWrapper>();
+
+        public IEnumerable<IStreamWrapper> UsedWrappers { get { return usedWrappers; } set { usedWrappers = new List<IStreamWrapper>(value); refreshUsedWrappers(); } }
 
         /// <summary>
         /// current stream for EventView
@@ -59,9 +64,6 @@ namespace Netool.Views
         }
 
         /// <inheritdoc />
-        public string ID { get { return "StreamWrapper"; } }
-
-        /// <inheritdoc />
         void IEventView.Show(IDataStream s)
         {
             dataViewSelection.Stream = applyWrappers(s);
@@ -106,26 +108,31 @@ namespace Netool.Views
         private void wrapperEditBtn_Click(object sender, EventArgs e)
         {
             var dialog = new StreamWrapperViewSetupDialog(wrapperPlugins, usedWrappers);
-            var formula = "DATA";
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 usedWrappers = dialog.UsedWrappers;
-                foreach (var w in usedWrappers)
+                refreshUsedWrappers();
+            }
+        }
+
+        private void refreshUsedWrappers()
+        {
+            var formula = "DATA";
+            foreach (var w in usedWrappers)
+            {
+                if (string.IsNullOrEmpty(w.Params))
                 {
-                    if (string.IsNullOrEmpty(w.Params))
-                    {
-                        formula = w.Name + "(" + formula + ")";
-                    }
-                    else
-                    {
-                        formula = w.Name + "(" + formula + ", " + w.Params + ")";
-                    }
+                    formula = w.Name + "(" + formula + ")";
                 }
-                selectedWrapper.Text = formula;
-                if (!isEditor)
+                else
                 {
-                    dataViewSelection.Stream = applyWrappers(currentStream);
+                    formula = w.Name + "(" + formula + ", " + w.Params + ")";
                 }
+            }
+            selectedWrapper.Text = formula;
+            if (!isEditor)
+            {
+                dataViewSelection.Stream = applyWrappers(currentStream);
             }
         }
     }

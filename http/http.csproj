@@ -51,6 +51,7 @@
     <Compile Include="Network\Http\HttpMessageParser.cs" />
     <Compile Include="Network\Http\HttpServer.cs" />
     <Compile Include="Network\Http\HttpClient.cs" />
+    <Compile Include="Plugins\Plugins.cs" />
     <Compile Include="Plugins\Protocols\HttpPlugin.cs" />
     <Compile Include="Plugins\StreamWrappers\ChunkedStreamWrapperPlugin.cs" />
     <Compile Include="Plugins\StreamWrappers\DechunkedStreamWrapperPlugin.cs" />

@@ -1,11 +1,12 @@
 ﻿using Netool.Network.DataFormats;
 using Netool.Network.DataFormats.Http;
 using Netool.Network.DataFormats.StreamWrappers;
+using Netool.Plugins.Http;
 using System;
 
 namespace Netool.Plugins.StreamWrappers
 {
-    public class DechunkedStreamWrapperPlugin : IStreamWrapperPlugin
+    public class DechunkedStreamWrapperPlugin : IStreamDecoderPlugin
     {
         /// <inheritdoc />
         public long ID { get { return 4001; } }
@@ -21,6 +22,9 @@ namespace Netool.Plugins.StreamWrappers
 
         /// <inheritdoc />
         public string Author { get { return "Hynek Schlindenbuch"; } }
+
+        /// <inheritdoc />
+        public string EncodingName { get { return "chunked"; } }
 
         /// <inheritdoc />
         public Network.DataFormats.IStreamWrapper CreateWrapper()

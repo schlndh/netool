@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using Netool.Network.DataFormats;
 using Netool.Network.DataFormats.Http;
 using Netool.Plugins;
+using Netool.Plugins.Http;
 namespace Netool.Views
 {
     public partial class HttpDataView : Form, IEventView, IEditorView
@@ -18,10 +19,13 @@ namespace Netool.Views
         /// <inheritdoc />
         public string ID { get { return "HttpDataView"; } }
 
-        public HttpDataView(IEnumerable<IEventViewPlugin> eventViews)
+        private IReadOnlyDictionary<string, IStreamDecoderPlugin> decoders;
+
+        public HttpDataView(IEnumerable<IEventViewPlugin> eventViews, IReadOnlyDictionary<string, IStreamDecoderPlugin> decoders)
         {
             InitializeComponent();
             isEditor = dataViewSelection.IsEditor = false;
+            this.decoders = decoders;
             foreach(var pl in eventViews)
             {
                 foreach(var v in pl.CreateEventViews())
@@ -132,12 +136,40 @@ namespace Netool.Views
                 }
 
                 IDataStream innerData = data.BodyData;
-                // placeholder
-                if (data.Headers.ContainsKey("Content-Encoding") && data.Headers["Content-Encoding"] == "gzip")
+                if(!isEditor && data.Headers.ContainsKey("Transfer-Encoding"))
                 {
-                    var decompressed = new System.IO.Compression.GZipStream(new ToStream(data.BodyData), System.IO.Compression.CompressionMode.Decompress);
-                    innerData = FromStream.ToIDataStream(decompressed);
+                    var usedDecoders = new List<IStreamWrapper>();
+                    var transferEncodings = data.Headers["Transfer-Encoding"].ToLower().Split(new string[]{","}, StringSplitOptions.RemoveEmptyEntries);
+                    for(int i = transferEncodings.Length - 1; i > -1; --i)
+                    {
+                        IStreamDecoderPlugin decoder = null;
+                        if (decoders.TryGetValue(transferEncodings[i].Trim(), out decoder))
+                        {
+                            usedDecoders.Add(decoder.CreateWrapper());
+                        }
+                        else break;
+                    }
+                    if(usedDecoders.Count > 0)
+                    {
+                        int i = 0;
+                        foreach (var v in dataViewSelection.InnerViews)
+                        {
+                            var ve = v as Views.Event.EmbeddingEventViewWrapper;
+                            if (ve != null)
+                            {
+                                var vs = ve.View as StreamWrapperView;
+                                if(vs != null)
+                                {
+                                    vs.UsedWrappers = usedDecoders;
+                                    dataViewSelection.SelectedIndex = i;
+                                    break;
+                                }
+                            }
+                            ++i;
+                        }
+                    }
                 }
+
                 dataViewSelection.Stream = innerData;
             }
             else

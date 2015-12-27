@@ -129,7 +129,7 @@ namespace Netool.Network.Http
                             {
                                 contentData = new StreamList();
                                 var resStream = dataBuilder.Close();
-                                return parser.Create(new StreamSegment(resStream, 0, headerLength), new DechunkedStream(new StreamSegment(resStream, headerLength), dechunkedLength), resStream);
+                                return parser.Create(new StreamSegment(resStream, 0, headerLength), new StreamSegment(resStream, headerLength), resStream);
                             }
                             else
                             {

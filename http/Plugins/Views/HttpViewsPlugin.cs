@@ -1,6 +1,7 @@
 ﻿using Netool.Views;
 using System;
 using System.Collections.Generic;
+using Netool.Plugins.Http;
 
 namespace Netool.Plugins.Views
 {
@@ -19,6 +20,7 @@ namespace Netool.Plugins.Views
 
         private List<IEditorViewPlugin> editors = new List<IEditorViewPlugin>();
         private List<IEventViewPlugin> eventViews = new List<IEventViewPlugin>();
+        private Dictionary<string, IStreamDecoderPlugin> streamDecoders = new Dictionary<string, IStreamDecoderPlugin>();
 
         /// <inheritdoc/>
         public IEnumerable<IEditorView> CreateEditorViews()
@@ -29,7 +31,7 @@ namespace Netool.Plugins.Views
         /// <inheritdoc/>
         public IEnumerable<IEventView> CreateEventViews()
         {
-            return new IEventView[] { new HttpDataView(eventViews) };
+            return new IEventView[] { new HttpDataView(eventViews, streamDecoders) };
         }
 
         public void AfterLoad(PluginLoader loader)
@@ -46,8 +48,10 @@ namespace Netool.Plugins.Views
             if (e == this || e == null || e is HttpViewsPlugin) return;
             var editor = e as IEditorViewPlugin;
             var eventView = e as IEventViewPlugin;
+            var decoder = e as IStreamDecoderPlugin;
             if (editor != null) editors.Add(editor);
             if (eventView != null) eventViews.Add(eventView);
+            if (decoder != null) streamDecoders[decoder.EncodingName.ToLower()] = decoder;
         }
     }
 }
