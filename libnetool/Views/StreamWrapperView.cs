@@ -74,7 +74,7 @@ namespace Netool.Views
             var tmp = s;
             foreach (var w in usedWrappers)
             {
-                tmp = w.Wrap(s);
+                tmp = w.Wrap(tmp);
             }
             return tmp;
         }
