@@ -14,7 +14,7 @@ namespace Tests.Http.Network.DataFormats
             var stream = new DechunkedStream(EmptyData.Instance);
             Assert.Equal(0, stream.Length);
             Assert.Throws(typeof(IndexOutOfRangeException), delegate() { stream.ReadByte(0); });
-            Assert.Throws(typeof(IndexOutOfRangeException), delegate() { stream.ReadBytesToBuffer(new byte[]{5}, 0, 1, 0); });
+            Assert.Throws(typeof(IndexOutOfRangeException), delegate() { stream.ReadBytesToBuffer(new byte[] { 5 }, 0, 1, 0); });
         }
 
         [Theory,
@@ -28,8 +28,8 @@ namespace Tests.Http.Network.DataFormats
         }
 
         [Theory,
-        InlineData("5\r\n01234\r\n1\r\n5\r\n0\r\n\r\n", 2, 3,  "234"),
-        InlineData("5\r\n01234\r\n1\r\n5\r\n0\r\n\r\n", 2, 4,  "2345"),
+        InlineData("5\r\n01234\r\n1\r\n5\r\n0\r\n\r\n", 2, 3, "234"),
+        InlineData("5\r\n01234\r\n1\r\n5\r\n0\r\n\r\n", 2, 4, "2345"),
         ]
         public void TestPartialRead(string chunkedData, long start, int length, string dechunkedData)
         {
@@ -42,7 +42,7 @@ namespace Tests.Http.Network.DataFormats
         public void TestReadByte(string chunkedData, long index, string dechunkedData)
         {
             var stream = new DechunkedStream(new ByteArray(ASCIIEncoding.ASCII.GetBytes(chunkedData)));
-            Assert.Equal(dechunkedData, ASCIIEncoding.ASCII.GetString(new byte[]{stream.ReadByte(index)}));
+            Assert.Equal(dechunkedData, ASCIIEncoding.ASCII.GetString(new byte[] { stream.ReadByte(index) }));
         }
     }
 }

@@ -13,4 +13,5 @@ For 3rd-party plugins please choose high numbers. Numbers 1-100000 are reserved 
 | 3002					| HttpViewsPlugin						| EventView, EditorView | Built-in							|
 | 4001					| DechunkedStreamWrapperPlugin			| StreamWrapper			| Built-in							|
 | 4002					| StreamSegmentWrapperPlugin			| StreamWrapper			| Built-in							|
+| 4003					| ChunkedStreamWrapperPlugin			| StreamWrapper			| Built-in							|
 | 10001					| CalcPlugin							| Protocol				| Built-in-examples					|

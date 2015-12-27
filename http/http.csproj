@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Network\DataFormats\Http\ChunkedEncoding.cs" />
+    <Compile Include="Network\DataFormats\Http\ChunkedStream.cs" />
     <Compile Include="Network\DataFormats\Http\DechunkedStream.cs" />
     <Compile Include="Network\DataFormats\Http\HttpData.cs" />
     <Compile Include="Network\DataFormats\Http\HttpHeaderParser.cs" />
@@ -51,6 +52,7 @@
     <Compile Include="Network\Http\HttpServer.cs" />
     <Compile Include="Network\Http\HttpClient.cs" />
     <Compile Include="Plugins\Protocols\HttpPlugin.cs" />
+    <Compile Include="Plugins\StreamWrappers\ChunkedStreamWrapperPlugin.cs" />
     <Compile Include="Plugins\StreamWrappers\DechunkedStreamWrapperPlugin.cs" />
     <Compile Include="Plugins\Views\HttpViewsPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

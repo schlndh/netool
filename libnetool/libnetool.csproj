@@ -93,6 +93,12 @@
     <Compile Include="Dialogs\Tcp\TcpServerDialog.Designer.cs">
       <DependentUpon>TcpServerDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\TextBoxDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dialogs\TextBoxDialog.Designer.cs">
+      <DependentUpon>TextBoxDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Logging\ChannelLogger.cs" />
     <Compile Include="Logging\Event.cs" />
     <Compile Include="Logging\Exceptions.cs" />
@@ -213,6 +219,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\Tcp\TcpServerDialog.resx">
       <DependentUpon>TcpServerDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dialogs\TextBoxDialog.resx">
+      <DependentUpon>TextBoxDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Plugins\ChannelDrivers\Dialogs\ManualChannelDriverSettingsDialog.resx">
       <DependentUpon>ManualChannelDriverSettingsDialog.cs</DependentUpon>
