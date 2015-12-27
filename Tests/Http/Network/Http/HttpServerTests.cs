@@ -74,7 +74,7 @@ namespace Tests.Http.Network.Http
             data = receivedList[1];
             Assert.Equal("value2", data.Headers["Header2"]);
             payload = ASCIIEncoding.ASCII.GetString(data.BodyData.ReadBytes());
-            Assert.Equal("0123456789", payload);
+            Assert.Equal("5\r\n01234\r\n5\r\n56789\r\n0\r\n\r\n", payload);
 
             // neither transfer-encoding nor content-length is specified -> assume empty body data
             response = "GET /index.html HTTP/1.1\r\n" +
