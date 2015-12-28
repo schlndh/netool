@@ -8,9 +8,10 @@ namespace Netool.Network.DataFormats
     /// </summary>
     public class FromStream : IDataStream
     {
+        private object streamLock = new object();
         private Stream stream;
         /// <inheritdoc/>
-        public long Length { get { return stream.Length; } }
+        public long Length { get { lock(streamLock) return stream.Length; } }
 
         /// <summary>
         /// Wraps standard stream into an IDataStream. Given stream must support reading and seeking.
@@ -58,22 +59,27 @@ namespace Netool.Network.DataFormats
         public byte ReadByte(long index)
         {
             IDataStreamHelpers.ReadByteArgsCheck(this, index);
-            stream.Position = index;
-            return (byte) stream.ReadByte();
+            lock(streamLock)
+            {
+                stream.Position = index;
+                return (byte)stream.ReadByte();
+            }
         }
 
         /// <inheritdoc/>
         public void ReadBytesToBuffer(byte[] buffer, long start = 0, int length = -1, int offset = 0)
         {
             IDataStreamHelpers.ReadBytesToBufferArgsCheck(this, buffer, start, ref length, offset);
-            stream.Position = start;
-            int read = 0;
-            while(length > 0 && (read = stream.Read(buffer, offset, length)) != 0)
+            lock(streamLock)
             {
-                length -= read;
-                offset += read;
+                stream.Position = start;
+                int read = 0;
+                while (length > 0 && (read = stream.Read(buffer, offset, length)) != 0)
+                {
+                    length -= read;
+                    offset += read;
+                }
             }
-
         }
 
         /// <inheritdoc/>
