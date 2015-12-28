@@ -128,6 +128,7 @@
     <Compile Include="Network\Network.cs" />
     <Compile Include="Network\Tcp\TcpClient.cs" />
     <Compile Include="Network\Tcp\TcpClientFactory.cs" />
+    <Compile Include="Network\Tcp\TcpHelpers.cs" />
     <Compile Include="Network\Tcp\TcpServer.cs" />
     <Compile Include="Network\Udp\UdpClient.cs" />
     <Compile Include="Network\Udp\UdpClientFactory.cs" />

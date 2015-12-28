@@ -95,8 +95,7 @@ namespace Netool.Network.Tcp
         {
             try
             {
-                // TODO: improve this
-                socket.Send(request.ReadBytes());
+                TcpHelpers.Send(socket, request);
             }
             catch (ObjectDisposedException)
             {

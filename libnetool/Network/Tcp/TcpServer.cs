@@ -108,8 +108,7 @@ namespace Netool.Network.Tcp
         {
             try
             {
-                // TODO: improve this
-                socket.Send(response.ReadBytes());
+                TcpHelpers.Send(socket, response);
             }
             catch (ObjectDisposedException)
             {
