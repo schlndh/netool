@@ -119,11 +119,24 @@ namespace Netool.Logging
             }
         }
 
+        /// <summary>
+        /// Context passed to serialized objects
+        /// </summary>
+        public class SerializationContext
+        {
+            public readonly FileLog Log;
+
+            public SerializationContext(FileLog log)
+            {
+                Log = log;
+            }
+        }
+
         private FileStream stream;
         private readonly object streamLock = new object();
         private BinaryWriter binWriter;
         private BinaryReader binReader;
-        private IFormatter formatter = new BinaryFormatter();
+        private IFormatter formatter;
         private long channelCount = 0;
         private long fileCount = 0;
         private long currentFileTable = 0;
@@ -167,6 +180,7 @@ namespace Netool.Logging
         {
             this.filename = filename;
             stream = new FileStream(filename, mode, FileAccess.ReadWrite, FileShare.Read);
+            formatter = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, new SerializationContext(this)));
             init();
         }
 
