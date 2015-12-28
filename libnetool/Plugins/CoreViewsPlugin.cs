@@ -24,7 +24,7 @@ namespace Netool.Plugins
         /// <inheritdoc/>
         public IEnumerable<IEditorView> CreateEditorViews()
         {
-            return new IEditorView[] { new Views.Editor.HexView(), new Views.Editor.EmbeddingEditorViewWrapper(createEditorViewStreamWrapper, "StreamWrapper") };
+            return new IEditorView[] { new Views.Editor.HexView(), new Views.Editor.EmbeddingEditorViewWrapper(createEditorViewStreamWrapper, "StreamWrapper"), new Views.Editor.FileEditor() };
         }
 
         /// <inheritdoc/>

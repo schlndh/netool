@@ -272,11 +272,13 @@ namespace Netool.Logging
         {
             lock (streamLock)
             {
+                var initialPos = stream.Position;
                 stream.Position = 0;
                 // move to format info structure - plugin ID field
                 stream.Position = binReader.ReadInt64() + 2 * sizeof(long);
                 binWriter.Write(ID);
                 stream.Flush();
+                stream.Position = initialPos;
             }
         }
 
@@ -291,12 +293,14 @@ namespace Netool.Logging
         {
             lock (streamLock)
             {
+                var initialPos = stream.Position;
                 stream.Position = 0;
                 // move to format info structure - pointer to instance name field
                 stream.Position = binReader.ReadInt64() + 3 * sizeof(long);
                 binWriter.Write(stream.Length);
                 stream.Position = stream.Length;
                 formatter.Serialize(stream, name);
+                stream.Position = initialPos;
             }
         }
 
@@ -360,6 +364,7 @@ namespace Netool.Logging
             long hint = 0;
             lock (streamLock)
             {
+                var initialPos = stream.Position;
                 Interlocked.Increment(ref channelCount);
                 currentChannelTableSize++;
                 // current channel table is full
@@ -386,6 +391,7 @@ namespace Netool.Logging
                 // event table
                 writeNewTable();
                 stream.Flush();
+                stream.Position = initialPos;
             }
             return hint;
         }
@@ -400,6 +406,7 @@ namespace Netool.Logging
         {
             lock (streamLock)
             {
+                var initialPos = stream.Position;
                 Debug.WriteLine("FileLog ({0}) writing channel data (type: {1}, id: {2}, name: {3})", filename, channel.GetType(), channel.ID, channel.Name);
                 stream.Position = hint;
                 // write the pointer to serialized channel data
@@ -408,6 +415,7 @@ namespace Netool.Logging
                 stream.Position = stream.Length;
                 formatter.Serialize(stream, channel);
                 stream.Flush();
+                stream.Position = initialPos;
             }
         }
 
@@ -419,6 +427,7 @@ namespace Netool.Logging
         {
             lock (streamLock)
             {
+                var initialPos = stream.Position;
                 Debug.WriteLine("FileLog ({0}) writing instance data (type: {1})", filename, instance.GetType());
                 stream.Position = 0;
                 stream.Position = binReader.ReadInt64() + sizeof(long);
@@ -427,6 +436,7 @@ namespace Netool.Logging
                 stream.Position = stream.Length;
                 formatter.Serialize(stream, instance);
                 stream.Flush();
+                stream.Position = initialPos;
             }
         }
 
@@ -439,11 +449,13 @@ namespace Netool.Logging
         {
             lock (streamLock)
             {
+                var initialPos = stream.Position;
                 Debug.WriteLine("FileLog ({0}) logging event (id: {1}, type: {2})", filename, e.ID, e.Type);
                 // move the hint to the beginning of the event table
                 hint += 2*sizeof(long);
                 logEventHelper(hint, e.ID, e);
                 stream.Flush();
+                stream.Position = initialPos;
             }
         }
 
@@ -452,11 +464,16 @@ namespace Netool.Logging
             // < because the first item is a pointer to next table
             if (remainingOffset <= EventsPerBlock)
             {
+                // this hack is here to allow manipulating the log
+                // during the serialization - which is neccessary for
+                // LazyLoggedFile
+                var tmpStream = new MemoryStream();
+                formatter.Serialize(tmpStream, e);
                 stream.Position = eventTable + remainingOffset * sizeof(long);
-                long eventPos = stream.Length;
+                var eventPos = stream.Length;
                 binWriter.Write(eventPos);
-                stream.Position = stream.Length;
-                formatter.Serialize(stream, e);
+                stream.Position = eventPos;
+                binWriter.Write(tmpStream.ToArray());
             }
             // event doesn't belong to the current table
             else
@@ -510,6 +527,7 @@ namespace Netool.Logging
         {
             lock(streamLock)
             {
+                var initialPos = stream.Position;
                 long id = ++fileCount;
                 if(currentFileTable == 0)
                 {
@@ -544,6 +562,7 @@ namespace Netool.Logging
                 // file block table (1)
                 writeNewTable();
                 stream.Flush();
+                stream.Position = initialPos;
                 return new LoggedFileInfo(id, fileHint);
             }
         }
@@ -564,6 +583,7 @@ namespace Netool.Logging
 
             lock(streamLock)
             {
+                var initialPos = stream.Position;
                 if(blockBuffer == null)
                 {
                     blockBuffer = new byte[BlockSize];
@@ -626,6 +646,7 @@ namespace Netool.Logging
                                 stream.Position = hint;
                                 binWriter.Write(size + input.Length);
                                 stream.Flush();
+                                stream.Position = initialPos;
                                 return;
                             }
                             // otherwise the current block has been filled completely

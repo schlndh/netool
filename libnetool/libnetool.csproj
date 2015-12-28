@@ -112,6 +112,7 @@
     <Compile Include="Network\BaseServerChannel.cs" />
     <Compile Include="Network\DataFormats\Bridges\HexBox\DataStreamByteProvider.cs" />
     <Compile Include="Network\DataFormats\FromStream.cs" />
+    <Compile Include="Network\DataFormats\LazyLoggedFile.cs" />
     <Compile Include="Network\DataFormats\LoggedFile.cs" />
     <Compile Include="Network\DataFormats\StreamSegment.cs" />
     <Compile Include="Network\DataFormats\StreamList.cs" />
@@ -166,6 +167,12 @@
       <DependentUpon>EditorMasterView.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\Editor\EmbeddingEditorViewWrapper.cs" />
+    <Compile Include="Views\Editor\FileEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\Editor\FileEditor.Designer.cs">
+      <DependentUpon>FileEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\Editor\HexView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -234,6 +241,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Editor\EditorMasterView.resx">
       <DependentUpon>EditorMasterView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Editor\FileEditor.resx">
+      <DependentUpon>FileEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Editor\HexView.resx">
       <DependentUpon>HexView.cs</DependentUpon>

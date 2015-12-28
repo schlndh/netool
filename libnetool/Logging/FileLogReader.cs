@@ -50,10 +50,13 @@ namespace Netool.Logging
         {
             lock (streamLock)
             {
+                var initialPos = stream.Position;
                 stream.Position = 0;
                 // move to format info structure - plugin ID field
                 stream.Position = binReader.ReadInt64() + 2 * sizeof(long);
-                return binReader.ReadInt64();
+                var ret = binReader.ReadInt64();
+                stream.Position = initialPos;
+                return ret;
             }
         }
 
@@ -65,6 +68,7 @@ namespace Netool.Logging
         {
             lock (streamLock)
             {
+                var initialPos = stream.Position;
                 stream.Position = 0;
                 // move to format info structure - pointer to instance name field
                 stream.Position = binReader.ReadInt64() + 3 * sizeof(long);
@@ -72,12 +76,15 @@ namespace Netool.Logging
                 // instance name wasn't written
                 if (pos == 0)
                 {
+                    stream.Position = initialPos;
                     return null;
                 }
                 else
                 {
                     stream.Position = pos;
-                    return (string)formatter.Deserialize(stream);
+                    var ret = (string)formatter.Deserialize(stream);
+                    stream.Position = initialPos;
+                    return ret;
                 }
             }
         }
@@ -89,6 +96,7 @@ namespace Netool.Logging
         {
             lock (streamLock)
             {
+                var initialPos = stream.Position;
                 stream.Position = 0;
                 // format info structure - instance data field
                 stream.Position = binReader.ReadInt64() + sizeof(long);
@@ -97,10 +105,13 @@ namespace Netool.Logging
                 {
                     stream.Position = dataPtr;
                     // TODO: error handling
-                    return (IInstance)formatter.Deserialize(stream);
+                    var ret = (IInstance)formatter.Deserialize(stream);
+                    stream.Position = initialPos;
+                    return ret;
                 }
                 else
                 {
+                    stream.Position = initialPos;
                     return null;
                 }
             }
@@ -120,6 +131,7 @@ namespace Netool.Logging
             var table = getChannelTableHintByID(firstID, out off);
             lock (streamLock)
             {
+                var initialPos = stream.Position;
                 while(count > 0)
                 {
                     while(count > 0 && off < FileLog.ChannelsPerBlock)
@@ -134,6 +146,7 @@ namespace Netool.Logging
                     stream.Position = binReader.ReadInt64();
                     off = 1; // 0 is a pointer to next table
                 }
+                stream.Position = initialPos;
             }
             return ret;
         }
@@ -152,10 +165,13 @@ namespace Netool.Logging
 
                 lock (streamLock)
                 {
+                    var initialPos = stream.Position;
                     // move stream position to the correct channel pointer
                     stream.Position += off * sizeof(long);
                     // move the stream position to channel data
-                    return readChannelDataByHint(binReader.ReadInt64());
+                    var ret = readChannelDataByHint(binReader.ReadInt64());
+                    stream.Position = initialPos;
+                    return ret;
                 }
             }
             return null;
@@ -211,11 +227,14 @@ namespace Netool.Logging
         {
             lock (streamLock)
             {
+                var initialPos = stream.Position;
                 int off;
                 var table = getChannelTableHintByID(id, out off);
                 // read a channel table entry - contains a pointer to channel info
                 stream.Position = table + off * sizeof(long);
-                return binReader.ReadInt64();
+                var ret = binReader.ReadInt64();
+                stream.Position = initialPos;
+                return ret;
             }
         }
 
@@ -228,9 +247,11 @@ namespace Netool.Logging
         {
             lock (streamLock)
             {
+                var initialPos = stream.Position;
                 // first (long) is a pointer to channel data
                 stream.Position = hint + sizeof(long);
                 var ret = binReader.ReadInt64();
+                stream.Position = initialPos;
                 return (int)ret;
             }
         }
@@ -245,11 +266,14 @@ namespace Netool.Logging
         {
             lock (streamLock)
             {
+                var initialPos = stream.Position;
                 int off;
                 // + 2*sizeof(long) to skip the pointer to channel data and event count
                 var table = getEventTableByIndex(hint + 2 * sizeof(long), id, out off);
                 stream.Position = table + off * sizeof(long);
-                return readEventByPointer(binReader.ReadInt64());
+                var ret = readEventByPointer(binReader.ReadInt64());
+                stream.Position = initialPos;
+                return ret;
             }
         }
 
@@ -268,6 +292,7 @@ namespace Netool.Logging
             var table = getEventTableByIndex(hint + 2*sizeof(long), firstID, out off);
             lock (streamLock)
             {
+                var initialPos = stream.Position;
                 while (count > 0)
                 {
                     while (count > 0 && off <= FileLog.EventsPerBlock)
@@ -282,6 +307,7 @@ namespace Netool.Logging
                     table = binReader.ReadInt64();
                     off = 1; // 0 is a pointer to next table
                 }
+                stream.Position = initialPos;
             }
             return ret;
         }
@@ -324,6 +350,7 @@ namespace Netool.Logging
         {
             lock(streamLock)
             {
+                var initialPos = stream.Position;
                 if(fileTable == 0)
                 {
                     stream.Position = 0;
@@ -332,6 +359,7 @@ namespace Netool.Logging
                     fileTable = binReader.ReadInt64();
                     if (fileTable == 0)
                     {
+                        stream.Position = initialPos;
                         return 0;
                     }
                 }
@@ -345,12 +373,15 @@ namespace Netool.Logging
                     if(currentFBT == 0)
                     {
                         // file not found
+                        stream.Position = initialPos;
                         return 0;
                     }
                     stream.Position = currentFBT;
                 }
                 stream.Position += fileID * sizeof(long);
-                return binReader.ReadInt64();
+                var ret = binReader.ReadInt64();
+                stream.Position = initialPos;
+                return ret;
             }
         }
 
@@ -363,8 +394,11 @@ namespace Netool.Logging
         {
             lock(streamLock)
             {
+                var initialPos = stream.Position;
                 stream.Position = hint;
-                return binReader.ReadInt64();
+                var ret = binReader.ReadInt64();
+                stream.Position = initialPos;
+                return ret;
             }
         }
 
@@ -386,6 +420,7 @@ namespace Netool.Logging
             if (buffer.Length - offset < length) throw new BufferNotLargeEnoughException();
             lock (streamLock)
             {
+                var initialPos = stream.Position;
                 stream.Position = hint;
                 long size = binReader.ReadInt64();
                 if(size < start + length)
@@ -427,7 +462,11 @@ namespace Netool.Logging
                                     blockOffset += read;
                                 }
                                 if(toRead > 0) throw new LoggedFileCorruptedException(string.Format("Expected to read {0} more bytes from data block starting at {1}. File hint: {2}.", toRead, dataBlock, hint));
-                                if (length == 0) return;
+                                if (length == 0)
+                                {
+                                    stream.Position = initialPos;
+                                    return;
+                                }
                             }
                             blockOffset = 0;
                             fbt2Offset++;
