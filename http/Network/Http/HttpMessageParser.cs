@@ -25,6 +25,7 @@ namespace Netool.Network.Http
         public HttpRequestMethod LastRequestMethod = HttpRequestMethod.Null;
         private InstanceLogger logger;
         private bool isResponse;
+        private bool useContentData = true;
 
         public HttpMessageParser(InstanceLogger logger, bool isResponse)
         {
@@ -38,7 +39,7 @@ namespace Netool.Network.Http
         {
             lock (contentLock)
             {
-                contentData.Add(s);
+                if(useContentData) contentData.Add(s);
                 dataBuilder.Append(s);
                 if (!readingBody)
                 {
@@ -63,6 +64,7 @@ namespace Netool.Network.Http
                                 {
                                     info = parser.GetBodyLengthInfo(!isResponse);
                                 }
+                                useContentData = info.Type == HttpBodyLengthInfo.LengthType.Chunked;
                                 headerLength = parser.HeaderLength;
                                 if (contentData.Length - parser.HeaderLength > 0)
                                 {
