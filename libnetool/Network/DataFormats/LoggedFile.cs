@@ -36,7 +36,7 @@ namespace Netool.Network.DataFormats
         [NonSerialized]
         private FileLog log;
         [NonSerialized]
-        private ByteCache cache = new ByteCache(256);
+        private ByteCache cache;
 
         public LoggedFile(long ID, FileLog log)
         {
@@ -102,6 +102,7 @@ namespace Netool.Network.DataFormats
             var reader = log.ReaderPool.Get();
             hint = reader.GetFileHint(id);
             log.ReaderPool.Return(ref reader);
+            cache = new ByteCache(256);
         }
     }
 }
