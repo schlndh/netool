@@ -30,6 +30,8 @@ namespace Tests.Http.Network.DataFormats
         [Theory,
         InlineData("5\r\n01234\r\n1\r\n5\r\n0\r\n\r\n", 2, 3, "234"),
         InlineData("5\r\n01234\r\n1\r\n5\r\n0\r\n\r\n", 2, 4, "2345"),
+        InlineData("5\r\n\r\n234\r\n1\r\n5\r\n0\r\n\r\n", 2, 4, "2345"),
+        InlineData("5\r\n\r\n\r\n1\r\n0\r\n\r\n", 2, 3, "\r\n1"),
         ]
         public void TestPartialRead(string chunkedData, long start, int length, string dechunkedData)
         {
