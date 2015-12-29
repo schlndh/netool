@@ -445,34 +445,32 @@ namespace Netool.Logging
                                 currentFbt2 = binReader.ReadInt64();
                                 if (currentFbt2 <= 0 || currentFbt2 > streamLength - FileLog.BlockSize) throw new LoggedFileCorruptedException(string.Format("Expected valid pointer to FBT2 at {0}! File hint: {1}.", stream.Position - sizeof(long), hint));
                             }
-                            while(blockOffset < FileLog.BlockSize)
+                            stream.Position = currentFbt2 + fbt2Offset * sizeof(long);
+                            long dataBlock = binReader.ReadInt64();
+                            if (dataBlock <= 0 || dataBlock > streamLength - FileLog.BlockSize) throw new LoggedFileCorruptedException(string.Format("Expected valid pointer to data block at {0}! File hint: {1}.", stream.Position - sizeof(long), hint));
+                            stream.Position = dataBlock + blockOffset;
+                            int toRead = Math.Min(length,(int) (FileLog.BlockSize - blockOffset));
+                            int read = 0;
+                            // although all data should be available the implementation may not return them all at once
+                            while (toRead > 0 && (read = stream.Read(buffer, offset, toRead)) != 0)
                             {
-                                stream.Position = currentFbt2 + fbt2Offset * sizeof(long);
-                                long dataBlock = binReader.ReadInt64();
-                                if (dataBlock <= 0 || dataBlock > streamLength - FileLog.BlockSize) throw new LoggedFileCorruptedException(string.Format("Expected valid pointer to data block at {0}! File hint: {1}.", stream.Position - sizeof(long), hint));
-                                stream.Position = dataBlock + blockOffset;
-                                int toRead = Math.Min(length,(int) (FileLog.BlockSize - blockOffset));
-                                int read = 0;
-                                // although all data should be available the implementation may not return them all at once
-                                while (toRead > 0 && (read = stream.Read(buffer, offset, toRead)) != 0)
-                                {
-                                    toRead -= read;
-                                    offset += read;
-                                    length -= read;
-                                    blockOffset += read;
-                                }
-                                if(toRead > 0) throw new LoggedFileCorruptedException(string.Format("Expected to read {0} more bytes from data block starting at {1}. File hint: {2}.", toRead, dataBlock, hint));
-                                if (length == 0)
-                                {
-                                    stream.Position = initialPos;
-                                    return;
-                                }
+                                toRead -= read;
+                                offset += read;
+                                length -= read;
+                                blockOffset += read;
+                            }
+                            if(toRead > 0) throw new LoggedFileCorruptedException(string.Format("Expected to read {0} more bytes from data block starting at {1}. File hint: {2}.", toRead, dataBlock, hint));
+                            if (length == 0)
+                            {
+                                stream.Position = initialPos;
+                                return;
                             }
                             blockOffset = 0;
                             fbt2Offset++;
                         }
                         fbt2Offset = 0;
                         fbtOffset++;
+                        currentFbt2 = -1;
                     }
                     stream.Position = currentFbt;
                     currentFbt = binReader.ReadInt64();

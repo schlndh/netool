@@ -208,6 +208,31 @@ namespace Tests.Logging
         }
 
         [Fact]
+        public void TestReadFileDataToBuffer_ReadAcrossFBT2()
+        {
+            var hint = log.CreateFile().Hint;
+            byte[] data = new byte[256];
+            for(int i = 0; i < 256; ++i)
+            {
+                data[i] = (byte)i;
+            }
+            var dataStream = new ByteArray(data);
+
+            for (int i = 0; i < (FileLog.FilesPerBlock+1)*FileLog.BlockSize; i += (int)dataStream.Length )
+            {
+                log.AppendDataToFile(hint, dataStream);
+            }
+            Array.Reverse(data);
+            log.AppendDataToFile(hint, new ByteArray(data));
+            var buffer = new byte[FileLog.BlockSize];
+            logReader.ReadFileDataToBuffer(hint, buffer, logReader.GetFileLength(hint) - buffer.Length, buffer.Length, 0);
+            for (int i = 256; i > 0; --i)
+            {
+                Assert.Equal(i - 1, buffer[buffer.Length - i]);
+            }
+        }
+
+        [Fact]
         public void TestReadFileDataToBuffer_Big()
         {
             var hint = log.CreateFile().Hint;
