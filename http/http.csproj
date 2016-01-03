@@ -53,6 +53,8 @@
     <Compile Include="Network\Http\HttpClient.cs" />
     <Compile Include="Plugins\Plugins.cs" />
     <Compile Include="Plugins\Protocols\HttpPlugin.cs" />
+    <Compile Include="Plugins\StreamWrappers\UnGZipStreamWrapperPlugin.cs" />
+    <Compile Include="Plugins\StreamWrappers\GZipStreamWrapperPlugin.cs" />
     <Compile Include="Plugins\StreamWrappers\ChunkedStreamWrapperPlugin.cs" />
     <Compile Include="Plugins\StreamWrappers\DechunkedStreamWrapperPlugin.cs" />
     <Compile Include="Plugins\Views\HttpViewsPlugin.cs" />

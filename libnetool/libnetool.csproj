@@ -112,6 +112,7 @@
     <Compile Include="Network\BaseServerChannel.cs" />
     <Compile Include="Network\DataFormats\Bridges\HexBox\DataStreamByteProvider.cs" />
     <Compile Include="Network\DataFormats\FromStream.cs" />
+    <Compile Include="Network\DataFormats\FromUnseekableStream.cs" />
     <Compile Include="Network\DataFormats\LazyLoggedFile.cs" />
     <Compile Include="Network\DataFormats\LoggedFile.cs" />
     <Compile Include="Network\DataFormats\StreamSegment.cs" />
