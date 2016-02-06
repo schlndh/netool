@@ -38,30 +38,60 @@ namespace Netool.Network
         [field: NonSerialized]
         public event ResponseReceivedHandler ResponseReceived;
 
+        public delegate void ChannelCallback<T>(T c) where T : IChannel;
+
         public new int ID { get { return serverChannel.ID; } }
         public new string Name { get { return serverChannel.Name; } }
         private volatile bool closed = false;
+        private IChannelExtensions.ChannelHandlers clientHandlers;
+        private IChannelExtensions.ChannelHandlers serverHandlers;
 
         public DefaultProxyChannel(IClient client, IServerChannel srvChannel)
         {
+            clientHandlers = new IChannelExtensions.ChannelHandlers
+            {
+                ErrorOccured = handleErrorOccured,
+                ChannelClosed = channelClosedHandler,
+                ChannelReplaced = client_ChannelReplaced,
+                RequestSent = clientChannel_RequestSent,
+                ResponseReceived = responseReceivedHandler,
+            };
+
+            serverHandlers = new IChannelExtensions.ChannelHandlers
+            {
+                ErrorOccured = handleErrorOccured,
+                ChannelClosed = channelClosedHandler,
+                ChannelReplaced = server_ChannelReplaced,
+                RequestReceived = requestReceivedHandler,
+                ResponseSent = serverChannel_ResponseSent,
+            };
+
             client.ErrorOccured += handleErrorOccured;
             clientChannel = client.Start();
             if(clientChannel != null)
             {
-                clientChannel.ChannelClosed += channelClosedHandler;
-                clientChannel.ResponseReceived += responseReceivedHandler;
-                clientChannel.RequestSent += clientChannel_RequestSent;
-                clientChannel.ErrorOccured += handleErrorOccured;
+                clientChannel.BindAllEvents(clientHandlers);
                 serverChannel = srvChannel;
-                serverChannel.ChannelClosed += channelClosedHandler;
-                serverChannel.RequestReceived += requestReceivedHandler;
-                serverChannel.ResponseSent += serverChannel_ResponseSent;
-                serverChannel.ErrorOccured += handleErrorOccured;
+                serverChannel.BindAllEvents(serverHandlers);
             }
             else
             {
                 OnErrorOccured(new DefaultProxyException("Unable to start a client channel."));
             }
+        }
+
+        private void server_ChannelReplaced(object sender, IChannel e)
+        {
+            var c = sender as IServerChannel;
+            c.UnbindAllEvents(serverHandlers);
+            e.BindAllEvents(serverHandlers);
+        }
+
+        private void client_ChannelReplaced(object sender, IChannel e)
+        {
+            var c = sender as IClientChannel;
+            c.UnbindAllEvents(clientHandlers);
+            e.BindAllEvents(clientHandlers);
         }
 
         private void handleErrorOccured(object sender, Exception e)
@@ -105,6 +135,17 @@ namespace Netool.Network
             clientChannel.Send(data);
         }
 
+        /// <summary>
+        /// Use this method to replace inner channels
+        /// </summary>
+        /// <param name="serverChannelCallback"></param>
+        /// <param name="clientChannelCallback"></param>
+        public void ReplaceInnerChannels(ChannelCallback<IServerChannel> serverChannelCallback, ChannelCallback<IClientChannel> clientChannelCallback)
+        {
+            serverChannelCallback(serverChannel);
+            clientChannelCallback(clientChannel);
+        }
+
         private void requestReceivedHandler(object sender, DataEventArgs args)
         {
             OnRequestReceived(args.Data, args.State);
@@ -143,6 +184,13 @@ namespace Netool.Network
         public IClientFactory ClientFactory;
     }
 
+    /// <summary>
+    /// Default proxy class
+    /// </summary>
+    /// <remarks>
+    /// If you use this proxy with a IReplaceableChannel then make sure that channel type stays
+    /// even after it is replaced.
+    /// </remarks>
     [Serializable]
     public class DefaultProxy : BaseInstance, IProxy
     {

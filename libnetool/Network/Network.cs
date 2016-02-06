@@ -112,7 +112,9 @@ namespace Netool.Network
     /// </summary>
     /// <remarks>
     /// All events on a channel must happen only after ChannelCreated event is completed.
-    /// Must be serializable
+    /// Must be serializable.
+    /// Do NOT implement more than one of the IServerChannel, IClientChannel and IProxyChannel, it shouldn't be
+    /// neccessary anyway and it's not supported.
     /// </remarks>
     public interface IChannel
     {
@@ -261,6 +263,25 @@ namespace Netool.Network
         void SendToClient(IDataStream response);
     }
 
+    /// <summary>
+    /// Optional interface for channels which support channel replacing.
+    /// </summary>
+    /// <remarks>
+    /// For example: HTTP's Upgrade option.
+    /// </remarks>
+    /// <typeparam name="T">IServerChannel, IClientChannel or IProxyChannel</typeparam>
+    public interface IReplaceableChannel : IChannel
+    {
+        /// <summary>
+        /// Indicates that the channel was replaced and all listeners should rebind to the new channel.
+        /// </summary>
+        /// <remarks>
+        /// No other events can be raised while ChannelReplaced event handlers run. To achieve this use <see cref="Helpers.LockableChannel"/>.
+        /// Channel can also be replaced by another kind of channel - eg. IServerChannel can be replaced by IProxyChannel.
+        /// </remarks>
+        event EventHandler<IChannel> ChannelReplaced;
+    }
+
     public static class IInstanceExtensions
     {
         /// <summary>
@@ -294,6 +315,198 @@ namespace Netool.Network
             if (c is IServer) return InstanceType.Server;
             if (c is IProxy) return InstanceType.Proxy;
             throw new ArgumentException("Invalid IInstance!");
+        }
+    }
+
+    public static class IChannelExtensions
+    {
+        public class ChannelHandlers
+        {
+            public RequestReceivedHandler RequestReceived;
+            public RequestSentHandler RequestSent;
+            public ResponseReceivedHandler ResponseReceived;
+            public ResponseSentHandler ResponseSent;
+            public ChannelClosedHandler ChannelClosed;
+            public ChannelReadyHandler ChannelReady;
+            public EventHandler<Exception> ErrorOccured;
+            public EventHandler<IChannel> ChannelReplaced;
+
+        }
+
+        /// <summary>
+        /// Unbinds all available handlers from the channel
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <param name="handlers"></param>
+        public static void UnbindAllEvents(this IChannel channel, ChannelHandlers handlers)
+        {
+            var server = channel as IServerChannel;
+            var client = channel as IClientChannel;
+            var proxy = channel as IProxyChannel;
+            var replacable = channel as IReplaceableChannel;
+
+            if (handlers.ChannelReady != null)
+            {
+                channel.ChannelReady -= handlers.ChannelReady;
+            }
+
+            if (handlers.ChannelClosed != null)
+            {
+                channel.ChannelClosed -= handlers.ChannelClosed;
+            }
+
+            if (handlers.ErrorOccured != null)
+            {
+                channel.ErrorOccured -= handlers.ErrorOccured;
+            }
+
+            if (handlers.ResponseSent != null)
+            {
+                if (server != null)
+                {
+                    server.ResponseSent -= handlers.ResponseSent;
+                }
+
+                if (proxy != null)
+                {
+                    proxy.ResponseSent -= handlers.ResponseSent;
+                }
+            }
+
+            if (handlers.RequestReceived != null)
+            {
+                if (server != null)
+                {
+                    server.RequestReceived -= handlers.RequestReceived;
+                }
+
+                if (proxy != null)
+                {
+                    proxy.RequestReceived -= handlers.RequestReceived;
+                }
+            }
+
+            if (handlers.RequestSent != null)
+            {
+                if (client != null)
+                {
+                    client.RequestSent -= handlers.RequestSent;
+                }
+
+                if (proxy != null)
+                {
+                    proxy.RequestSent -= handlers.RequestSent;
+                }
+            }
+
+            if (handlers.ResponseReceived != null)
+            {
+                if (client != null)
+                {
+                    client.ResponseReceived -= handlers.ResponseReceived;
+                }
+
+                if (proxy != null)
+                {
+                    proxy.ResponseReceived -= handlers.ResponseReceived;
+                }
+            }
+
+            if (handlers.ChannelReplaced != null)
+            {
+                if (replacable != null)
+                {
+                    replacable.ChannelReplaced -= handlers.ChannelReplaced;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Binds all available handlers to the channel
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <param name="handlers"></param>
+        public static void BindAllEvents(this IChannel channel, ChannelHandlers handlers)
+        {
+            var server = channel as IServerChannel;
+            var client = channel as IClientChannel;
+            var proxy = channel as IProxyChannel;
+            var replacable = channel as IReplaceableChannel;
+
+            if (handlers.ChannelReady != null)
+            {
+                channel.ChannelReady += handlers.ChannelReady;
+            }
+
+            if (handlers.ChannelClosed != null)
+            {
+                channel.ChannelClosed += handlers.ChannelClosed;
+            }
+
+            if (handlers.ErrorOccured != null)
+            {
+                channel.ErrorOccured += handlers.ErrorOccured;
+            }
+
+            if (handlers.ResponseSent != null)
+            {
+                if (server != null)
+                {
+                    server.ResponseSent += handlers.ResponseSent;
+                }
+
+                if (proxy != null)
+                {
+                    proxy.ResponseSent += handlers.ResponseSent;
+                }
+            }
+
+            if (handlers.RequestReceived != null)
+            {
+                if (server != null)
+                {
+                    server.RequestReceived += handlers.RequestReceived;
+                }
+
+                if (proxy != null)
+                {
+                    proxy.RequestReceived += handlers.RequestReceived;
+                }
+            }
+
+            if (handlers.RequestSent != null)
+            {
+                if (client != null)
+                {
+                    client.RequestSent += handlers.RequestSent;
+                }
+
+                if (proxy != null)
+                {
+                    proxy.RequestSent += handlers.RequestSent;
+                }
+            }
+
+            if (handlers.ResponseReceived != null)
+            {
+                if (client != null)
+                {
+                    client.ResponseReceived += handlers.ResponseReceived;
+                }
+
+                if (proxy != null)
+                {
+                    proxy.ResponseReceived += handlers.ResponseReceived;
+                }
+            }
+
+            if (handlers.ChannelReplaced != null)
+            {
+                if (replacable != null)
+                {
+                    replacable.ChannelReplaced += handlers.ChannelReplaced;
+                }
+            }
         }
     }
 }

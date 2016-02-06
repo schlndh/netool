@@ -14,8 +14,22 @@ namespace Netool.Logging
         private int eventCount = 0;
         private FileLog log;
         private long hint = 0;
+        private IChannelExtensions.ChannelHandlers handlers;
 
         public event EventHandler<int> EventCountChanged;
+
+        private ChannelLogger()
+        {
+            handlers = new IChannelExtensions.ChannelHandlers
+            {
+                ChannelClosed = channelClosedHandler,
+                RequestSent = requestSentHandler,
+                RequestReceived = requestReceivedHandler,
+                ResponseSent = responseSentHandler,
+                ResponseReceived = responseReceivedHandler,
+                ChannelReplaced = channelReplacedHandler,
+            };
+        }
 
         /// <summary>
         /// Normal constructor
@@ -23,33 +37,13 @@ namespace Netool.Logging
         /// <param name="log"></param>
         /// <param name="hint"></param>
         /// <param name="channel"></param>
-        public ChannelLogger(FileLog log, long hint, IChannel channel)
+        public ChannelLogger(FileLog log, long hint, IChannel channel): this()
         {
             this.log = log;
             this.hint = hint;
             this.channel = channel;
             generalHandler(EventType.ChannelCreated);
-            channel.ChannelClosed += channelClosedHandler;
-            if (channel is IClientChannel)
-            {
-                var c = channel as IClientChannel;
-                c.RequestSent += requestSentHandler;
-                c.ResponseReceived += responseReceivedHandler;
-            }
-            else if (channel is IServerChannel)
-            {
-                var c = channel as IServerChannel;
-                c.RequestReceived += requestReceivedHandler;
-                c.ResponseSent += responseSentHandler;
-            }
-            else if (channel is IProxyChannel)
-            {
-                var c = channel as IProxyChannel;
-                c.RequestReceived += requestReceivedHandler;
-                c.ResponseSent += responseSentHandler;
-                c.RequestSent += requestSentHandler;
-                c.ResponseReceived += responseReceivedHandler;
-            }
+            channel.BindAllEvents(handlers);
         }
 
         /// <summary>
@@ -135,7 +129,15 @@ namespace Netool.Logging
             generalHandler(EventType.RequestSent, e);
         }
 
-        private void generalHandler(EventType type, DataEventArgs data = null)
+        private void channelReplacedHandler(object sender, IChannel e)
+        {
+            channel.UnbindAllEvents(handlers);
+            e.BindAllEvents(handlers);
+            generalHandler(EventType.ChannelReplaced, null, e);
+            channel = e;
+        }
+
+        private void generalHandler(EventType type, DataEventArgs data = null, IChannel newChannel = null)
         {
             Debug.WriteLine("ChannelLogger (type: {0}, id: {1}, name: {2}) logging event (type: {3})", channel.GetType(), channel.ID, channel.Name, type);
             int c = 0;
@@ -147,7 +149,14 @@ namespace Netool.Logging
             Event e;
             lock (events)
             {
-                e = events.AddLast(new Event(++eventCount, type, nd, DateTime.Now)).Value;
+                if(type != EventType.ChannelReplaced)
+                {
+                    e = events.AddLast(new Event(++eventCount, type, nd, DateTime.Now)).Value;
+                }
+                else
+                {
+                    e = events.AddLast(new Event(++eventCount, newChannel, DateTime.Now)).Value;
+                }
                 c = events.Count;
             }
             log.LogEvent(hint, e);

@@ -28,6 +28,7 @@ namespace Netool.Views.Channel
         private int cacheStart = 0;
         private ItemFactory createItem;
         private Editor.EditorMasterView editor = null;
+        private IChannelExtensions.ChannelHandlers handlers;
 
         public DefaultChannelView(ChannelLogger logger)
             : this(logger, DefaultColumnFiller, DefaultItemFactory)
@@ -42,6 +43,18 @@ namespace Netool.Views.Channel
             this.logger.EventCountChanged += eventCountChanged;
             filler(this.events.Columns);
             createItem = factory;
+            var r = logger.channel as IReplaceableChannel;
+            handlers = new IChannelExtensions.ChannelHandlers { ChannelReplaced = channelReplacedHandler };
+        }
+
+        private void channelReplacedHandler(object sender, IChannel e)
+        {
+            if(editor != null)
+            {
+                editor.SetProxy(e is IProxyChannel);
+            }
+            ((IChannel)sender).UnbindAllEvents(handlers);
+            e.BindAllEvents(handlers);
         }
 
         public void AllowManualControl(Editor.EditorMasterView editor)
