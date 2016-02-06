@@ -50,23 +50,22 @@ namespace Netool.Network
         {
             clientHandlers = new IChannelExtensions.ChannelHandlers
             {
-                ErrorOccured = handleErrorOccured,
+                ErrorOccured = errorOccuredHandler,
                 ChannelClosed = channelClosedHandler,
                 ChannelReplaced = client_ChannelReplaced,
-                RequestSent = clientChannel_RequestSent,
-                ResponseReceived = responseReceivedHandler,
+                RequestSent = client_RequestSent,
+                ResponseReceived = client_ResponseReceived,
             };
 
             serverHandlers = new IChannelExtensions.ChannelHandlers
             {
-                ErrorOccured = handleErrorOccured,
+                ErrorOccured = errorOccuredHandler,
                 ChannelClosed = channelClosedHandler,
                 ChannelReplaced = server_ChannelReplaced,
-                RequestReceived = requestReceivedHandler,
-                ResponseSent = serverChannel_ResponseSent,
+                RequestReceived = server_RequestReceived,
+                ResponseSent = server_ResponseSent,
             };
 
-            client.ErrorOccured += handleErrorOccured;
             clientChannel = client.Start();
             if(clientChannel != null)
             {
@@ -94,17 +93,17 @@ namespace Netool.Network
             e.BindAllEvents(clientHandlers);
         }
 
-        private void handleErrorOccured(object sender, Exception e)
+        private void errorOccuredHandler(object sender, Exception e)
         {
             OnErrorOccured(e);
         }
 
-        private void clientChannel_RequestSent(object sender, DataEventArgs e)
+        private void client_RequestSent(object sender, DataEventArgs e)
         {
             OnRequestSent(e.Data, e.State);
         }
 
-        private void serverChannel_ResponseSent(object sender, DataEventArgs e)
+        private void server_ResponseSent(object sender, DataEventArgs e)
         {
             OnResponseSent(e.Data, e.State);
         }
@@ -146,12 +145,12 @@ namespace Netool.Network
             clientChannelCallback(clientChannel);
         }
 
-        private void requestReceivedHandler(object sender, DataEventArgs args)
+        private void server_RequestReceived(object sender, DataEventArgs args)
         {
             OnRequestReceived(args.Data, args.State);
         }
 
-        private void responseReceivedHandler(object sender, DataEventArgs e)
+        private void client_ResponseReceived(object sender, DataEventArgs e)
         {
             OnResponseReceived(e.Data, e.State);
         }
