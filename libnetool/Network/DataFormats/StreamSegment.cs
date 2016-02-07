@@ -32,6 +32,10 @@ namespace Netool.Network.DataFormats
         /// <param name="count">-1 to make the segment from offset to the end of the stream</param>
         /// <exception cref="ArgumentOutOfRangeException">wrong offset or count</exception>
         /// <exception cref="ArgumentNullException">stream</exception>
+        /// <remarks>
+        /// It's optimalized for recursive StreamSegments:
+        /// StreamSegment(StreamSegment(s, 1, 9), 2, 3) will be the same as StreamSegment(s, 3, 3)
+        /// </remarks>
         public StreamSegment(IDataStream stream, long offset = 0, long count = -1)
         {
             if (stream == null) throw new ArgumentNullException("stream");
@@ -39,9 +43,20 @@ namespace Netool.Network.DataFormats
             if (offset < 0 || offset > stream.Length) throw new ArgumentOutOfRangeException("invalid offset");
             if (count == -1) count = stream.Length - offset;
             if (count < 0 || offset + count > stream.Length) throw new ArgumentOutOfRangeException("invalid count");
-            this.stream = stream;
-            this.offset = offset;
             this.count = count;
+
+            // optimalization for recursive StreamSegments
+            if(stream.GetType() == typeof(StreamSegment))
+            {
+                var s = (StreamSegment)stream;
+                this.stream = s.Stream;
+                this.offset = s.Offset + offset;
+            }
+            else
+            {
+                this.stream = stream;
+                this.offset = offset;
+            }
         }
 
         /// <inheritdoc/>
