@@ -3,7 +3,7 @@ using Netool.Network.DataFormats.Http;
 using System.Text;
 using Xunit;
 
-namespace Tests.Http.Network.DataFormats
+namespace Tests.Http.Network.DataFormats.Http
 {
     public class ChunkedStreamTests
     {

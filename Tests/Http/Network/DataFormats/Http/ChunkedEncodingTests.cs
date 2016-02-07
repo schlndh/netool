@@ -4,7 +4,7 @@ using Xunit;
 using Netool.Network.DataFormats;
 using Netool.Network.DataFormats.Http;
 
-namespace Tests.Http.Network.DataFormats
+namespace Tests.Http.Network.DataFormats.Http
 {
     public class ChunkedEncodingTests
     {

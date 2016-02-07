@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Xunit;
 using Netool.Network.DataFormats.Http;
 
-namespace Tests.Http.Network.DataFormats
+namespace Tests.Http.Network.DataFormats.Http
 {
     public class HttpDataTests
     {

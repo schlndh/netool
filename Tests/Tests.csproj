@@ -62,11 +62,11 @@
   </Choose>
   <ItemGroup>
     <Compile Include="HelperClasses.cs" />
-    <Compile Include="Http\Network\DataFormats\ChunkedEncodingTests.cs" />
-    <Compile Include="Http\Network\DataFormats\ChunkedStreamTests.cs" />
-    <Compile Include="Http\Network\DataFormats\DechunkedStreamTests.cs" />
-    <Compile Include="Http\Network\DataFormats\HttpDataTests.cs" />
-    <Compile Include="Http\Network\DataFormats\HttpHeaderParserTests.cs" />
+    <Compile Include="Http\Network\DataFormats\Http\ChunkedEncodingTests.cs" />
+    <Compile Include="Http\Network\DataFormats\Http\ChunkedStreamTests.cs" />
+    <Compile Include="Http\Network\DataFormats\Http\DechunkedStreamTests.cs" />
+    <Compile Include="Http\Network\DataFormats\Http\HttpDataTests.cs" />
+    <Compile Include="Http\Network\DataFormats\Http\HttpHeaderParserTests.cs" />
     <Compile Include="Http\Network\Http\HttpServerTests.cs" />
     <Compile Include="Http\Network\Http\HttpClientTests.cs" />
     <Compile Include="Logging\FileLogReaderTests.cs" />
