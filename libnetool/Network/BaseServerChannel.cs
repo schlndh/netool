@@ -20,5 +20,15 @@ namespace Netool.Network
         {
             if (ResponseSent != null) ResponseSent(this, new DataEventArgs { Data = response, State = state });
         }
+
+        protected virtual void OnRequestReceived(DataEventArgs e)
+        {
+            if (RequestReceived != null) RequestReceived(this, e);
+        }
+
+        protected virtual void OnResponseSent(DataEventArgs e)
+        {
+            if (ResponseSent != null) ResponseSent(this, e);
+        }
     }
 }
