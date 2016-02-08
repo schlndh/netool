@@ -16,6 +16,9 @@ namespace Netool.Logging
 
         public event EventHandler<int> ChannelCountChanged;
 
+        /// <summary>
+        /// Constructs instance logger with temporary file
+        /// </summary>
         public InstanceLogger()
         {
             log = new FileLog(Path.GetTempFileName());
