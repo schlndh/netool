@@ -49,5 +49,15 @@ namespace Tests.Network.DataFormats
             list.ReadBytesToBuffer(buffer, 16, 5);
             Assert.Equal(7, buffer[0]);
         }
+
+        [Fact]
+        public void TestAddListToItself()
+        {
+            var list = new StreamList();
+            list.Add(new ByteArray(new byte[]{5,6}));
+            list.Add(list);
+            Assert.Equal(4, list.Length);
+            Assert.Equal(5, list.ReadByte(2));
+        }
     }
 }

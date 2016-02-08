@@ -24,10 +24,11 @@ namespace Netool.Network.DataFormats
         /// <param name="s">stream</param>
         public void Add(IDataStream s)
         {
+            s = (IDataStream)s.Clone();
             streamsLock.EnterWriteLock();
             try
             {
-                streams.Add((IDataStream) s.Clone());
+                streams.Add(s);
                 Interlocked.Add(ref length, s.Length);
             }
             finally
