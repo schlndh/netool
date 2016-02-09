@@ -75,7 +75,16 @@ namespace Netool.Views.Editor
         {
             if (editorViewSelect.SelectedIndex > -1)
             {
-                var val = ((IEditorView)editorViewSelect.SelectedItem).GetValue();
+                IDataStream val;
+                try
+                {
+                    val = ((IEditorView)editorViewSelect.SelectedItem).GetValue();
+                }
+                catch (ValidationException ex)
+                {
+                    MessageBox.Show(ex.Message, "Validation failed!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
                 if (SendClicked != null)
                 {
                     SendClicked(this, new SendEventArgs { Data = val, ToClient = proxyRadioClient.Checked});

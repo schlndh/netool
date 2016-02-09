@@ -51,6 +51,30 @@ namespace Netool.Views
         void Show(IDataStream s);
     }
 
+    [System.Serializable]
+    public class EditorException : System.Exception
+    {
+        public EditorException() { }
+        public EditorException(string message) : base(message) { }
+        public EditorException(string message, System.Exception inner) : base(message, inner) { }
+        protected EditorException(
+          System.Runtime.Serialization.SerializationInfo info,
+          System.Runtime.Serialization.StreamingContext context)
+            : base(info, context) { }
+    }
+
+    [System.Serializable]
+    public class ValidationException : EditorException
+    {
+        public ValidationException() { }
+        public ValidationException(string message) : base(message) { }
+        public ValidationException(string message, System.Exception inner) : base(message, inner) { }
+        protected ValidationException(
+          System.Runtime.Serialization.SerializationInfo info,
+          System.Runtime.Serialization.StreamingContext context)
+            : base(info, context) { }
+    }
+
     public interface IEditorView : IFormView
     {
         string ID { get; }
@@ -60,6 +84,11 @@ namespace Netool.Views
         /// </summary>
         void Clear();
 
+        /// <summary>
+        /// Get value from editor
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="ValidationException">validation failed</exception>
         IDataStream GetValue();
 
         void SetValue(IDataStream s);
