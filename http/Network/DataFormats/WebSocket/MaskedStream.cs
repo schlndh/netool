@@ -9,6 +9,7 @@ namespace Netool.Network.DataFormats.WebSocket
     /// Used for https://tools.ietf.org/html/rfc6455#section-5.3
     /// Apply a MaskedStream with the same key again to unmask it.
     /// </remarks>
+    [Serializable]
     public class MaskedStream : IDataStream
     {
         /// <inheritdoc/>
