@@ -97,7 +97,7 @@ namespace Netool.Views
         /// <inheritdoc />
         void IEditorView.SetValue(IDataStream s)
         {
-            dataViewSelection.Stream = s;
+            setValue(s);
         }
 
         private void setValue(IDataStream s)
