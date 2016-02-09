@@ -26,18 +26,7 @@ namespace Netool.Views
             InitializeComponent();
             isEditor = dataViewSelection.IsEditor = false;
             this.decoders = decoders;
-            foreach(var pl in eventViews)
-            {
-                foreach(var v in pl.CreateEventViews())
-                {
-                    dataViewSelection.InnerViews.Add(v);
-                    // prevent inifinite embedding
-                    if(v is Event.HexView)
-                    {
-                        dataViewSelection.SelectedIndex = dataViewSelection.InnerViews.Count - 1;
-                    }
-                }
-            }
+            dataViewSelection.AddEventViews(eventViews, typeof(Event.HexView));
             init();
         }
 
@@ -45,18 +34,7 @@ namespace Netool.Views
         {
             InitializeComponent();
             isEditor = dataViewSelection.IsEditor = true;
-            foreach (var pl in editors)
-            {
-                foreach (var v in pl.CreateEditorViews())
-                {
-                    dataViewSelection.InnerEditors.Add(v);
-                    // prevent inifinite embedding
-                    if (v is Editor.HexView)
-                    {
-                        dataViewSelection.SelectedIndex = dataViewSelection.InnerEditors.Count - 1;
-                    }
-                }
-            }
+            dataViewSelection.AddEditors(editors, typeof(Editor.HexView));
             init();
         }
 

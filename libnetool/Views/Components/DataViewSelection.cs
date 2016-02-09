@@ -1,4 +1,5 @@
 ﻿using Netool.Network.DataFormats;
+using Netool.Plugins;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -182,6 +183,50 @@ namespace Netool.Views.Components
             InitializeComponent();
             innerViews = new TypedIListAdapter<IEventView>(innerViewSelect.Items);
             innerEditors = new TypedIListAdapter<IEditorView>(innerViewSelect.Items);
+        }
+
+        /// <summary>
+        /// Add all editors at once
+        /// </summary>
+        /// <param name="editors"></param>
+        /// <param name="defaultEditor">should not embed other editors (infinite embedding)!</param>
+        public void AddEditors(IEnumerable<IEditorViewPlugin> editors, Type defaultEditor = null)
+        {
+            if (!isEditor) throw new InvalidOperationException("Adding editors to non-editor DataViewSelection");
+            if (defaultEditor == null) defaultEditor = typeof(Editor.HexView);
+            foreach (var pl in editors)
+            {
+                foreach (var v in pl.CreateEditorViews())
+                {
+                    InnerEditors.Add(v);
+                    if (v.GetType() == defaultEditor)
+                    {
+                        SelectedIndex = InnerEditors.Count - 1;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Add all editors at once
+        /// </summary>
+        /// <param name="eventViews"></param>
+        /// <param name="defaultEventView">should not embed other editors (infinite embedding)!</param>
+        public void AddEventViews(IEnumerable<IEventViewPlugin> eventViews, Type defaultEventView = null)
+        {
+            if (isEditor) throw new InvalidOperationException("Adding event views to editor DataViewSelection");
+            if (defaultEventView == null) defaultEventView = typeof(Event.HexView);
+            foreach (var pl in eventViews)
+            {
+                foreach (var v in pl.CreateEventViews())
+                {
+                    InnerViews.Add(v);
+                    if (v.GetType() == defaultEventView)
+                    {
+                        SelectedIndex = InnerViews.Count - 1;
+                    }
+                }
+            }
         }
 
         private void exportBtn_Click(object sender, EventArgs e)
