@@ -17,6 +17,21 @@ namespace Netool.Controllers
 
         public class DefaultChannelViewFactory : IChannelViewFactory
         {
+            public delegate IChannelView ChannelViewCallback(Views.Channel.DefaultChannelView v);
+            private ChannelViewCallback callback;
+
+            public DefaultChannelViewFactory() { }
+
+            /// <summary>
+            ///
+            /// </summary>
+            /// <param name="c">callback that will be called before returning channel view from factory</param>
+            public DefaultChannelViewFactory(ChannelViewCallback c)
+            {
+                callback = c;
+            }
+
+            /// <inheritdoc/>
             public IChannelView CreateChannelView(ChannelLogger logger, IMainController mainCont)
             {
                 var v = new Views.Channel.DefaultChannelView(logger);
@@ -34,7 +49,8 @@ namespace Netool.Controllers
                     }
                     v.AllowManualControl(masterEd);
                 }
-                return v;
+                if(callback == null) return v;
+                return callback(v);
             }
         }
 

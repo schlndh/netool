@@ -30,6 +30,8 @@ namespace Netool.Views.Channel
         private Editor.EditorMasterView editor = null;
         private IChannelExtensions.ChannelHandlers handlers;
 
+        public IChannel Channel { get { return logger.channel; } }
+
         public DefaultChannelView(ChannelLogger logger)
             : this(logger, DefaultColumnFiller, DefaultItemFactory)
         {
@@ -79,6 +81,11 @@ namespace Netool.Views.Channel
         public Form GetForm()
         {
             return this;
+        }
+
+        public void AddMenuItem(ToolStripMenuItem item)
+        {
+            channelMenu.Items.Add(item);
         }
 
         private void eventCountChanged(object sender, int e)
