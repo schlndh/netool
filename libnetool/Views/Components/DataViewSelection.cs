@@ -147,7 +147,7 @@ namespace Netool.Views.Components
                 if(isEditor)
                 {
                     if (currentEditor == null) return;
-                    if (stream == null) currentEditor.Clear();
+                    if (value == null) currentEditor.Clear();
                     else currentEditor.SetValue(value);
                 }
                 else
