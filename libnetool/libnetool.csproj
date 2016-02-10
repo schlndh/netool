@@ -145,6 +145,7 @@
     <Compile Include="Plugins\ChannelDrivers\ManualChannelDriverPlugin.cs" />
     <Compile Include="Plugins\ChannelDrivers\DefaultProxyChannelDriverPlugin.cs" />
     <Compile Include="Plugins\CoreViewsPlugin.cs" />
+    <Compile Include="Plugins\Helpers\CachedPluginEnumerable.cs" />
     <Compile Include="Plugins\PluginExceptions.cs" />
     <Compile Include="Plugins\PluginLoader.cs" />
     <Compile Include="Plugins\Plugins.cs" />
