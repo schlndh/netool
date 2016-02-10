@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using Netool.Plugins.Http;
+using Netool.Views.Event;
+using Netool.Views.Editor;
 
 namespace Netool.Plugins.Views
 {
@@ -25,13 +27,21 @@ namespace Netool.Plugins.Views
         /// <inheritdoc/>
         public IEnumerable<IEditorView> CreateEditorViews()
         {
-            return new IEditorView[] { new HttpDataView(editors), new WebSocketMessageView(editors) };
+            return new IEditorView[]
+            {
+                new EmbeddingEditorViewWrapper(() => (new HttpDataView(editors)), HttpDataView.StaticID),
+                new EmbeddingEditorViewWrapper(() => (new WebSocketMessageView(editors)), WebSocketMessageView.StaticID),
+            };
         }
 
         /// <inheritdoc/>
         public IEnumerable<IEventView> CreateEventViews()
         {
-            return new IEventView[] { new HttpDataView(eventViews, streamDecoders), new WebSocketMessageView(eventViews) };
+            return new IEventView[]
+            {
+                new EmbeddingEventViewWrapper(() => new HttpDataView(eventViews, streamDecoders), HttpDataView.StaticID),
+                new EmbeddingEventViewWrapper(() => new WebSocketMessageView(eventViews), WebSocketMessageView.StaticID),
+            };
         }
 
         public void AfterLoad(PluginLoader loader)

@@ -10,8 +10,10 @@ namespace Netool.Views
 {
     public partial class WebSocketMessageView : Form, IEventView, IEditorView
     {
+        public static string StaticID { get { return "WebSocketView"; } }
+
         /// <inheritdoc/>
-        public string ID { get { return "WebSocketView"; } }
+        public string ID { get { return StaticID; } }
 
         private Random randomGen = new Random();
         private byte[] randKey = new byte[4];

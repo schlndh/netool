@@ -16,8 +16,11 @@ namespace Netool.Views
     public partial class HttpDataView : Form, IEventView, IEditorView
     {
         private bool isEditor;
+
+        public static string StaticID { get { return "HttpDataView"; } }
+
         /// <inheritdoc />
-        public string ID { get { return "HttpDataView"; } }
+        public string ID { get { return StaticID; } }
 
         private IReadOnlyDictionary<string, IStreamDecoderPlugin> decoders;
 
