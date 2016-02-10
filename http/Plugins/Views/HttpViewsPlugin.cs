@@ -1,6 +1,7 @@
 ﻿using Netool.Views;
 using System;
 using System.Collections.Generic;
+using Netool.Plugins.Helpers;
 using Netool.Plugins.Http;
 using Netool.Views.Event;
 using Netool.Views.Editor;
@@ -20,8 +21,9 @@ namespace Netool.Plugins.Views
         /// <inheritdoc/>
         public string Author { get { return "Hynek Schlindenbuch"; } }
 
-        private List<IEditorViewPlugin> editors = new List<IEditorViewPlugin>();
-        private List<IEventViewPlugin> eventViews = new List<IEventViewPlugin>();
+        private CachedPluginEnumerable<IEditorViewPlugin> editors = new CachedPluginEnumerable<IEditorViewPlugin>();
+        private CachedPluginEnumerable<IEventViewPlugin> eventViews = new CachedPluginEnumerable<IEventViewPlugin>();
+
         private Dictionary<string, IStreamDecoderPlugin> streamDecoders = new Dictionary<string, IStreamDecoderPlugin>();
 
         /// <inheritdoc/>
@@ -44,8 +46,10 @@ namespace Netool.Plugins.Views
             };
         }
 
-        public void AfterLoad(PluginLoader loader)
+        void IExtensiblePlugin.AfterLoad(PluginLoader loader)
         {
+            editors.Loader = loader;
+            eventViews.Loader = loader;
             foreach(var p in loader.Plugins)
             {
                 loader_PluginLoaded(null, p);
@@ -56,11 +60,7 @@ namespace Netool.Plugins.Views
         private void loader_PluginLoaded(object sender, IPlugin e)
         {
             if (e == this || e == null || e is HttpViewsPlugin) return;
-            var editor = e as IEditorViewPlugin;
-            var eventView = e as IEventViewPlugin;
             var decoder = e as IStreamDecoderPlugin;
-            if (editor != null) editors.Add(editor);
-            if (eventView != null) eventViews.Add(eventView);
             if (decoder != null) streamDecoders[decoder.EncodingName.ToLower()] = decoder;
         }
     }

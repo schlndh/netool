@@ -1,6 +1,7 @@
 ﻿using Netool.Views;
 using System;
 using System.Collections.Generic;
+using Netool.Plugins.Helpers;
 
 namespace Netool.Plugins
 {
@@ -17,9 +18,9 @@ namespace Netool.Plugins
         /// <inheritdoc/>
         public string Author { get { return "Hynek Schlindenbuch"; } }
 
-        private List<IStreamWrapperPlugin> streamWrapperPlugins = new List<IStreamWrapperPlugin>();
-        private List<IEventViewPlugin> eventViewPlugins = new List<IEventViewPlugin>();
-        private List<IEditorViewPlugin> editorViewPlugins = new List<IEditorViewPlugin>();
+        private CachedPluginEnumerable<IStreamWrapperPlugin> streamWrapperPlugins = new CachedPluginEnumerable<IStreamWrapperPlugin>();
+        private CachedPluginEnumerable<IEditorViewPlugin> editorViewPlugins = new CachedPluginEnumerable<IEditorViewPlugin>();
+        private CachedPluginEnumerable<IEventViewPlugin> eventViewPlugins = new CachedPluginEnumerable<IEventViewPlugin>();
 
         /// <inheritdoc/>
         public IEnumerable<IEditorView> CreateEditorViews()
@@ -35,30 +36,7 @@ namespace Netool.Plugins
 
         public void AfterLoad(PluginLoader loader)
         {
-            foreach(var pl in loader.Plugins)
-            {
-                loadPlugin(loader, pl);
-            }
-            loader.PluginLoaded += loadPlugin;
-        }
-
-        void loadPlugin(object sender, IPlugin e)
-        {
-            var pl = e as IStreamWrapperPlugin;
-            var eventView = e as IEventViewPlugin;
-            var editor = e as IEditorViewPlugin;
-            if(pl != null)
-            {
-                streamWrapperPlugins.Add(pl);
-            }
-            if(eventView != null)
-            {
-                eventViewPlugins.Add(eventView);
-            }
-            if(editor != null)
-            {
-                editorViewPlugins.Add(editor);
-            }
+            streamWrapperPlugins.Loader = editorViewPlugins.Loader = eventViewPlugins.Loader = loader;
         }
 
         private IEventView createEventViewStreamWrapper()

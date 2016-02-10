@@ -3,6 +3,7 @@ using Netool.Dialogs.Tcp;
 using Netool.Logging;
 using Netool.Network;
 using Netool.Network.Http;
+using Netool.Plugins.Helpers;
 using Netool.Plugins.Http;
 using Netool.Views;
 using Netool.Views.Channel;
@@ -40,7 +41,7 @@ namespace Netool.Plugins.Protocols
         /// <inheritdoc/>
         public string ProtocolName { get { return "Http"; } }
 
-        private List<IProtocolUpgradePlugin> upgradePlugins = new List<IProtocolUpgradePlugin>();
+        private CachedPluginEnumerable<IProtocolUpgradePlugin> upgradePlugins = new CachedPluginEnumerable<IProtocolUpgradePlugin>();
 
         /// <inheritdoc/>
         public InstancePack CreateInstance(InstanceLogger logger, InstanceType type)
@@ -151,53 +152,43 @@ namespace Netool.Plugins.Protocols
         private IChannelView channelViewCallback(DefaultChannelView v)
         {
             var httpMenu = new ToolStripMenuItem("Http");
-            if(upgradePlugins.Count > 0)
+            var upgrade = new ToolStripMenuItem("Protocol Upgrade");
+            foreach(var p in upgradePlugins)
             {
-                var upgrade = new ToolStripMenuItem("Protocol Upgrade");
-                foreach(var p in upgradePlugins)
-                {
-                    upgrade.DropDownItems.Add(new ToolStripMenuItem(p.ProtocolName, null, delegate(object sender, EventArgs e) {
-                        IProtocolUpgrader upgrader;
-                        try
-                        {
-                            upgrader = p.CreateUpgrader();
-                        }
-                        catch(SetupAbortedByUserException)
-                        {
-                            return;
-                        }
-                        if(upgrader == null) return;
-                        if(v.Channel.GetType() == typeof(HttpServerChannel))
-                        {
-                            ((HttpServerChannel)v.Channel).UpgradeProtocol(upgrader);
-                        }
-                        else if(v.Channel.GetType() == typeof(HttpClientChannel))
-                        {
-                            ((HttpClientChannel)v.Channel).UpgradeProtocol(upgrader);
-                        }
-                        // TODO: add upgrading for http proxy (once proxy is enabled)
-                    }));
-                }
-                httpMenu.DropDownItems.Add(upgrade);
+                upgrade.DropDownItems.Add(new ToolStripMenuItem(p.ProtocolName, null, delegate(object sender, EventArgs e) {
+                    IProtocolUpgrader upgrader;
+                    try
+                    {
+                        upgrader = p.CreateUpgrader();
+                    }
+                    catch(SetupAbortedByUserException)
+                    {
+                        return;
+                    }
+                    if(upgrader == null) return;
+                    if(v.Channel.GetType() == typeof(HttpServerChannel))
+                    {
+                        ((HttpServerChannel)v.Channel).UpgradeProtocol(upgrader);
+                    }
+                    else if(v.Channel.GetType() == typeof(HttpClientChannel))
+                    {
+                        ((HttpClientChannel)v.Channel).UpgradeProtocol(upgrader);
+                    }
+                    // TODO: add upgrading for http proxy (once proxy is enabled)
+                }));
             }
-            v.AddMenuItem(httpMenu);
+            if(upgrade.DropDownItems.Count > 0)
+            {
+                httpMenu.DropDownItems.Add(upgrade);
+                v.AddMenuItem(httpMenu);
+            }
+
             return v;
         }
 
-        public void AfterLoad(PluginLoader loader)
+        void IExtensiblePlugin.AfterLoad(PluginLoader loader)
         {
-            foreach(var p in loader.Plugins)
-            {
-                loader_PluginLoaded(loader, p);
-
-            }
-            loader.PluginLoaded += loader_PluginLoaded;
-        }
-
-        private void loader_PluginLoaded(object sender, IPlugin e)
-        {
-            var upgrader = e as IProtocolUpgradePlugin;
-            if (upgrader != null) upgradePlugins.Add(upgrader);
+            upgradePlugins.Loader = loader;
         }
     }
 }
