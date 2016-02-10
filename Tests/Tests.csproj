@@ -68,6 +68,8 @@
     <Compile Include="Http\Network\DataFormats\Http\HttpDataTests.cs" />
     <Compile Include="Http\Network\DataFormats\Http\HttpHeaderParserTests.cs" />
     <Compile Include="Http\Network\DataFormats\WebSocket\MaskedStreamTests.cs" />
+    <Compile Include="Http\Network\DataFormats\WebSocket\WebSocketMessageParserTests.cs" />
+    <Compile Include="Http\Network\Http\BaseWebSocketTests.cs" />
     <Compile Include="Http\Network\Http\HttpServerTests.cs" />
     <Compile Include="Http\Network\Http\HttpClientTests.cs" />
     <Compile Include="Logging\FileLogReaderTests.cs" />

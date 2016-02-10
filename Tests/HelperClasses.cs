@@ -70,4 +70,31 @@ namespace Tests
             OnChannelClosed();
         }
     }
+
+    [Serializable]
+    internal class DummyDataStream : IDataStream
+    {
+        private long length;
+
+        public DummyDataStream(long length)
+        {
+            this.length = length;
+        }
+
+        public long Length { get { return length; } }
+
+        public byte ReadByte(long index)
+        {
+            return (byte) index;
+        }
+
+        public void ReadBytesToBuffer(byte[] buffer, long start = 0, int length = -1, int offset = 0)
+        {
+        }
+
+        public object Clone()
+        {
+            return this;
+        }
+    }
 }

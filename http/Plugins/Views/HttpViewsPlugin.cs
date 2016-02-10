@@ -25,13 +25,13 @@ namespace Netool.Plugins.Views
         /// <inheritdoc/>
         public IEnumerable<IEditorView> CreateEditorViews()
         {
-            return new IEditorView[] { new HttpDataView(editors) };
+            return new IEditorView[] { new HttpDataView(editors), new WebSocketMessageView(editors) };
         }
 
         /// <inheritdoc/>
         public IEnumerable<IEventView> CreateEventViews()
         {
-            return new IEventView[] { new HttpDataView(eventViews, streamDecoders) };
+            return new IEventView[] { new HttpDataView(eventViews, streamDecoders), new WebSocketMessageView(eventViews) };
         }
 
         public void AfterLoad(PluginLoader loader)

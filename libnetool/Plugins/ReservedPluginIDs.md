@@ -17,3 +17,4 @@ For 3rd-party plugins please choose high numbers. Numbers 1-100000 are reserved 
 | 4004					| GZipStreamWrapperPlugin				| StreamWrapper			| Built-in							|
 | 4005					| UnGZipStreamWrapperPlugin				| StreamWrapper			| Built-in							|
 | 10001					| CalcPlugin							| Protocol				| Built-in-examples					|
+| 11001					| WebSocketPlugin						| ProtocolUpgrade		| Built-in							|
