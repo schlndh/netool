@@ -1,7 +1,9 @@
 ﻿using Netool.Logging;
 using Netool.Network.DataFormats;
 using Netool.Network.DataFormats.Http;
+using Netool.Network.Helpers;
 using Netool.Network.Tcp;
+using Netool.Plugins.Http;
 using System;
 
 namespace Netool.Network.Http
@@ -13,9 +15,9 @@ namespace Netool.Network.Http
     }
 
     [Serializable]
-    public class HttpServerChannel : BaseServerChannel, IServerChannel
+    public class HttpServerChannel : BaseServerChannel, IServerChannel, IReplaceableChannel
     {
-        private IServerChannel channel;
+        private LockableServerChannel channel;
 
         [NonSerialized]
         private HttpMessageParser parser;
@@ -23,21 +25,32 @@ namespace Netool.Network.Http
         [NonSerialized]
         private InstanceLogger logger;
 
+        [field:NonSerialized]
+        public event EventHandler<IChannel> ChannelReplaced;
+
+        [NonSerialized]
+        private IChannelExtensions.ChannelHandlers handlers;
+
         public HttpServerChannel(IServerChannel channel, InstanceLogger logger)
         {
-            this.channel = channel;
+            if (channel.GetType() != typeof(LockableServerChannel)) channel = new LockableServerChannel(channel);
+            this.channel = (LockableServerChannel)channel;
             this.id = channel.ID;
             this.name = channel.Name;
-            channel.ChannelClosed += channelClosedHandler;
-            channel.ChannelReady += channelReadyHandler;
-            channel.RequestReceived += requestReceivedHandler;
-            channel.ResponseSent += responseSentHandler;
-            channel.ErrorOccured += channel_ErrorOccured;
+            handlers = new IChannelExtensions.ChannelHandlers
+            {
+                ChannelClosed = channelClosedHandler,
+                ChannelReady = channelReadyHandler,
+                RequestReceived = requestReceivedHandler,
+                ResponseSent = responseSentHandler,
+                ErrorOccured = errorOccuredHandler,
+            };
+            channel.BindAllEvents(handlers);
             parser = new HttpMessageParser(logger, false);
             this.logger = logger;
         }
 
-        private void channel_ErrorOccured(object sender, Exception e)
+        private void errorOccuredHandler(object sender, Exception e)
         {
             OnErrorOccured(e);
         }
@@ -67,7 +80,7 @@ namespace Netool.Network.Http
 
         private void responseSentHandler(object sender, DataEventArgs e)
         {
-            OnResponseSent(e.Data, e.State);
+            OnResponseSent(e);
         }
 
         private void channelReadyHandler(object sender)
@@ -91,6 +104,18 @@ namespace Netool.Network.Http
         {
             channel.Close();
         }
+
+        public void UpgradeProtocol(IProtocolUpgrader upgrader)
+        {
+            channel.Lock();
+            channel.UnbindAllEvents(handlers);
+            var newChannel = upgrader.UpgradeServerChannel(channel, logger);
+            if(ChannelReplaced != null)
+            {
+                ChannelReplaced(this, newChannel);
+            }
+            channel.Unlock();
+        }
     }
 
     [Serializable]
@@ -98,7 +123,6 @@ namespace Netool.Network.Http
     {
         protected HttpServerSettings setttings;
         protected TcpServer server;
-        private HttpServerChannel channel;
 
         /// <inheritdoc/>
         public bool IsStarted { get { return server.IsStarted; } }
@@ -129,7 +153,7 @@ namespace Netool.Network.Http
 
         private void channelCreatedHandler(object sender, IServerChannel e)
         {
-            channel = new HttpServerChannel(e, logger);
+            var channel = new HttpServerChannel(e, logger);
             if (ChannelCreated != null) ChannelCreated(this, channel);
         }
 

@@ -1,6 +1,7 @@
 ﻿using Netool.Logging;
 using Netool.Network.DataFormats;
 using Netool.Network.DataFormats.Http;
+using Netool.Network.Helpers;
 using Netool.Network.Tcp;
 using System;
 
@@ -13,9 +14,13 @@ namespace Netool.Network.Http
     }
 
     [Serializable]
-    public class HttpClientChannel : BaseClientChannel, IClientChannel
+    public class HttpClientChannel : BaseClientChannel, IClientChannel, IReplaceableChannel
     {
-        private IClientChannel channel;
+        /// <inheritdoc/>
+        [field:NonSerialized]
+        public event EventHandler<IChannel> ChannelReplaced;
+
+        private LockableClientChannel channel;
 
         [NonSerialized]
         private HttpMessageParser parser;
@@ -23,21 +28,29 @@ namespace Netool.Network.Http
         [NonSerialized]
         private InstanceLogger logger;
 
+        [NonSerialized]
+        private IChannelExtensions.ChannelHandlers handlers;
+
         public HttpClientChannel(IClientChannel channel, InstanceLogger logger)
         {
-            this.channel = channel;
+            if(channel.GetType() != typeof(LockableClientChannel)) channel = new LockableClientChannel(channel);
+            this.channel = (LockableClientChannel)channel;
             this.id = channel.ID;
             this.name = channel.Name;
-            channel.ChannelClosed += channelClosedHandler;
-            channel.ChannelReady += channelReadyHandler;
-            channel.ResponseReceived += responseReceivedHandler;
-            channel.RequestSent += requestSentHandler;
-            channel.ErrorOccured += channel_ErrorOccured;
+            handlers = new IChannelExtensions.ChannelHandlers
+            {
+                ChannelClosed = channelClosedHandler,
+                ChannelReady = channelReadyHandler,
+                ResponseReceived = responseReceivedHandler,
+                RequestSent = requestSentHandler,
+                ErrorOccured = errorOccuredHandler,
+            };
+            channel.BindAllEvents(handlers);
             parser = new HttpMessageParser(logger, true);
             this.logger = logger;
         }
 
-        private void channel_ErrorOccured(object sender, Exception e)
+        private void errorOccuredHandler(object sender, Exception e)
         {
             OnErrorOccured(e);
         }
@@ -104,6 +117,18 @@ namespace Netool.Network.Http
         public void Close()
         {
             channel.Close();
+        }
+
+        public void UpgradeProtocol(IProtocolUpgrader upgrader)
+        {
+            channel.Lock();
+            channel.UnbindAllEvents(handlers);
+            var newChannel = upgrader.UpgradeClientChannel(channel, logger);
+            if (ChannelReplaced != null)
+            {
+                ChannelReplaced(this, newChannel);
+            }
+            channel.Unlock();
         }
     }
 

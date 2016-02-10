@@ -3,8 +3,12 @@ using Netool.Dialogs.Tcp;
 using Netool.Logging;
 using Netool.Network;
 using Netool.Network.Http;
+using Netool.Plugins.Http;
+using Netool.Views;
+using Netool.Views.Channel;
 using Netool.Views.Instance;
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace Netool.Plugins.Protocols
@@ -12,7 +16,7 @@ namespace Netool.Plugins.Protocols
     /// <summary>
     /// Plugin for basic HTTP functions.
     /// </summary>
-    public class HttpPlugin : IProtocolPlugin
+    public class HttpPlugin : IProtocolPlugin, IExtensiblePlugin
     {
         /// <inheritdoc/>
         public long ID { get { return 2001; } }
@@ -35,6 +39,8 @@ namespace Netool.Plugins.Protocols
         public bool SupportsProxy { get { return true; } }
         /// <inheritdoc/>
         public string ProtocolName { get { return "Http"; } }
+
+        private List<IProtocolUpgradePlugin> upgradePlugins = new List<IProtocolUpgradePlugin>();
 
         /// <inheritdoc/>
         public InstancePack CreateInstance(InstanceLogger logger, InstanceType type)
@@ -91,7 +97,7 @@ namespace Netool.Plugins.Protocols
             }
             // for now set manual driver to everything
             var view = new DefaultInstanceView();
-            var cont = new DefaultInstanceController(view, instance, logger);
+            var cont = new DefaultInstanceController(view, instance, logger, new DefaultInstanceController.DefaultChannelViewFactory(channelViewCallback));
             view.SetController(cont);
             return new InstancePack(view, cont, type);
         }
@@ -100,7 +106,7 @@ namespace Netool.Plugins.Protocols
         public InstancePack RestoreInstance(InstanceLogger logger)
         {
             var view = new DefaultInstanceView();
-            var cont = new DefaultInstanceController(view, logger, new DefaultInstanceController.DefaultChannelViewFactory());
+            var cont = new DefaultInstanceController(view, logger, new DefaultInstanceController.DefaultChannelViewFactory(channelViewCallback));
             view.SetController(cont);
             return new InstancePack(view, cont, cont.GetInstanceType());
         }
@@ -141,5 +147,57 @@ namespace Netool.Plugins.Protocols
             }
             return null;
         }*/
+
+        private IChannelView channelViewCallback(DefaultChannelView v)
+        {
+            var httpMenu = new ToolStripMenuItem("Http");
+            if(upgradePlugins.Count > 0)
+            {
+                var upgrade = new ToolStripMenuItem("Protocol Upgrade");
+                foreach(var p in upgradePlugins)
+                {
+                    upgrade.DropDownItems.Add(new ToolStripMenuItem(p.ProtocolName, null, delegate(object sender, EventArgs e) {
+                        IProtocolUpgrader upgrader;
+                        try
+                        {
+                            upgrader = p.CreateUpgrader();
+                        }
+                        catch(SetupAbortedByUserException)
+                        {
+                            return;
+                        }
+                        if(upgrader == null) return;
+                        if(v.Channel.GetType() == typeof(HttpServerChannel))
+                        {
+                            ((HttpServerChannel)v.Channel).UpgradeProtocol(upgrader);
+                        }
+                        else if(v.Channel.GetType() == typeof(HttpClientChannel))
+                        {
+                            ((HttpClientChannel)v.Channel).UpgradeProtocol(upgrader);
+                        }
+                        // TODO: add upgrading for http proxy (once proxy is enabled)
+                    }));
+                }
+                httpMenu.DropDownItems.Add(upgrade);
+            }
+            v.AddMenuItem(httpMenu);
+            return v;
+        }
+
+        public void AfterLoad(PluginLoader loader)
+        {
+            foreach(var p in loader.Plugins)
+            {
+                loader_PluginLoaded(loader, p);
+
+            }
+            loader.PluginLoaded += loader_PluginLoaded;
+        }
+
+        private void loader_PluginLoaded(object sender, IPlugin e)
+        {
+            var upgrader = e as IProtocolUpgradePlugin;
+            if (upgrader != null) upgradePlugins.Add(upgrader);
+        }
     }
 }
