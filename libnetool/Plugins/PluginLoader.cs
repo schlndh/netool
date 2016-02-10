@@ -10,6 +10,8 @@ namespace Netool.Plugins
     {
         private Dictionary<string, Assembly> assemblies = new Dictionary<string, Assembly>();
         private Dictionary<long, IPlugin> plugins = new Dictionary<long, IPlugin>();
+        private object pluginsCacheLock = new object();
+        private Dictionary<Type, IEnumerable<IPlugin>> pluginsByTypeCache = new Dictionary<Type, IEnumerable<IPlugin>>();
 
         /// <summary>
         /// This event is called when new plugin is loaded (before its AfterLoad)
@@ -86,9 +88,45 @@ namespace Netool.Plugins
             }
         }
 
+        /// <summary>
+        /// Get plugins by type (tested using is operator).
+        /// </summary>
+        /// <typeparam name="T">type of the plugins you search for - eg. IProtocolPlugin</typeparam>
+        /// <returns></returns>
+        /// <remarks>
+        /// The result is cached within the PluginLoader.
+        /// </remarks>
+        public IEnumerable<T> GetPluginsByType<T>() where T : IPlugin
+        {
+            lock(pluginsCacheLock)
+            {
+                if (!pluginsByTypeCache.ContainsKey(typeof(T)))
+                {
+                    var list = new List<T>();
+                    foreach(var pl in Plugins)
+                    {
+                        if(pl is T)
+                        {
+                            list.Add((T)pl);
+                        }
+                    }
+                    pluginsByTypeCache[typeof(T)] = (IEnumerable<IPlugin>)list;
+                    return list;
+                }
+                else
+                {
+                    return (List<T>)pluginsByTypeCache[typeof(T)];
+                }
+            }
+        }
+
         private void onPluginLoaded(IPlugin plugin)
         {
             if (PluginLoaded != null) PluginLoaded(this, plugin);
+            lock(pluginsCacheLock)
+            {
+                if(pluginsByTypeCache.Count > 0) pluginsByTypeCache.Clear();
+            }
         }
     }
 }
