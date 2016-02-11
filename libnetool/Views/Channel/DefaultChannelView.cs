@@ -40,6 +40,7 @@ namespace Netool.Views.Channel
         public DefaultChannelView(ChannelLogger logger, ColumnFiller filler, ItemFactory factory)
         {
             InitializeComponent();
+            channelMenu.Visible = channelMenu.Items.Count > 0;
             this.logger = logger;
             this.events.VirtualListSize = logger.GetEventCount();
             this.logger.EventCountChanged += eventCountChanged;
@@ -86,6 +87,7 @@ namespace Netool.Views.Channel
         public void AddMenuItem(ToolStripMenuItem item)
         {
             channelMenu.Items.Add(item);
+            channelMenu.Visible = true;
         }
 
         private void eventCountChanged(object sender, int e)

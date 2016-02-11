@@ -63,9 +63,8 @@ namespace Netool.Plugins.Protocols
                     break;
             }
             if (instance == null) throw new SetupAbortedByUserException();
-            // for now set manual driver to everything
             var view = new DefaultInstanceView();
-            var cont = new DefaultInstanceController(view, instance, logger);
+            var cont = new DefaultInstanceController(view, instance, logger, new DefaultInstanceController.DefaultChannelViewFactory(channelViewCallback));
             view.SetController(cont);
             return new InstancePack(view, cont, type);
         }
@@ -96,7 +95,6 @@ namespace Netool.Plugins.Protocols
                     instance = new DefaultProxy(p);
                     break;
             }
-            // for now set manual driver to everything
             var view = new DefaultInstanceView();
             var cont = new DefaultInstanceController(view, instance, logger, new DefaultInstanceController.DefaultChannelViewFactory(channelViewCallback));
             view.SetController(cont);
@@ -107,7 +105,7 @@ namespace Netool.Plugins.Protocols
         public InstancePack RestoreInstance(InstanceLogger logger)
         {
             var view = new DefaultInstanceView();
-            var cont = new DefaultInstanceController(view, logger, new DefaultInstanceController.DefaultChannelViewFactory(channelViewCallback));
+            var cont = new DefaultInstanceController(view, logger, new DefaultInstanceController.DefaultChannelViewFactory());
             view.SetController(cont);
             return new InstancePack(view, cont, cont.GetInstanceType());
         }
