@@ -155,8 +155,7 @@ namespace Netool.Views
             }
             else
             {
-                this.Visible = false;
-                MessageBox.Show("Unsupported data type given.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                throw new UnsupportedDataStreamException();
             }
         }
     }

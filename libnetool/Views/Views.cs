@@ -40,6 +40,19 @@ namespace Netool.Views
         void AllowManualControl(Editor.EditorMasterView v);
     }
 
+
+    [System.Serializable]
+    public class UnsupportedDataStreamException : System.Exception
+    {
+        public UnsupportedDataStreamException() { }
+        public UnsupportedDataStreamException(string message) : base(message) { }
+        public UnsupportedDataStreamException(string message, System.Exception inner) : base(message, inner) { }
+        protected UnsupportedDataStreamException(
+          System.Runtime.Serialization.SerializationInfo info,
+          System.Runtime.Serialization.StreamingContext context) : base(info, context)
+        { }
+    }
+
     public interface IEventView : IFormView
     {
         string ID { get; }
@@ -48,6 +61,7 @@ namespace Netool.Views
         /// Change content based on given data stream
         /// </summary>
         /// <param name="s"></param>
+        /// <exception cref="UnsupportedDataStreamException">given stream is not supported by this view</exception>
         void Show(IDataStream s);
     }
 
@@ -91,6 +105,11 @@ namespace Netool.Views
         /// <exception cref="ValidationException">validation failed</exception>
         IDataStream GetValue();
 
+        /// <summary>
+        /// Fills editor view with given data
+        /// </summary>
+        /// <param name="s"></param>
+        /// <exception cref="UnsupportedDataStreamException">given stream is not supported by this view</exception>
         void SetValue(IDataStream s);
     }
 }

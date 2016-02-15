@@ -35,7 +35,15 @@ namespace Netool.Views.Editor
         {
             if(editorViewSelect.SelectedIndex > -1)
             {
-                ((IEditorView)editorViewSelect.SelectedItem).SetValue(s);
+                try
+                {
+                    ((IEditorView)editorViewSelect.SelectedItem).SetValue(s);
+                }
+                catch (UnsupportedDataStreamException)
+                {
+                    ((IEditorView)editorViewSelect.SelectedItem).Clear();
+                    MessageBox.Show("Given data stream is not supported by current view.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 

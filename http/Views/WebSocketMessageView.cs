@@ -143,6 +143,10 @@ namespace Netool.Views
                 opcodeComboBox.SelectedItem = msg.Opcode.ToString();
                 dataViewSelection.Stream = msg.InnerData;
             }
+            else
+            {
+                throw new UnsupportedDataStreamException();
+            }
         }
 
         private static string maskingKeyToString(byte[] key)

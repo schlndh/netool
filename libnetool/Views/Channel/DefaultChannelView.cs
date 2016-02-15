@@ -145,7 +145,14 @@ namespace Netool.Views.Channel
             timeLabel.Text = e.Time.ToString("dd. MM. yyyy HH:mm:ss.ff");
             if (e.Data != null && e.Data.Data != null)
             {
-                dataView.Stream = e.Data.Data;
+                try
+                {
+                    dataView.Stream = e.Data.Data;
+                }
+                catch (UnsupportedDataStreamException)
+                {
+                    MessageBox.Show("Given data stream is not supported by current view.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             else
             {
