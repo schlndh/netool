@@ -160,6 +160,22 @@ namespace Netool.Plugins
         IStreamWrapper CreateWrapper();
     }
 
+
+    public interface IMessageTemplate
+    {
+        /// <summary>
+        /// Template name
+        /// </summary>
+        string Name { get; }
+
+        IDataStream CreateMessage();
+    }
+
+    public interface IMessageTemplatePlugin : IPlugin
+    {
+        IEnumerable<IMessageTemplate> CreateTemplates();
+    }
+
     public static class ProtocolPluginExtensions
     {
         /// <summary>

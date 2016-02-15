@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace Netool
+namespace Netool.Views
 {
     public static class Helpers
     {

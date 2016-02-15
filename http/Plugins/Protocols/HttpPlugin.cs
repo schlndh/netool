@@ -42,6 +42,7 @@ namespace Netool.Plugins.Protocols
         public string ProtocolName { get { return "Http"; } }
 
         private CachedPluginEnumerable<IProtocolUpgradePlugin> upgradePlugins = new CachedPluginEnumerable<IProtocolUpgradePlugin>();
+        private CachedPluginEnumerable<IMessageTemplatePlugin> templatePlugins = new CachedPluginEnumerable<IMessageTemplatePlugin>();
 
         /// <inheritdoc/>
         public InstancePack CreateInstance(InstanceLogger logger, InstanceType type)
@@ -180,13 +181,14 @@ namespace Netool.Plugins.Protocols
                 httpMenu.DropDownItems.Add(upgrade);
                 v.AddMenuItem(httpMenu);
             }
-
+            v.AddMessageTemplates(templatePlugins);
             return v;
         }
 
         void IExtensiblePlugin.AfterLoad(PluginLoader loader)
         {
             upgradePlugins.Loader = loader;
+            templatePlugins.Loader = loader;
         }
     }
 }

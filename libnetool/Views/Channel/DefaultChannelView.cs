@@ -1,5 +1,7 @@
-﻿using Netool.Logging;
+﻿using Netool.Dialogs;
+using Netool.Logging;
 using Netool.Network;
+using Netool.Plugins;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -29,6 +31,7 @@ namespace Netool.Views.Channel
         private ItemFactory createItem;
         private Editor.EditorMasterView editor = null;
         private IChannelExtensions.ChannelHandlers handlers;
+        private List<IMessageTemplate> messageTemplates = new List<IMessageTemplate>();
 
         public IChannel Channel { get { return logger.channel; } }
 
@@ -48,6 +51,7 @@ namespace Netool.Views.Channel
             createItem = factory;
             var r = logger.channel as IReplaceableChannel;
             handlers = new IChannelExtensions.ChannelHandlers { ChannelReplaced = channelReplacedHandler };
+            templatesToolStripMenuItem.Visible = false;
         }
 
         private void channelReplacedHandler(object sender, IChannel e)
@@ -71,6 +75,16 @@ namespace Netool.Views.Channel
             {
                 this.editor.SetProxy(true);
             }
+            templatesToolStripMenuItem.Visible = messageTemplates.Count > 0;
+        }
+
+        public void AddMessageTemplates(IEnumerable<IMessageTemplatePlugin> templatePlugins)
+        {
+            foreach(var pl in templatePlugins)
+            {
+                messageTemplates.AddRange(pl.CreateTemplates());
+            }
+            templatesToolStripMenuItem.Visible = editor != null && messageTemplates.Count > 0;
         }
 
         public void AddEventView(IEventView v)
@@ -225,6 +239,16 @@ namespace Netool.Views.Channel
         {
             // position is 0-indexed, whereas id is 1-indexed
             return logger.GetByID(pos + 1).Value;
+        }
+
+        private void templatesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var dialog = new MessageTemplateSelectionDialog(messageTemplates);
+            if(dialog.ShowDialog() == DialogResult.OK)
+            {
+                var s = dialog.DataStream;
+                editor.SetValue(s);
+            }
         }
     }
 }

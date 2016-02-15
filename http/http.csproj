@@ -58,6 +58,7 @@
     <Compile Include="Network\WebSocket\WebSocketClientChannel.cs" />
     <Compile Include="Network\WebSocket\WebSocketServerChannel.cs" />
     <Compile Include="Plugins\Http\Plugins.cs" />
+    <Compile Include="Plugins\MessageTemplates\WebSocketTemplatesPlugin.cs" />
     <Compile Include="Plugins\Protocols\HttpPlugin.cs" />
     <Compile Include="Plugins\Http\ProtocolUpgrades\WebSocketPlugin.cs" />
     <Compile Include="Plugins\StreamWrappers\UnGZipStreamWrapperPlugin.cs" />
