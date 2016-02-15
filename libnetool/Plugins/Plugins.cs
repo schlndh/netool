@@ -56,7 +56,7 @@ namespace Netool.Plugins
     /// <summary>
     /// Interface for plugins that want to communicate with other plugins
     /// </summary>
-    public interface IExtensiblePlugin
+    public interface IExtensiblePlugin : IPlugin
     {
         /// <summary>
         /// Callback method for loading other plugins and subscribing to PluginLoader's events.
