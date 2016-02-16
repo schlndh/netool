@@ -8,6 +8,10 @@ namespace Netool.Plugins.Http.ProtocolUpgrades
     {
         public class WebSocketProtocolUpgrader : IProtocolUpgrader
         {
+            private static WebSocketProtocolUpgrader instance;
+            public static WebSocketProtocolUpgrader Instance { get { if (instance == null) instance = new WebSocketProtocolUpgrader(); return instance; } }
+            private WebSocketProtocolUpgrader() {  }
+
             /// <inheritdoc/>
             public Network.IServerChannel UpgradeServerChannel(Network.IServerChannel c, Logging.InstanceLogger logger)
             {
@@ -42,7 +46,7 @@ namespace Netool.Plugins.Http.ProtocolUpgrades
         /// <inheritdoc/>
         public Network.Http.IProtocolUpgrader CreateUpgrader()
         {
-            return new WebSocketProtocolUpgrader();
+            return WebSocketProtocolUpgrader.Instance;
         }
     }
 }
