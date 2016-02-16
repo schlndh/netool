@@ -10,12 +10,12 @@ namespace Tests.Http.Network.DataFormats.WebSocket
         [Fact]
         public void TestParse_7bPayloadLength_NoMask()
         {
-            // 0x23 = 0010 0011
-            //        opco RRRF
-            //        de   SSSI
-            //             VVVN
-            //             321
-            var buffer = new byte[] { 0x23, 10 << 1 };
+            // 0xC2 = 1100 0010
+            //        FRRR opco
+            //        ISSS de
+            //        NVVV
+            //         123
+            var buffer = new byte[] { 0xC2, 10 };
             var payload = new DummyDataStream(10);
             var header = new ByteArray(buffer);
             var parser = new WebSocketMessage.Parser();
@@ -36,14 +36,14 @@ namespace Tests.Http.Network.DataFormats.WebSocket
         [Fact]
         public void TestParse_16bPayloadLength_Masked()
         {
-            // 0x23 = 0010 0011
-            //        opco RRRF
-            //        de   SSSI
-            //             VVVN
-            //             321
+            // 0xC2 = 1100 0010
+            //        FRRR opco
+            //        ISSS de
+            //        NVVV
+            //         123
             var buffer = new byte[]
             {
-                0x23, (126 << 1) + 1,
+                0xC2, 128 + 126,
                 0x08, 0, // 16b length in Big-Endian = 0x0800 = 2048
                 5, 6, 7, 8 // 32b mask
             };
@@ -69,14 +69,14 @@ namespace Tests.Http.Network.DataFormats.WebSocket
         [Fact]
         public void TestParse_64bPayloadLength_NoMask()
         {
-            // 0x13 = 0001 0011
-            //        opco RRRF
-            //        de   SSSI
-            //             VVVN
-            //             321
+            // 0xC1 = 1100 0001
+            //        FRRR opco
+            //        ISSS de
+            //        NVVV
+            //         123
             var buffer = new byte[]
             {
-                0x13, (127 << 1),
+                0xC1, 127,
                 0, 0, 0, 0, 0, 1, 0, 0, // 64b length in Big-Endian = 0x10000 = 65 536
             };
             var payload = new DummyDataStream(2048);

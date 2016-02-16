@@ -19,12 +19,12 @@ namespace Tests.Http.Network.Http
         [Fact]
         public void TestReceiveOne_Full()
         {
-            // 0x23 = 0010 0011
-            //        opco RRRF
-            //        de   SSSI
-            //             VVVN
-            //             321
-            var buffer = new byte[] { 0x23, 10 << 1 };
+            // 0xC2 = 1100 0010
+            //        FRRR opco
+            //        ISSS de
+            //        NVVV
+            //         123
+            var buffer = new byte[] { 0xC2, 10 };
             var payload = new DummyDataStream(10);
             var header = new ByteArray(buffer);
             var websocket = new BaseWebSocket(logger);
@@ -51,12 +51,12 @@ namespace Tests.Http.Network.Http
         [Fact]
         public void TestReceiveTwo_Full()
         {
-            // 0x23 = 0010 0011
-            //        opco RRRF
-            //        de   SSSI
-            //             VVVN
-            //             321
-            var buffer = new byte[] { 0x23, 10 << 1 };
+            // 0xC2 = 1100 0010
+            //        FRRR opco
+            //        ISSS de
+            //        NVVV
+            //         123
+            var buffer = new byte[] { 0xC2, 10 };
             var payload = new DummyDataStream(10);
             var header = new ByteArray(buffer);
             var websocket = new BaseWebSocket(logger);
@@ -84,12 +84,12 @@ namespace Tests.Http.Network.Http
         [Fact]
         public void TestReceiveOne_Partial()
         {
-            // 0x23 = 0010 0011
-            //        opco RRRF
-            //        de   SSSI
-            //             VVVN
-            //             321
-            var buffer = new byte[] { 0x23, 10 << 1 };
+            // 0xC2 = 1100 0010
+            //        FRRR opco
+            //        ISSS de
+            //        NVVV
+            //         123
+            var buffer = new byte[] { 0xC2, 10 };
             var payload = new DummyDataStream(5);
             var header = new ByteArray(buffer);
             var websocket = new BaseWebSocket(logger);
@@ -119,12 +119,12 @@ namespace Tests.Http.Network.Http
         [Fact]
         public void TestReceiveTwo_PartialAndFull()
         {
-            // 0x23 = 0010 0011
-            //        opco RRRF
-            //        de   SSSI
-            //             VVVN
-            //             321
-            var buffer = new byte[] { 0x23, 10 << 1 };
+            // 0xC2 = 1100 0010
+            //        FRRR opco
+            //        ISSS de
+            //        NVVV
+            //         123
+            var buffer = new byte[] { 0xC2, 10 };
             var payload = new DummyDataStream(5);
             var header = new ByteArray(buffer);
             var websocket = new BaseWebSocket(logger);

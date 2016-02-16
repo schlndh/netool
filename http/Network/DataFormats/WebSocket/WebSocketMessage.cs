@@ -32,13 +32,13 @@ namespace Netool.Network.DataFormats.WebSocket
                 byte b1, b2;
                 b1 = s.ReadByte(0);
                 b2 = s.ReadByte(1);
-                msg.FIN = (b1 & 0x01) == 0x01;
-                msg.RSV1 = (b1 & 0x02) == 0x02;
-                msg.RSV2 = (b1 & 0x04) == 0x04;
-                msg.RSV3 = (b1 & 0x08) == 0x08;
-                msg.Opcode = (OpcodeType)(b1 >> 4);
-                msg.MASK = (b2 & 0x01) == 0x01;
-                msg.PayloadLength = b2 >> 1;
+                msg.FIN = (b1 & 0x80) == 0x80;
+                msg.RSV1 = (b1 & 0x40) == 0x40;
+                msg.RSV2 = (b1 & 0x20) == 0x20;
+                msg.RSV3 = (b1 & 0x10) == 0x10;
+                msg.Opcode = (OpcodeType)(b1 & 0x0F);
+                msg.MASK = (b2 & 0x80) == 0x80;
+                msg.PayloadLength = b2 & ~0x80;
                 byte[] buffer;
                 if (msg.PayloadLength == 126)
                 {
@@ -126,7 +126,7 @@ namespace Netool.Network.DataFormats.WebSocket
             PayloadLength = payload.Length;
             InnerData = payload;
             var buffer = new byte[calculateHeaderLength()];
-            buffer[0] = (byte)((FIN ? 1 : 0) + (RSV1 ? 2 : 0) + (RSV2 ? 4 : 0) + (RSV3 ? 8 : 0) + (((byte)Opcode) << 4));
+            buffer[0] = (byte)((FIN ? 128 : 0) + (RSV1 ? 64 : 0) + (RSV2 ? 32 : 0) + (RSV3 ? 16 : 0) + ((byte)Opcode));
             int i = 2;
             if (PayloadLength > 125)
             {
@@ -160,7 +160,7 @@ namespace Netool.Network.DataFormats.WebSocket
             {
                 buffer[1] = (byte)PayloadLength;
             }
-            buffer[1] = (byte)((MASK ? 1 : 0) + (buffer[1] << 1));
+            buffer[1] += (byte)(MASK ? 128 : 0);
             if (MASK)
             {
                 Array.Copy(MaskingKey, 0, buffer, i, 4);
