@@ -105,10 +105,14 @@ namespace Netool.Network.Http
             channel.Close();
         }
 
-        public void UpgradeProtocol(IProtocolUpgrader upgrader)
+        public void UpgradeProtocol(IProtocolUpgrader upgrader, IDataStream switchHeader = null)
         {
             channel.Lock();
             channel.UnbindAllEvents(handlers);
+            if(switchHeader != null)
+            {
+                channel.Send(switchHeader);
+            }
             var newChannel = upgrader.UpgradeServerChannel(channel, logger);
             if(ChannelReplaced != null)
             {
