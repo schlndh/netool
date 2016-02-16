@@ -20,7 +20,7 @@ namespace Netool.Controllers
     {
         private MainView view;
         private MainModel model;
-        private List<IInstanceController> controllers = new List<IInstanceController>();
+        private Dictionary<int, IInstanceController> controllers = new Dictionary<int, IInstanceController>();
         private Dictionary<int, IChannelDriver> channelDrivers = new Dictionary<int, IChannelDriver>();
         private Dictionary<long, IProtocolPlugin> protocolPlugins = new Dictionary<long, IProtocolPlugin>();
         private Dictionary<long, IChannelDriverPlugin> channelDriverPlugins = new Dictionary<long, IChannelDriverPlugin>();
@@ -162,8 +162,8 @@ namespace Netool.Controllers
                             model.RemoveDriverFromInstance(instance.Key, driver);
                         }
                         bindInstanceEvents(pack.Controller.Instance);
-                        controllers.Add(pack.Controller);
-                        view.AddPage(instance.Value.Name, pack.View.GetForm());
+                        controllers.Add(instance.Key, pack.Controller);
+                        view.AddInstance(instance.Key, instance.Value.Name, pack.View);
                     }
                 }
                 catch
@@ -189,12 +189,13 @@ namespace Netool.Controllers
         {
             bool toAll = false;
             bool yes = false;
-            foreach (var cont in controllers)
+            foreach (var kv in controllers)
             {
+                var cont = kv.Value;
                 cont.Stop();
                 cont.Close();
-                var instanceName = cont.Instance.GetType().Name;
-                if(cont.Logger != null && cont.Logger.IsTempFile)
+                var instanceName = model.OpenInstances[kv.Key].Name;
+                if (cont.Logger != null && cont.Logger.IsTempFile)
                 {
                     if (toAll)
                     {
@@ -307,14 +308,15 @@ namespace Netool.Controllers
                     var pack = plugin.CreateInstance(logger, type);
                     pack.Controller.SetMainController(this);
                     var drivers = setupDrivers(pack.Controller);
-                    controllers.Add(pack.Controller);
-                    model.AddInstance(++itemID, plugin.ID, name, type, pack.Controller.Instance.Settings);
+                    ++itemID;
+                    controllers.Add(itemID, pack.Controller);
+                    model.AddInstance(itemID, plugin.ID, name, type, pack.Controller.Instance.Settings);
                     foreach(var driver in drivers)
                     {
                         model.AddDriverToInstance(itemID, driver.Key, driver.Value);
                     }
                     bindInstanceEvents(pack.Controller.Instance);
-                    view.AddPage(name, pack.View.GetForm());
+                    view.AddInstance(itemID, name, pack.View);
                 }
             }
             catch (SetupAbortedByUserException)
@@ -336,9 +338,10 @@ namespace Netool.Controllers
                 var name = logger.ReadInstanceName();
                 var pack = plugin.RestoreInstance(logger);
                 pack.Controller.SetMainController(this);
-                controllers.Add(pack.Controller);
+                ++itemID;
+                controllers.Add(itemID, pack.Controller);
                 bindInstanceEvents(pack.Controller.Instance);
-                view.AddPage(name ?? "unknown", pack.View.GetForm());
+                view.AddInstance(itemID, name ?? "unknown", pack.View);
             }
             else
             {
@@ -409,6 +412,30 @@ namespace Netool.Controllers
             channelDrivers.Remove(id);
             model.RemoveChannelDriver(id);
             // TODO: remove it from existing instances? if so change the ChannelDriversTab's Remove button's tooltip
+        }
+
+        public void RemoveInstance(int id)
+        {
+            IInstanceController cont;
+            if(controllers.TryGetValue(id, out cont))
+            {
+                cont.Stop();
+                var instanceName = model.OpenInstances[id].Name;
+                model.RemoveInstance(id);
+                cont.Close();
+                if (cont.Logger != null && cont.Logger.IsTempFile)
+                {
+                    if(view.ShowYesNoBox(string.Format("The log file for {0} is temporary. Do you want to save it?", instanceName), "Save the log file?"))
+                    {
+                        saveLogFile(cont, instanceName);
+                    }
+                    else
+                    {
+                        cont.Logger.DeleteFile();
+                    }
+                }
+                controllers.Remove(id);
+            }
         }
 
         private void bindInstanceEvents(IInstance instance)

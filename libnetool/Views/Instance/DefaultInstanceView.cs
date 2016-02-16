@@ -130,5 +130,11 @@ namespace Netool.Views.Instance
                 } while (++i < e.EndIndex - e.StartIndex);
             }
         }
+
+        /// <inheritdoc/>
+        void IInstanceView.Close()
+        {
+
+        }
     }
 }

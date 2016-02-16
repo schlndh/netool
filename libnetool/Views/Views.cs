@@ -27,6 +27,11 @@ namespace Netool.Views
         void SetInstance(IInstance i);
 
         void SetLogger(InstanceLogger l);
+
+        /// <summary>
+        /// Close the view and all its subviews (eg. IChannelViews)
+        /// </summary>
+        void Close();
     }
 
     public interface IChannelView : IFormView
@@ -38,6 +43,11 @@ namespace Netool.Views
         /// </summary>
         /// <param name="v"></param>
         void AllowManualControl(Editor.EditorMasterView v);
+
+        /// <summary>
+        /// Close the view and all its subviews
+        /// </summary>
+        void Close();
     }
 
 

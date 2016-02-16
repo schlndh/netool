@@ -58,6 +58,7 @@ namespace Netool.Controllers
         private IInstance instance;
         public IInstance Instance { get { return instance; } }
         private SortedList<int, IChannelDriver> drivers = new SortedList<int, IChannelDriver>();
+        private List<IChannelView> channelViews = new List<IChannelView>();
         private InstanceLogger logger;
         public InstanceLogger Logger { get { return logger; } }
         private IChannelViewFactory detailFactory;
@@ -128,6 +129,16 @@ namespace Netool.Controllers
         public void Close()
         {
             Debug.WriteLine("DefaultInstanceController - closing instance(type: {0})", instance.GetType(), 1);
+            view.Close();
+            // copy the channel views
+            // because closing the form removes the view from channelViews
+            var views = new List<IChannelView>(channelViews);
+            foreach(var v in views)
+            {
+                v.Close();
+            }
+            channelViews.Clear();
+            views.Clear();
             logger.WriteInstanceData(instance);
             logger.Close();
             Debug.WriteLine("DefaultInstanceController - instance(type: {0}) closed", instance.GetType(), 1);
@@ -145,7 +156,11 @@ namespace Netool.Controllers
 
         public void ShowDetail(int id)
         {
-            detailFactory.CreateChannelView(logger.GetChannelLogger(id), mainCont).GetForm().Show();
+            var v = detailFactory.CreateChannelView(logger.GetChannelLogger(id), mainCont);
+            channelViews.Add(v);
+            var form = v.GetForm();
+            form.FormClosed += delegate (object sender, System.Windows.Forms.FormClosedEventArgs args) { channelViews.Remove(v); };
+            form.Show();
         }
 
         public InstanceType GetInstanceType()

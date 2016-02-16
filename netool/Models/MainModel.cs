@@ -1,7 +1,6 @@
 ﻿using Netool.Network;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 namespace Netool
 {
     [Serializable]
