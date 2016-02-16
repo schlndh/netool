@@ -63,6 +63,11 @@ namespace Netool.Network.Helpers
             if (ErrorOccured != null) ErrorOccured(this, e);
         }
 
+        protected void OnChannelClosed()
+        {
+            if (ChannelClosed != null) ChannelClosed(this);
+        }
+
         protected void InnerChannel_ChannelClosed(object sender)
         {
             lock (EventsLock)
@@ -101,6 +106,10 @@ namespace Netool.Network.Helpers
             }
         }
 
+        /// <summary>
+        /// This method raises the event even in locked state
+        /// </summary>
+        /// <param name="e"></param>
         protected abstract void DispatchEvent(StoredEvent e);
 
         /// <summary>
@@ -195,15 +204,15 @@ namespace Netool.Network.Helpers
             switch (e.Type)
             {
                 case EventType.ChannelClosed:
-                    InnerChannel_ChannelClosed(InnerChannel);
+                    OnChannelClosed();
                     break;
 
                 case EventType.RequestReceived:
-                    InnerChannel_RequestReceived(InnerChannel, e.Data);
+                    if (RequestReceived != null) RequestReceived(this, e.Data);
                     break;
 
                 case EventType.ResponseSent:
-                    InnerChannel_ResponseSent(InnerChannel, e.Data);
+                    if (ResponseSent != null) ResponseSent(this, e.Data);
                     break;
 
                 default:
@@ -275,15 +284,15 @@ namespace Netool.Network.Helpers
             switch (e.Type)
             {
                 case EventType.ChannelClosed:
-                    InnerChannel_ChannelClosed(InnerChannel);
+                    OnChannelClosed();
                     break;
 
                 case EventType.RequestSent:
-                    InnerChannel_RequestSent(InnerChannel, e.Data);
+                    if (RequestSent != null) RequestSent(this, e.Data);
                     break;
 
                 case EventType.ResponseReceived:
-                    InnerChannel_ResponseReceived(InnerChannel, e.Data);
+                    if (ResponseReceived != null) ResponseReceived(this, e.Data);
                     break;
 
                 default:
@@ -389,23 +398,23 @@ namespace Netool.Network.Helpers
             switch (e.Type)
             {
                 case EventType.ChannelClosed:
-                    InnerChannel_ChannelClosed(InnerChannel);
+                    OnChannelClosed();
                     break;
 
                 case EventType.RequestSent:
-                    InnerChannel_RequestSent(InnerChannel, e.Data);
+                    if (RequestSent != null) RequestSent(this, e.Data);
                     break;
 
                 case EventType.ResponseReceived:
-                    InnerChannel_ResponseReceived(InnerChannel, e.Data);
+                    if (ResponseReceived != null) ResponseReceived(this, e.Data);
                     break;
 
                 case EventType.RequestReceived:
-                    InnerChannel_RequestReceived(InnerChannel, e.Data);
+                    if (RequestReceived != null) RequestReceived(this, e.Data);
                     break;
 
                 case EventType.ResponseSent:
-                    InnerChannel_ResponseSent(InnerChannel, e.Data);
+                    if (ResponseSent != null) ResponseSent(this, e.Data);
                     break;
 
                 default:
