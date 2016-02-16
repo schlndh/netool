@@ -147,7 +147,7 @@ namespace Netool.Network.DataFormats.Http
         }
 
         [OnDeserialized]
-        internal void OnDeserialized(StreamingContext context)
+        private void OnDeserialized(StreamingContext context)
         {
             init();
         }

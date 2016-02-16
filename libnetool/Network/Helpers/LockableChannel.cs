@@ -119,7 +119,7 @@ namespace Netool.Network.Helpers
         }
 
         [OnDeserialized]
-        internal void OnDeserialized(StreamingContext context)
+        private void OnDeserialized(StreamingContext context)
         {
             this.EventsLock = new object();
             this.Events = new Queue<StoredEvent>();

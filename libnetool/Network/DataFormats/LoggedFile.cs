@@ -85,7 +85,7 @@ namespace Netool.Network.DataFormats
         }
 
         [OnDeserialized]
-        internal void OnDeserialized(StreamingContext context)
+        private void OnDeserialized(StreamingContext context)
         {
             var c = context.Context as FileLogReader.DeserializationContext;
             if(c == null)
