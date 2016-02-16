@@ -20,9 +20,17 @@ namespace Netool.Dialogs
 
         public string DialogText { get { return dialogLabel.Text; } set { dialogLabel.Text = value; } }
 
-        public TextBoxDialog()
+        public TextBoxDialog(string text = null, string title = null)
         {
             InitializeComponent();
+            if(text != null)
+            {
+                DialogText = text;
+            }
+            if(title != null)
+            {
+                DialogTitle = title;
+            }
         }
 
         private void okBtn_Click(object sender, EventArgs e)
