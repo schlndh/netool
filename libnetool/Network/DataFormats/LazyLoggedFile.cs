@@ -42,7 +42,7 @@ namespace Netool.Network.DataFormats
         }
 
         [OnSerializing]
-        internal void OnSerializing(StreamingContext context)
+        private void OnSerializing(StreamingContext context)
         {
             var log = (context.Context as FileLog.SerializationContext).Log;
             if (!(innerStream is LoggedFile))

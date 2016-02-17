@@ -1,7 +1,9 @@
 ﻿using Netool.Logging;
 using Netool.Network.DataFormats.Utils;
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Threading;
 
 namespace Netool.Network.DataFormats
 {
@@ -13,7 +15,7 @@ namespace Netool.Network.DataFormats
     /// When using this data type only a lightweight wrapper will be deserialized at first and data will then be loaded as requested.
     /// </remarks>
     [Serializable]
-    public class LoggedFile : IDataStream
+    public class LoggedFile : IDataStream, IEquatable<LoggedFile>
     {
         public long Length
         {
@@ -37,6 +39,14 @@ namespace Netool.Network.DataFormats
         private FileLog log;
         [NonSerialized]
         private ByteCache cache;
+        [NonSerialized]
+        private Dictionary<FileLog, long> otherLogFiles;
+        [NonSerialized]
+        private object cacheLock;
+        [NonSerialized]
+        private object serializationLock;
+        [NonSerialized]
+        private long backupId;
 
         public LoggedFile(long ID, FileLog log)
         {
@@ -51,19 +61,22 @@ namespace Netool.Network.DataFormats
         {
             IDataStreamHelpers.ReadByteArgsCheck(this, index);
             byte ret;
-            if(!cache.TryReadByte(index, out ret))
+            lock(cacheLock)
             {
-                ByteCache.FillCache callback = delegate(byte[] buffer, out long cacheStart, out int cacheLength)
+                if (!cache.TryReadByte(index, out ret))
                 {
-                    var reader = log.ReaderPool.Get();
-                    // the file is more likely to be read from the beginning to the end
-                    cacheStart = Math.Max(0, index - 32);
-                    cacheLength = (int)Math.Min(buffer.Length, Math.Min(int.MaxValue, length - cacheStart));
-                    reader.ReadFileDataToBuffer(hint, buffer, cacheStart, cacheLength, 0);
-                    ret = buffer[index - cacheStart];
-                    log.ReaderPool.Return(ref reader);
-                };
-                cache.Cache(callback);
+                    ByteCache.FillCache callback = delegate (byte[] buffer, out long cacheStart, out int cacheLength)
+                    {
+                        var reader = log.ReaderPool.Get();
+                        // the file is more likely to be read from the beginning to the end
+                        cacheStart = Math.Max(0, index - 32);
+                        cacheLength = (int)Math.Min(buffer.Length, Math.Min(int.MaxValue, length - cacheStart));
+                        reader.ReadFileDataToBuffer(hint, buffer, cacheStart, cacheLength, 0);
+                        ret = buffer[index - cacheStart];
+                        log.ReaderPool.Return(ref reader);
+                    };
+                    cache.Cache(callback);
+                }
             }
             return ret;
         }
@@ -82,6 +95,31 @@ namespace Netool.Network.DataFormats
         {
             // this object is not directly mutable
             return this;
+        }
+
+        [OnSerializing]
+        private void OnSerializing(StreamingContext context)
+        {
+            Monitor.Enter(serializationLock);
+            backupId = id;
+            var log = (context.Context as FileLog.SerializationContext).Log;
+            // serializing to another log file?
+            if (!object.ReferenceEquals(this.log, log))
+            {
+                if(!otherLogFiles.TryGetValue(log, out id))
+                {
+                    var info = log.CreateFile();
+                    otherLogFiles[log] = id = info.ID;
+                    log.AppendDataToFile(info.Hint, this);
+                }
+            }
+        }
+
+        [OnSerialized]
+        private void OnSerialized(StreamingContext context)
+        {
+            id = backupId;
+            Monitor.Exit(serializationLock);
         }
 
         [OnDeserialized]
@@ -103,6 +141,16 @@ namespace Netool.Network.DataFormats
             hint = reader.GetFileHint(id);
             log.ReaderPool.Return(ref reader);
             cache = new ByteCache(256);
+            cacheLock = new object();
+            serializationLock = new object();
+            otherLogFiles = new Dictionary<FileLog, long>();
+        }
+
+        /// <inheritdoc/>
+        /// <remarks>Overriden for testing purposes</remarks>
+        bool IEquatable<LoggedFile>.Equals(LoggedFile other)
+        {
+            return log.Equals(other.log) && id == other.id;
         }
     }
 }

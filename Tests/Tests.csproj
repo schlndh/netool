@@ -78,6 +78,7 @@
     <Compile Include="Network\DataFormats\FromUnseekableStreamTests.cs" />
     <Compile Include="Network\DataFormats\LazyLoggedFileTests.cs" />
     <Compile Include="Network\DataFormats\StreamListTests.cs" />
+    <Compile Include="Network\DataFormats\LoggedFileTests.cs" />
     <Compile Include="Network\DataFormats\Utils\ByteCacheTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
