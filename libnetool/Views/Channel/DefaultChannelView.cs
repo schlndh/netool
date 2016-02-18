@@ -22,7 +22,16 @@ namespace Netool.Views.Channel
 
         public static ListViewItem DefaultItemFactory(Netool.Logging.Event e)
         {
-            return new ListViewItem(new string[] { e.ID.ToString(), e.Time.ToString("HH:mm:ss.ff"), e.Type.ToString() });
+            string type;
+            if(e.Type == EventType.ChannelReplaced)
+            {
+                type = e.Type.ToString() + " - " + e.Channel.GetType().Name;
+            }
+            else
+            {
+                type = e.Type.ToString();
+            }
+            return new ListViewItem(new string[] { e.ID.ToString(), e.Time.ToString("HH:mm:ss.ff"), type });
         }
 
         private ChannelLogger logger;
