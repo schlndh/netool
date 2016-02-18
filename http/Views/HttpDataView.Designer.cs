@@ -54,11 +54,12 @@
             this.tableLayoutPanel1.Controls.Add(this.splitContainer1, 0, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 2;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 49F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(644, 348);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(859, 428);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // flowLayoutPanel1
@@ -66,17 +67,19 @@
             this.flowLayoutPanel1.Controls.Add(this.label1);
             this.flowLayoutPanel1.Controls.Add(this.statusLine);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 3);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(4, 4);
+            this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(638, 34);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(851, 41);
             this.flowLayoutPanel1.TabIndex = 0;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(3, 0);
+            this.label1.Location = new System.Drawing.Point(4, 0);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(59, 13);
+            this.label1.Size = new System.Drawing.Size(78, 17);
             this.label1.TabIndex = 0;
             this.label1.Text = "Status line:";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -84,16 +87,18 @@
             // statusLine
             // 
             this.statusLine.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.statusLine.Location = new System.Drawing.Point(68, 3);
+            this.statusLine.Location = new System.Drawing.Point(90, 4);
+            this.statusLine.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.statusLine.Name = "statusLine";
-            this.statusLine.Size = new System.Drawing.Size(452, 20);
+            this.statusLine.Size = new System.Drawing.Size(601, 22);
             this.statusLine.TabIndex = 1;
             // 
             // splitContainer1
             // 
             this.splitContainer1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.Location = new System.Drawing.Point(3, 43);
+            this.splitContainer1.Location = new System.Drawing.Point(4, 53);
+            this.splitContainer1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.splitContainer1.Name = "splitContainer1";
             this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -104,8 +109,9 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.dataViewSelection);
-            this.splitContainer1.Size = new System.Drawing.Size(638, 302);
-            this.splitContainer1.SplitterDistance = 124;
+            this.splitContainer1.Size = new System.Drawing.Size(851, 371);
+            this.splitContainer1.SplitterDistance = 152;
+            this.splitContainer1.SplitterWidth = 5;
             this.splitContainer1.TabIndex = 1;
             // 
             // headers
@@ -117,8 +123,9 @@
             this.Value});
             this.headers.Dock = System.Windows.Forms.DockStyle.Fill;
             this.headers.Location = new System.Drawing.Point(0, 0);
+            this.headers.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.headers.Name = "headers";
-            this.headers.Size = new System.Drawing.Size(634, 120);
+            this.headers.Size = new System.Drawing.Size(847, 148);
             this.headers.TabIndex = 0;
             // 
             // Key
@@ -137,18 +144,20 @@
             this.dataViewSelection.IsEditor = false;
             this.dataViewSelection.Label = "Data view type:";
             this.dataViewSelection.Location = new System.Drawing.Point(0, 0);
+            this.dataViewSelection.Margin = new System.Windows.Forms.Padding(5, 5, 5, 5);
             this.dataViewSelection.Name = "dataViewSelection";
             this.dataViewSelection.SelectedIndex = -1;
-            this.dataViewSelection.Size = new System.Drawing.Size(634, 170);
+            this.dataViewSelection.Size = new System.Drawing.Size(847, 210);
             this.dataViewSelection.Stream = null;
             this.dataViewSelection.TabIndex = 0;
             // 
             // HttpDataView
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(644, 348);
+            this.ClientSize = new System.Drawing.Size(859, 428);
             this.Controls.Add(this.tableLayoutPanel1);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "HttpDataView";
             this.Text = "HttpDataView";
             this.tableLayoutPanel1.ResumeLayout(false);

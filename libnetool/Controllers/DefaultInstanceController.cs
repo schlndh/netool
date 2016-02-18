@@ -5,6 +5,7 @@ using Netool.Views;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using System;
 
 namespace Netool.Controllers
 {
@@ -61,6 +62,12 @@ namespace Netool.Controllers
         private List<IChannelView> channelViews = new List<IChannelView>();
         private InstanceLogger logger;
         public InstanceLogger Logger { get { return logger; } }
+
+        /// <summary>
+        /// False if instance was opened from log file, true otherwise.
+        /// </summary>
+        public bool Active { get; private set; }
+
         private IChannelViewFactory detailFactory;
         private RejectDriver rejectDriver = new RejectDriver();
         private IMainController mainCont;
@@ -92,6 +99,7 @@ namespace Netool.Controllers
             this.logger = logger;
             this.view.SetLogger(logger);
             this.detailFactory = detailFactory;
+            this.Active = true;
         }
 
         /// <summary>
@@ -108,22 +116,29 @@ namespace Netool.Controllers
             view.SetLogger(logger);
             this.logger = logger;
             this.detailFactory = detailFactory;
+            this.Active = false;
         }
 
         public void Start()
         {
-            logger.Open();
-            var t = new Thread(delegate() {
-                instance.Start();
-            });
-            t.Start();
+            if(Active)
+            {
+                logger.Open();
+                var t = new Thread(delegate () {
+                    instance.Start();
+                });
+                t.Start();
+            }
         }
 
         public void Stop()
         {
-            Debug.WriteLine("DefaultInstanceController - stopping instance(type: {0})", instance.GetType(), 1);
-            instance.Stop();
-            Debug.WriteLine("DefaultInstanceController - instance(type: {0}) stopped", instance.GetType(), 1);
+            if(Active)
+            {
+                Debug.WriteLine("DefaultInstanceController - stopping instance(type: {0})", instance.GetType(), 1);
+                instance.Stop();
+                Debug.WriteLine("DefaultInstanceController - instance(type: {0}) stopped", instance.GetType(), 1);
+            }
         }
 
         public void Close()
@@ -139,7 +154,10 @@ namespace Netool.Controllers
             }
             channelViews.Clear();
             views.Clear();
-            logger.WriteInstanceData(instance);
+            if(Active)
+            {
+                logger.WriteInstanceData(instance);
+            }
             logger.Close();
             Debug.WriteLine("DefaultInstanceController - instance(type: {0}) closed", instance.GetType(), 1);
         }

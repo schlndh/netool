@@ -18,9 +18,21 @@ namespace Netool.Controllers
 {
     public class MainController : IMainController
     {
+        private class ControllerData
+        {
+            public IInstanceController Controller;
+            public bool Active;
+
+            public ControllerData(IInstanceController cont, bool active)
+            {
+                Controller = cont;
+                Active = active;
+            }
+        }
+
         private MainView view;
         private MainModel model;
-        private Dictionary<int, IInstanceController> controllers = new Dictionary<int, IInstanceController>();
+        private Dictionary<int, ControllerData> controllers = new Dictionary<int, ControllerData>();
         private Dictionary<int, IChannelDriver> channelDrivers = new Dictionary<int, IChannelDriver>();
         private Dictionary<long, IProtocolPlugin> protocolPlugins = new Dictionary<long, IProtocolPlugin>();
         private Dictionary<long, IChannelDriverPlugin> channelDriverPlugins = new Dictionary<long, IChannelDriverPlugin>();
@@ -162,7 +174,7 @@ namespace Netool.Controllers
                             model.RemoveDriverFromInstance(instance.Key, driver);
                         }
                         bindInstanceEvents(pack.Controller.Instance);
-                        controllers.Add(instance.Key, pack.Controller);
+                        controllers.Add(instance.Key, new ControllerData(pack.Controller, true));
                         view.AddInstance(instance.Key, instance.Value.Name, pack.View);
                     }
                 }
@@ -191,9 +203,10 @@ namespace Netool.Controllers
             bool yes = false;
             foreach (var kv in controllers)
             {
-                var cont = kv.Value;
+                var cont = kv.Value.Controller;
                 cont.Stop();
                 cont.Close();
+                if (!kv.Value.Active) continue;
                 var instanceName = model.OpenInstances[kv.Key].Name;
                 if (cont.Logger != null && cont.Logger.IsTempFile)
                 {
@@ -309,7 +322,7 @@ namespace Netool.Controllers
                     pack.Controller.SetMainController(this);
                     var drivers = setupDrivers(pack.Controller);
                     ++itemID;
-                    controllers.Add(itemID, pack.Controller);
+                    controllers.Add(itemID, new ControllerData(pack.Controller, true));
                     model.AddInstance(itemID, plugin.ID, name, type, pack.Controller.Instance.Settings);
                     foreach(var driver in drivers)
                     {
@@ -339,7 +352,7 @@ namespace Netool.Controllers
                 var pack = plugin.RestoreInstance(logger);
                 pack.Controller.SetMainController(this);
                 ++itemID;
-                controllers.Add(itemID, pack.Controller);
+                controllers.Add(itemID, new ControllerData(pack.Controller, false));
                 bindInstanceEvents(pack.Controller.Instance);
                 view.AddInstance(itemID, name ?? "unknown", pack.View);
             }
@@ -416,22 +429,26 @@ namespace Netool.Controllers
 
         public void RemoveInstance(int id)
         {
-            IInstanceController cont;
-            if(controllers.TryGetValue(id, out cont))
+            ControllerData data;
+            if(controllers.TryGetValue(id, out data))
             {
+                var cont = data.Controller;
                 cont.Stop();
-                var instanceName = model.OpenInstances[id].Name;
-                model.RemoveInstance(id);
                 cont.Close();
-                if (cont.Logger != null && cont.Logger.IsTempFile)
+                if(data.Active)
                 {
-                    if(view.ShowYesNoBox(string.Format("The log file for {0} is temporary. Do you want to save it?", instanceName), "Save the log file?"))
+                    var instanceName = model.OpenInstances[id].Name;
+                    model.RemoveInstance(id);
+                    if (cont.Logger != null && cont.Logger.IsTempFile)
                     {
-                        saveLogFile(cont, instanceName);
-                    }
-                    else
-                    {
-                        cont.Logger.DeleteFile();
+                        if (view.ShowYesNoBox(string.Format("The log file for {0} is temporary. Do you want to save it?", instanceName), "Save the log file?"))
+                        {
+                            saveLogFile(cont, instanceName);
+                        }
+                        else
+                        {
+                            cont.Logger.DeleteFile();
+                        }
                     }
                 }
                 controllers.Remove(id);
