@@ -43,7 +43,9 @@ namespace Netool.Network
         public new int ID { get { return serverChannel.ID; } }
         public new string Name { get { return serverChannel.Name; } }
         private volatile bool closed = false;
+        [NonSerialized]
         private IChannelExtensions.ChannelHandlers clientHandlers;
+        [NonSerialized]
         private IChannelExtensions.ChannelHandlers serverHandlers;
 
         public DefaultProxyChannel(IClient client, IServerChannel srvChannel)
