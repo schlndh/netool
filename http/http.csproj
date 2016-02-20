@@ -51,6 +51,7 @@
     <Compile Include="Network\DataFormats\WebSocket\MaskedStream.cs" />
     <Compile Include="Network\DataFormats\WebSocket\WebSocketMessage.cs" />
     <Compile Include="Network\Http\Http.cs" />
+    <Compile Include="Network\Http\HttpClientFactory.cs" />
     <Compile Include="Network\Http\HttpMessageParser.cs" />
     <Compile Include="Network\Http\HttpServer.cs" />
     <Compile Include="Network\Http\HttpClient.cs" />

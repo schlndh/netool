@@ -59,8 +59,7 @@ namespace Netool.Plugins.Protocols
                     break;
 
                 default:
-                    throw new NotImplementedException();
-                   // instance = createProxy();
+                    instance = createProxy(logger);
                     break;
             }
             if (instance == null) throw new SetupAbortedByUserException();
@@ -90,9 +89,12 @@ namespace Netool.Plugins.Protocols
                     break;
 
                 default:
-                    throw new NotImplementedException();
                     var p = settings as DefaultProxySettings;
                     if (p == null) throw new InvalidSettingsTypeException();
+                    var srv = p.Server as HttpServer;
+                    if (srv != null) srv.SetLogger(logger);
+                    var factory = p.ClientFactory as HttpClientFactory;
+                    if (factory != null) factory.SetLogger(logger);
                     instance = new DefaultProxy(p);
                     break;
             }
@@ -135,18 +137,18 @@ namespace Netool.Plugins.Protocols
             return null;
         }
 
-        /*private DefaultProxy createProxy()
+        private DefaultProxy createProxy(InstanceLogger logger)
         {
             var dialog = new TcpProxyDialog();
             dialog.ShowDialog();
             if (dialog.DialogResult == DialogResult.OK)
             {
-                var clFactory = new TcpClientFactory(dialog.ClientFactorySettings);
-                var srv = new TcpServer(dialog.ServerSettings);
-                return new DefaultProxy(new DefaultProxySettings { server = srv, ClientFactory = clFactory });
+                var clFactory = new HttpClientFactory(dialog.ClientFactorySettings, logger);
+                var srv = new HttpServer(new HttpServerSettings { TcpSettings = dialog.ServerSettings }, logger);
+                return new DefaultProxy(new DefaultProxySettings { Server = srv, ClientFactory = clFactory });
             }
             return null;
-        }*/
+        }
 
         private IChannelView channelViewCallback(DefaultChannelView v)
         {

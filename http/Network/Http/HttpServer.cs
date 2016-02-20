@@ -172,5 +172,11 @@ namespace Netool.Network.Http
         {
             server.Stop();
         }
+
+        internal void SetLogger(InstanceLogger logger)
+        {
+            if (this.logger != null) throw new InvalidOperationException("Logger already set!");
+            this.logger = logger;
+        }
     }
 }
