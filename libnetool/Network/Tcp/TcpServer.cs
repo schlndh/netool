@@ -1,4 +1,5 @@
 ﻿using Netool.Network.DataFormats;
+using Netool.Network.Helpers;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -26,6 +27,7 @@ namespace Netool.Network.Tcp
     {
         public IPEndPoint LocalEndPoint;
         public int MaxPendingConnections;
+        public SocketProperties Properties;
     }
 
     [Serializable]
@@ -208,6 +210,7 @@ namespace Netool.Network.Tcp
                     {
                         socket.Bind(settings.LocalEndPoint);
                         socket.Listen(settings.MaxPendingConnections);
+                        settings.Properties.Apply(socket);
                         socket.BeginAccept(new AsyncCallback(acceptRequest), socket);
                     }
                     catch (ObjectDisposedException)
@@ -243,7 +246,8 @@ namespace Netool.Network.Tcp
                 OnErrorOccured(e);
                 return;
             }
-            var channel = new TcpServerChannel(client, Interlocked.Increment(ref channelID), ReceiveBufferSize);
+            settings.Properties.Apply(client);
+            var channel = new TcpServerChannel(client, Interlocked.Increment(ref channelID), settings.Properties.ReceiveBufferSize);
             channel.ChannelClosed += channelClosedHandler;
             channels.TryAdd(channel.ID,channel);
             OnChannelCreated(channel);

@@ -22,6 +22,7 @@ namespace Netool.Network.Udp
     public class UdpServerSettings
     {
         public IPEndPoint LocalEndPoint;
+        public SocketProperties Properties;
     }
 
     [Serializable]
@@ -121,7 +122,7 @@ namespace Netool.Network.Udp
                     {
                         socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
                     }
-
+                    settings.Properties.Apply(socket);
                     scheduleNextReceive();
                 }
             }

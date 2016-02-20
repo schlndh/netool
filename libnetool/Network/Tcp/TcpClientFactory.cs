@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using Netool.Network.Helpers;
 
 namespace Netool.Network.Tcp
 {
@@ -8,6 +9,7 @@ namespace Netool.Network.Tcp
     {
         public IPAddress LocalIPAddress;
         public IPEndPoint RemoteEndPoint;
+        public SocketProperties Properties;
     }
 
     [Serializable]
@@ -23,7 +25,13 @@ namespace Netool.Network.Tcp
 
         public IClient CreateClient()
         {
-            return new TcpClient(new TcpClientSettings { RemoteEndPoint = settings.RemoteEndPoint, LocalEndPoint = new IPEndPoint(settings.LocalIPAddress, 0) });
+            return new TcpClient(
+                new TcpClientSettings
+                {
+                    RemoteEndPoint = settings.RemoteEndPoint,
+                    LocalEndPoint = new IPEndPoint(settings.LocalIPAddress, 0),
+                    Properties = settings.Properties,
+                });
         }
     }
 }

@@ -7,8 +7,8 @@ namespace Netool.Dialogs.Tcp
 {
     public partial class TcpProxyDialog : Form
     {
-        public TcpServerSettings ServerSettings { get { return new TcpServerSettings { LocalEndPoint = localEndPoint.EndPoint, MaxPendingConnections = int.Parse(maxPendingConnetions.Text) }; } }
-        public TcpClientFactorySettings ClientFactorySettings { get { return new TcpClientFactorySettings { RemoteEndPoint = remoteEndPoint.EndPoint, LocalIPAddress = localIP.IP }; } }
+        public TcpServerSettings ServerSettings { get { return new TcpServerSettings { LocalEndPoint = localEndPoint.EndPoint, MaxPendingConnections = int.Parse(maxPendingConnetions.Text), Properties = socketSettings.Settings }; } }
+        public TcpClientFactorySettings ClientFactorySettings { get { return new TcpClientFactorySettings { RemoteEndPoint = remoteEndPoint.EndPoint, LocalIPAddress = localIP.IP, Properties = socketSettings.Settings }; } }
 
         public TcpProxyDialog()
         {

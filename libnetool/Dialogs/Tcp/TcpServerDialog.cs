@@ -11,7 +11,12 @@ namespace Netool.Dialogs.Tcp
         {
             get
             {
-                return new TcpServerSettings { LocalEndPoint = endPoint.EndPoint, MaxPendingConnections = int.Parse(maxConnections.Text) };
+                return new TcpServerSettings
+                {
+                    LocalEndPoint = endPoint.EndPoint,
+                    MaxPendingConnections = int.Parse(maxConnections.Text),
+                    Properties = socketSettings.Settings,
+                };
             }
         }
 

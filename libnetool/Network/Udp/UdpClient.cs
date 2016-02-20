@@ -1,4 +1,5 @@
 ﻿using Netool.Network.DataFormats;
+using Netool.Network.Helpers;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -11,6 +12,7 @@ namespace Netool.Network.Udp
     {
         public IPEndPoint LocalEndPoint;
         public IPEndPoint RemoteEndPoint;
+        public SocketProperties Properties;
     }
 
     [Serializable]
@@ -144,7 +146,7 @@ namespace Netool.Network.Udp
         public UdpClient(UdpClientSettings settings)
         {
             this.settings = settings;
-            ReceiveBufferSize = 2048;
+            ReceiveBufferSize = settings.Properties.ReceiveBufferSize;
         }
 
         /// <inheritdoc/>
@@ -159,6 +161,7 @@ namespace Netool.Network.Udp
                         stopped = false;
                         var socket = new Socket(SocketType.Dgram, ProtocolType.Udp);
                         socket.Bind(settings.LocalEndPoint);
+                        settings.Properties.Apply(socket);
                         channel = new UdpClientChannel(socket, settings.RemoteEndPoint, Interlocked.Increment(ref channelID), ReceiveBufferSize);
                         channel.ChannelClosed += channelClosedHandler;
                         OnChannelCreated(channel);

@@ -133,6 +133,7 @@
     <Compile Include="Network\DefaultProxy.cs" />
     <Compile Include="Network\Helpers\IPEndPointParser.cs" />
     <Compile Include="Network\Helpers\LockableChannel.cs" />
+    <Compile Include="Network\Helpers\SocketProperties.cs" />
     <Compile Include="Network\Network.cs" />
     <Compile Include="Network\Tcp\TcpClient.cs" />
     <Compile Include="Network\Tcp\TcpClientFactory.cs" />
@@ -169,6 +170,12 @@
     </Compile>
     <Compile Include="Views\Components\DataViewSelection.Designer.cs">
       <DependentUpon>DataViewSelection.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Components\SocketSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\Components\SocketSettings.Designer.cs">
+      <DependentUpon>SocketSettings.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\Editor\EditorMasterView.cs">
       <SubType>Form</SubType>
@@ -251,6 +258,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Components\DataViewSelection.resx">
       <DependentUpon>DataViewSelection.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Components\SocketSettings.resx">
+      <DependentUpon>SocketSettings.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Editor\EditorMasterView.resx">
       <DependentUpon>EditorMasterView.cs</DependentUpon>

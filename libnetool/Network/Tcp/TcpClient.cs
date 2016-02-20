@@ -1,4 +1,5 @@
 ﻿using Netool.Network.DataFormats;
+using Netool.Network.Helpers;
 using System;
 using System.Diagnostics;
 using System.Net;
@@ -12,6 +13,7 @@ namespace Netool.Network.Tcp
     {
         public IPEndPoint LocalEndPoint;
         public IPEndPoint RemoteEndPoint;
+        public SocketProperties Properties;
     }
 
     [Serializable]
@@ -159,7 +161,6 @@ namespace Netool.Network.Tcp
         public TcpClient(TcpClientSettings settings)
         {
             this.settings = settings;
-            ReceiveBufferSize = 8192;
         }
 
         /// <inheritdoc />
@@ -173,7 +174,8 @@ namespace Netool.Network.Tcp
                     var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
                     socket.Bind(settings.LocalEndPoint);
                     socket.Connect(settings.RemoteEndPoint);
-                    channel = new TcpClientChannel(socket, Interlocked.Increment(ref channelID), ReceiveBufferSize);
+                    settings.Properties.Apply(socket);
+                    channel = new TcpClientChannel(socket, Interlocked.Increment(ref channelID), settings.Properties.ReceiveBufferSize);
                     OnChannelCreated(channel);
                     channel.ChannelClosed += channelClosedHandler;
                     channel.raiseChannelReady();

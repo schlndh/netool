@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Netool.Network.Helpers;
+using System;
 using System.Net;
 
 namespace Netool.Network.Udp
@@ -8,6 +9,7 @@ namespace Netool.Network.Udp
     {
         public IPAddress LocalIPAddress;
         public IPEndPoint RemoteEndPoint;
+        public SocketProperties Properties;
     }
 
     [Serializable]
@@ -23,7 +25,7 @@ namespace Netool.Network.Udp
 
         public IClient CreateClient()
         {
-            return new UdpClient(new UdpClientSettings { RemoteEndPoint = settings.RemoteEndPoint, LocalEndPoint = new IPEndPoint(settings.LocalIPAddress, 0) });
+            return new UdpClient(new UdpClientSettings { RemoteEndPoint = settings.RemoteEndPoint, LocalEndPoint = new IPEndPoint(settings.LocalIPAddress, 0), Properties = settings.Properties });
         }
     }
 }

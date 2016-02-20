@@ -11,7 +11,12 @@ namespace Netool.Dialogs.Tcp
         {
             get
             {
-                return new TcpClientSettings { LocalEndPoint = localEndPoint.EndPoint, RemoteEndPoint = remoteEndPoint.EndPoint };
+                return new TcpClientSettings
+                {
+                    LocalEndPoint = localEndPoint.EndPoint,
+                    RemoteEndPoint = remoteEndPoint.EndPoint,
+                    Properties = socketSettings.Settings,
+                };
             }
         }
 
