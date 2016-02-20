@@ -1,4 +1,5 @@
 ﻿using Netool.Network;
+using Netool.Network.DataFormats;
 using System;
 namespace Netool.ChannelDrivers
 {
@@ -35,12 +36,35 @@ namespace Netool.ChannelDrivers
             }
         }
 
+        /// <summary>
+        /// Maps response from server to response sent to client
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="s">response from server</param>
+        /// <returns>modified response or null if the response is to be dropped</returns>
+        protected virtual IDataStream responseMapper(IProxyChannel c, IDataStream s)
+        {
+            return s;
+        }
+
+        /// <summary>
+        /// Maps request from client to request sent to server
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="s">request from client</param>
+        /// <returns>modified request or null if the request is to be dropped</returns>
+        protected virtual IDataStream requestMapper(IProxyChannel c, IDataStream s)
+        {
+            return s;
+        }
+
         private void responseReceivedHandler(object sender, DataEventArgs e)
         {
             var ch = sender as IProxyChannel;
             if (ch != null)
             {
-                ch.SendToClient(e.Data);
+                var s = responseMapper(ch, e.Data);
+                if(s != null) ch.SendToClient(s);
             }
         }
 
@@ -49,7 +73,8 @@ namespace Netool.ChannelDrivers
             var ch = sender as IProxyChannel;
             if (ch != null)
             {
-                ch.SendToServer(e.Data);
+                var s = requestMapper(ch, e.Data);
+                if(s != null) ch.SendToServer(s);
             }
         }
     }
