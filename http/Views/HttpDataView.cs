@@ -117,14 +117,16 @@ namespace Netool.Views
                 }
 
                 IDataStream innerData = data.BodyData;
-                if(!isEditor && data.Headers.ContainsKey("Transfer-Encoding"))
+                if(!isEditor && (data.Headers.ContainsKey("Transfer-Encoding") || data.Headers.ContainsKey("Content-Encoding")))
                 {
                     var usedDecoders = new List<IStreamWrapper>();
-                    var transferEncodings = data.Headers["Transfer-Encoding"].ToLower().Split(new string[]{","}, StringSplitOptions.RemoveEmptyEntries);
-                    for(int i = transferEncodings.Length - 1; i > -1; --i)
+                    List<string> encodings = new List<string>();
+                    addEncodings(data, "Transfer-Encoding", encodings);
+                    addEncodings(data, "Content-Encoding", encodings);
+                    for (int i = encodings.Count - 1; i > -1; --i)
                     {
                         IStreamDecoderPlugin decoder = null;
-                        if (decoders.TryGetValue(transferEncodings[i].Trim(), out decoder))
+                        if (decoders.TryGetValue(encodings[i].Trim(), out decoder))
                         {
                             usedDecoders.Add(decoder.CreateWrapper());
                         }
@@ -156,6 +158,14 @@ namespace Netool.Views
             else
             {
                 throw new UnsupportedDataStreamException();
+            }
+        }
+
+        private void addEncodings(HttpData data, string header, List<string> encodings)
+        {
+            if (data.Headers.ContainsKey(header))
+            {
+                encodings.AddRange(data.Headers[header].ToLower().Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
             }
         }
     }
