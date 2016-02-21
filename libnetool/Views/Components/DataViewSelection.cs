@@ -269,7 +269,14 @@ namespace Netool.Views.Components
                 currentView = null;
                 currentEditor = null;
             }
-            showStream();
+            try
+            {
+                showStream();
+            }
+            catch(UnsupportedDataStreamException)
+            {
+                MessageBox.Show("Given data stream is not supported by current view.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void showStream()
