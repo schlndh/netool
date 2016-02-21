@@ -116,6 +116,7 @@ namespace Netool.Network.DataFormats.WebSocket
         public WebSocketMessage(bool fin, OpcodeType opcode, byte[] maskingKey, IDataStream payload, bool rsv1 = false, bool rsv2 = false, bool rsv3 = false)
         {
             if (MaskingKey != null && MaskingKey.Length != 4) throw new ArgumentException("MaskingKey.Length != 4");
+            if (payload == null) payload = EmptyData.Instance;
             MaskingKey = maskingKey;
             FIN = fin;
             RSV1 = rsv1;
