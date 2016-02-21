@@ -175,7 +175,27 @@ namespace Netool.Plugins.Protocols
                     {
                         ((HttpClientChannel)v.Channel).UpgradeProtocol(upgrader);
                     }
-                    // TODO: add upgrading for http proxy (once proxy is enabled)
+                    else if(v.Channel.GetType() == typeof(DefaultProxyChannel))
+                    {
+                        DefaultProxyChannel.ChannelCallback<IServerChannel> server = delegate (IServerChannel c)
+                        {
+                            var channel = c as HttpServerChannel;
+                            if(channel != null)
+                            {
+                                channel.UpgradeProtocol(upgrader);
+                            }
+                        };
+
+                        DefaultProxyChannel.ChannelCallback<IClientChannel> client = delegate (IClientChannel c)
+                        {
+                            var channel = c as HttpClientChannel;
+                            if (channel != null)
+                            {
+                                channel.UpgradeProtocol(upgrader);
+                            }
+                        };
+                        ((DefaultProxyChannel)v.Channel).ReplaceInnerChannels(server, client);
+                    }
                 }));
             }
             if(upgrade.DropDownItems.Count > 0)
