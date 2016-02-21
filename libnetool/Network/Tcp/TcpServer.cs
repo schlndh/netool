@@ -162,6 +162,7 @@ namespace Netool.Network.Tcp
         protected Socket socket;
         private volatile bool stopped = true;
         private ConcurrentDictionary<int, IServerChannel> channels = new ConcurrentDictionary<int, IServerChannel>();
+        [NonSerialized]
         private int channelID = 0;
         private object stopLock = new object();
         public int ReceiveBufferSize { get; set; }
@@ -264,6 +265,12 @@ namespace Netool.Network.Tcp
         {
             IServerChannel c;
             channels.TryRemove(((IServerChannel)channel).ID, out c);
+        }
+
+        [OnDeserialized]
+        private void onDeserialized(StreamingContext ctx)
+        {
+            channelID = 0;
         }
     }
 }

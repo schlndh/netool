@@ -3,8 +3,8 @@ using Netool.Network.DataFormats;
 using Netool.Network.DataFormats.Http;
 using Netool.Network.Helpers;
 using Netool.Network.Tcp;
-using Netool.Plugins.Http;
 using System;
+using System.Runtime.Serialization;
 
 namespace Netool.Network.Http
 {
@@ -145,9 +145,14 @@ namespace Netool.Network.Http
         {
             this.setttings = settings;
             server = new TcpServer(settings.TcpSettings);
+            bindToServer();
+            this.logger = logger;
+        }
+
+        private void bindToServer()
+        {
             server.ChannelCreated += channelCreatedHandler;
             server.ErrorOccured += server_ErrorOccured;
-            this.logger = logger;
         }
 
         private void server_ErrorOccured(object sender, Exception e)
@@ -177,6 +182,13 @@ namespace Netool.Network.Http
         {
             if (this.logger != null) throw new InvalidOperationException("Logger already set!");
             this.logger = logger;
+        }
+
+        [OnDeserialized]
+        private void onDeserialized(StreamingContext ctx)
+        {
+            // this is neccessary for DefaultProxy to work when restored
+            bindToServer();
         }
     }
 }
