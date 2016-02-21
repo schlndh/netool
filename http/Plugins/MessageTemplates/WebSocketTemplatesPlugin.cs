@@ -67,7 +67,6 @@ namespace Netool.Plugins.MessageTemplates
                 builder.HttpVersion = "1.1";
                 builder.StatusCode = 101;
                 builder.ReasonPhrase = "Switching Protocols";
-                builder.AddHeader("Host", "");
                 builder.AddHeader("Upgrade", "websocket");
                 builder.AddHeader("Connection", "Upgrade");
                 builder.AddHeader("Sec-WebSocket-Version", "13");
@@ -77,7 +76,7 @@ namespace Netool.Plugins.MessageTemplates
                     var key = Convert.ToBase64String(sha1.ComputeHash(ASCIIEncoding.ASCII.GetBytes(SecWebsocketKey + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11")));
                     builder.AddHeader("Sec-WebSocket-Accept", key);
                 }
-                
+
                 return builder.CreateAndClear();
             }
         }
@@ -100,7 +99,7 @@ namespace Netool.Plugins.MessageTemplates
         /// <inheritdoc/>
         public IEnumerable<IMessageTemplate> CreateTemplates()
         {
-            return new IMessageTemplate[] 
+            return new IMessageTemplate[]
             {
                 new WebSocketHandshakeClientTemplate(),
                 WebSocketHandshakeServerTemplate.Instance,
