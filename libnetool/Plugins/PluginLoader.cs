@@ -44,7 +44,7 @@ namespace Netool.Plugins
             {
                 try
                 {
-                    var assembly = Assembly.LoadFile(dll);
+                    var assembly = Assembly.LoadFrom(dll);
                     assemblies.Add(assembly.FullName, assembly);
                     LoadPluginsFromAssembly(assembly);
                 }
