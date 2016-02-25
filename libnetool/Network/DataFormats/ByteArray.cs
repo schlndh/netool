@@ -58,6 +58,19 @@ namespace Netool.Network.DataFormats
             arr = stream.ReadBytes(start, length);
         }
 
+        /// <summary>
+        /// Creates new ByteArray by encoding a string
+        /// </summary>
+        /// <param name="s">string to encode</param>
+        /// <param name="e">encoding</param>
+        /// <exception cref="ArgumentNullException">string or encoding</exception>
+        public ByteArray(string s, System.Text.Encoding e)
+        {
+            if (s == null) throw new ArgumentNullException("string");
+            if (e == null) throw new ArgumentNullException("encoding");
+            arr = e.GetBytes(s);
+        }
+
         /// <inheritdoc/>
         public byte ReadByte(long index)
         {
