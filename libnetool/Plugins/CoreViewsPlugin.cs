@@ -25,13 +25,24 @@ namespace Netool.Plugins
         /// <inheritdoc/>
         public IEnumerable<IEditorView> CreateEditorViews()
         {
-            return new IEditorView[] { new Views.Editor.HexView(), new Views.Editor.EmbeddingEditorViewWrapper(createEditorViewStreamWrapper, "StreamWrapper"), new Views.Editor.FileEditor() };
+            return new IEditorView[]
+            {
+                new Views.Editor.HexView(),
+                new Views.Editor.Utf8TextEditor(),
+                new Views.Editor.EmbeddingEditorViewWrapper(createEditorViewStreamWrapper, "StreamWrapper"),
+                new Views.Editor.FileEditor(),
+            };
         }
 
         /// <inheritdoc/>
         public IEnumerable<IEventView> CreateEventViews()
         {
-            return new IEventView[] { new Views.Event.HexView(), new Views.Event.EmbeddingEventViewWrapper(createEventViewStreamWrapper, "StreamWrapper") };
+            return new IEventView[]
+            {
+                new Views.Event.HexView(),
+                new Views.Event.Utf8TextView(),
+                new Views.Event.EmbeddingEventViewWrapper(createEventViewStreamWrapper, "StreamWrapper"),
+            };
         }
 
         public void AfterLoad(PluginLoader loader)

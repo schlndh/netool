@@ -196,12 +196,24 @@
     <Compile Include="Views\Editor\HexView.Designer.cs">
       <DependentUpon>HexView.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\Editor\Utf8TextEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\Editor\Utf8TextEditor.Designer.cs">
+      <DependentUpon>Utf8TextEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="Views\Event\EmbeddingEventViewWrapper.cs" />
     <Compile Include="Views\Event\HexView.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Views\Event\HexView.Designer.cs">
       <DependentUpon>HexView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Event\Utf8TextView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\Event\Utf8TextView.Designer.cs">
+      <DependentUpon>Utf8TextView.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\Helpers.cs" />
     <Compile Include="Views\Instance\DefaultInstanceView.cs">
@@ -271,8 +283,14 @@
     <EmbeddedResource Include="Views\Editor\HexView.resx">
       <DependentUpon>HexView.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Views\Editor\Utf8TextEditor.resx">
+      <DependentUpon>Utf8TextEditor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Views\Event\HexView.resx">
       <DependentUpon>HexView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\Event\Utf8TextView.resx">
+      <DependentUpon>Utf8TextView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\Instance\DefaultInstanceView.resx">
       <DependentUpon>DefaultInstanceView.cs</DependentUpon>
