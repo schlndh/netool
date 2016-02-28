@@ -43,7 +43,6 @@ namespace Netool.Plugins.Protocols
 
         private PluginLoader loader;
         private CachedPluginEnumerable<IProtocolUpgradePlugin> upgradePlugins = new CachedPluginEnumerable<IProtocolUpgradePlugin>();
-        private CachedPluginEnumerable<IMessageTemplatePlugin> templatePlugins = new CachedPluginEnumerable<IMessageTemplatePlugin>();
 
         /// <inheritdoc/>
         public InstancePack CreateInstance(InstanceLogger logger, InstanceType type)
@@ -204,7 +203,6 @@ namespace Netool.Plugins.Protocols
                 httpMenu.DropDownItems.Add(upgrade);
                 v.AddMenuItem(httpMenu);
             }
-            v.AddMessageTemplates(templatePlugins);
             return v;
         }
 
@@ -212,7 +210,6 @@ namespace Netool.Plugins.Protocols
         {
             this.loader = loader;
             upgradePlugins.Loader = loader;
-            templatePlugins.Loader = loader;
         }
     }
 }

@@ -23,11 +23,13 @@ namespace Netool.Controllers
             private ChannelViewCallback callback;
             private CachedPluginEnumerable<IEditorViewPlugin> editorViewPlugins = new CachedPluginEnumerable<IEditorViewPlugin>();
             private CachedPluginEnumerable<IEventViewPlugin> eventViewPlugins = new CachedPluginEnumerable<IEventViewPlugin>();
+            private CachedPluginEnumerable<IMessageTemplatePlugin> templatePlugins = new CachedPluginEnumerable<IMessageTemplatePlugin>();
 
             public DefaultChannelViewFactory(PluginLoader loader)
             {
                 editorViewPlugins.Loader = loader;
                 eventViewPlugins.Loader = loader;
+                templatePlugins.Loader = loader;
             }
 
             /// <summary>
@@ -63,8 +65,9 @@ namespace Netool.Controllers
                         }
                     }
                     v.AllowManualControl(masterEd);
+                    v.AddMessageTemplates(templatePlugins);
                 }
-                if(callback == null) return v;
+                if (callback == null) return v;
                 return callback(v);
             }
         }
