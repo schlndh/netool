@@ -12,7 +12,7 @@ namespace Netool.Plugins.Protocols
     /// <summary>
     /// Plugin for basic TCP functions.
     /// </summary>
-    public class TcpPlugin : IProtocolPlugin
+    public class TcpPlugin : IProtocolPlugin, IExtensiblePlugin
     {
         /// <inheritdoc/>
         public long ID { get { return 1; } }
@@ -35,6 +35,8 @@ namespace Netool.Plugins.Protocols
         /// <inheritdoc/>
         public string ProtocolName { get { return "Tcp"; } }
 
+        private PluginLoader loader;
+
         /// <inheritdoc/>
         public InstancePack CreateInstance(InstanceLogger logger, InstanceType type)
         {
@@ -56,7 +58,7 @@ namespace Netool.Plugins.Protocols
             if (instance == null) throw new SetupAbortedByUserException();
             // for now set manual driver to everything
             var view = new DefaultInstanceView();
-            var cont = new DefaultInstanceController(view, instance, logger);
+            var cont = new DefaultInstanceController(view, instance, logger, loader);
             view.SetController(cont);
             return new InstancePack(view, cont, type);
         }
@@ -88,7 +90,7 @@ namespace Netool.Plugins.Protocols
             }
             // for now set manual driver to everything
             var view = new DefaultInstanceView();
-            var cont = new DefaultInstanceController(view, instance, logger);
+            var cont = new DefaultInstanceController(view, instance, logger, loader);
             view.SetController(cont);
             return new InstancePack(view, cont, type);
         }
@@ -97,7 +99,7 @@ namespace Netool.Plugins.Protocols
         public InstancePack RestoreInstance(InstanceLogger logger)
         {
             var view = new DefaultInstanceView();
-            var cont = new DefaultInstanceController(view, logger, new DefaultInstanceController.DefaultChannelViewFactory());
+            var cont = new DefaultInstanceController(view, logger, loader);
             view.SetController(cont);
             return new InstancePack(view, cont, cont.GetInstanceType());
         }
@@ -137,6 +139,11 @@ namespace Netool.Plugins.Protocols
                 return new DefaultProxy(new DefaultProxySettings { Server = srv, ClientFactory = clFactory });
             }
             return null;
+        }
+
+        void IExtensiblePlugin.AfterLoad(PluginLoader loader)
+        {
+            this.loader = loader;
         }
     }
 }

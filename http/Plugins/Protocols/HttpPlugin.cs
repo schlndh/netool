@@ -41,6 +41,7 @@ namespace Netool.Plugins.Protocols
         /// <inheritdoc/>
         public string ProtocolName { get { return "Http"; } }
 
+        private PluginLoader loader;
         private CachedPluginEnumerable<IProtocolUpgradePlugin> upgradePlugins = new CachedPluginEnumerable<IProtocolUpgradePlugin>();
         private CachedPluginEnumerable<IMessageTemplatePlugin> templatePlugins = new CachedPluginEnumerable<IMessageTemplatePlugin>();
 
@@ -64,7 +65,7 @@ namespace Netool.Plugins.Protocols
             }
             if (instance == null) throw new SetupAbortedByUserException();
             var view = new DefaultInstanceView();
-            var cont = new DefaultInstanceController(view, instance, logger, new DefaultInstanceController.DefaultChannelViewFactory(channelViewCallback));
+            var cont = new DefaultInstanceController(view, instance, logger, new DefaultInstanceController.DefaultChannelViewFactory(loader, channelViewCallback));
             view.SetController(cont);
             return new InstancePack(view, cont, type);
         }
@@ -99,7 +100,7 @@ namespace Netool.Plugins.Protocols
                     break;
             }
             var view = new DefaultInstanceView();
-            var cont = new DefaultInstanceController(view, instance, logger, new DefaultInstanceController.DefaultChannelViewFactory(channelViewCallback));
+            var cont = new DefaultInstanceController(view, instance, logger, new DefaultInstanceController.DefaultChannelViewFactory(loader, channelViewCallback));
             view.SetController(cont);
             return new InstancePack(view, cont, type);
         }
@@ -108,7 +109,7 @@ namespace Netool.Plugins.Protocols
         public InstancePack RestoreInstance(InstanceLogger logger)
         {
             var view = new DefaultInstanceView();
-            var cont = new DefaultInstanceController(view, logger, new DefaultInstanceController.DefaultChannelViewFactory());
+            var cont = new DefaultInstanceController(view, logger, loader);
             view.SetController(cont);
             return new InstancePack(view, cont, cont.GetInstanceType());
         }
@@ -209,6 +210,7 @@ namespace Netool.Plugins.Protocols
 
         void IExtensiblePlugin.AfterLoad(PluginLoader loader)
         {
+            this.loader = loader;
             upgradePlugins.Loader = loader;
             templatePlugins.Loader = loader;
         }

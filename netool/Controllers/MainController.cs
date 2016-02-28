@@ -16,7 +16,7 @@ using System.Windows.Forms;
 
 namespace Netool.Controllers
 {
-    public class MainController : IMainController
+    public class MainController
     {
         private class ControllerData
         {
@@ -151,7 +151,6 @@ namespace Netool.Controllers
                         logger.WritePluginID(plugin.ID);
                         logger.WriteInstanceName(instance.Value.Name);
                         var pack = plugin.CreateInstance(logger, instance.Value.Type, instance.Value.Settings);
-                        pack.Controller.SetMainController(this);
                         invalidDrivers.Clear();
                         foreach(var driver in instance.Value.Drivers)
                         {
@@ -319,7 +318,6 @@ namespace Netool.Controllers
                     logger.WritePluginID(plugin.ID);
                     logger.WriteInstanceName(name);
                     var pack = plugin.CreateInstance(logger, type);
-                    pack.Controller.SetMainController(this);
                     var drivers = setupDrivers(pack.Controller);
                     ++itemID;
                     controllers.Add(itemID, new ControllerData(pack.Controller, true));
@@ -350,7 +348,6 @@ namespace Netool.Controllers
             {
                 var name = logger.ReadInstanceName();
                 var pack = plugin.RestoreInstance(logger);
-                pack.Controller.SetMainController(this);
                 ++itemID;
                 controllers.Add(itemID, new ControllerData(pack.Controller, false));
                 bindInstanceEvents(pack.Controller.Instance);

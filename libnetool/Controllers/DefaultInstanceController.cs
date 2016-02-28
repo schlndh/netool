@@ -1,11 +1,12 @@
 ﻿using Netool.ChannelDrivers;
 using Netool.Logging;
 using Netool.Network;
+using Netool.Plugins;
+using Netool.Plugins.Helpers;
 using Netool.Views;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using System;
 
 namespace Netool.Controllers
 {
@@ -13,40 +14,53 @@ namespace Netool.Controllers
     {
         public interface IChannelViewFactory
         {
-            IChannelView CreateChannelView(ChannelLogger info, IMainController mainCont);
+            IChannelView CreateChannelView(ChannelLogger info);
         }
 
         public class DefaultChannelViewFactory : IChannelViewFactory
         {
             public delegate IChannelView ChannelViewCallback(Views.Channel.DefaultChannelView v);
             private ChannelViewCallback callback;
+            private CachedPluginEnumerable<IEditorViewPlugin> editorViewPlugins = new CachedPluginEnumerable<IEditorViewPlugin>();
+            private CachedPluginEnumerable<IEventViewPlugin> eventViewPlugins = new CachedPluginEnumerable<IEventViewPlugin>();
 
-            public DefaultChannelViewFactory() { }
+            public DefaultChannelViewFactory(PluginLoader loader)
+            {
+                editorViewPlugins.Loader = loader;
+                eventViewPlugins.Loader = loader;
+            }
 
             /// <summary>
             ///
             /// </summary>
+            /// <param name="loader"></param>
             /// <param name="c">callback that will be called before returning channel view from factory</param>
-            public DefaultChannelViewFactory(ChannelViewCallback c)
+            public DefaultChannelViewFactory(PluginLoader loader, ChannelViewCallback c) : this(loader)
             {
                 callback = c;
             }
 
             /// <inheritdoc/>
-            public IChannelView CreateChannelView(ChannelLogger logger, IMainController mainCont)
+            public IChannelView CreateChannelView(ChannelLogger logger)
             {
                 var v = new Views.Channel.DefaultChannelView(logger);
-                foreach(var ev in mainCont.CreateEventViews())
+                foreach(var pl in eventViewPlugins)
                 {
-                    v.AddEventView(ev);
+                    foreach(var ev in pl.CreateEventViews())
+                    {
+                        v.AddEventView(ev);
+                    }
                 }
 
                 if (logger.channel != null && logger.channel.Driver != null && logger.channel.Driver.AllowManualControl)
                 {
                     var masterEd = new Views.Editor.EditorMasterView();
-                    foreach (var ev in mainCont.CreateEditorViews())
+                    foreach (var pl in editorViewPlugins)
                     {
-                        masterEd.AddEditorView(ev);
+                        foreach (var ev in pl.CreateEditorViews())
+                        {
+                            masterEd.AddEditorView(ev);
+                        }
                     }
                     v.AllowManualControl(masterEd);
                 }
@@ -70,10 +84,9 @@ namespace Netool.Controllers
 
         private IChannelViewFactory detailFactory;
         private RejectDriver rejectDriver = new RejectDriver();
-        private IMainController mainCont;
 
-        public DefaultInstanceController(IInstanceView view, IInstance instance, InstanceLogger logger)
-            : this(view, instance, logger, new DefaultChannelViewFactory())
+        public DefaultInstanceController(IInstanceView view, IInstance instance, InstanceLogger logger, PluginLoader loader)
+            : this(view, instance, logger, new DefaultChannelViewFactory(loader))
         {
         }
 
@@ -100,6 +113,17 @@ namespace Netool.Controllers
             this.view.SetLogger(logger);
             this.detailFactory = detailFactory;
             this.Active = true;
+        }
+
+        /// <summary>
+        /// This constructor is used for loading communication from file
+        /// </summary>
+        /// <param name="view"></param>
+        /// <param name="logger"></param>
+        /// <param name="loader"></param>
+        public DefaultInstanceController(IInstanceView view, InstanceLogger logger, PluginLoader loader)
+            : this(view, logger, new DefaultChannelViewFactory(loader))
+        {
         }
 
         /// <summary>
@@ -174,7 +198,7 @@ namespace Netool.Controllers
 
         public void ShowDetail(int id)
         {
-            var v = detailFactory.CreateChannelView(logger.GetChannelLogger(id), mainCont);
+            var v = detailFactory.CreateChannelView(logger.GetChannelLogger(id));
             channelViews.Add(v);
             var form = v.GetForm();
             form.FormClosed += delegate (object sender, System.Windows.Forms.FormClosedEventArgs args) { channelViews.Remove(v); };
@@ -184,11 +208,6 @@ namespace Netool.Controllers
         public InstanceType GetInstanceType()
         {
             return instance.GetInstanceType();
-        }
-
-        public void SetMainController(IMainController c)
-        {
-            this.mainCont = c;
         }
 
         private void handleConnectionCreated(object sender, IChannel c)

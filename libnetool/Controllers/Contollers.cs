@@ -5,13 +5,6 @@ using System.Collections.Generic;
 
 namespace Netool.Controllers
 {
-    public interface IMainController
-    {
-        List<Views.IEditorView> CreateEditorViews();
-
-        List<Views.IEventView> CreateEventViews();
-    }
-
     public interface IInstanceController
     {
         IInstance Instance { get; }
@@ -40,7 +33,5 @@ namespace Netool.Controllers
         /// <param name="d">driver</param>
         /// <param name="order">lower number = higher priority</param>
         void AddDriver(IChannelDriver d, int order);
-
-        void SetMainController(IMainController c);
     }
 }

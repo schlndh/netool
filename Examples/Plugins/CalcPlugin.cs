@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace Examples.Plugins
 {
-    public class CalcPlugin : IProtocolPlugin
+    public class CalcPlugin : IProtocolPlugin, IExtensiblePlugin
     {
         public bool SupportsClient { get { return false; } }
         public bool SupportsProxy { get { return false; } }
@@ -21,8 +21,9 @@ namespace Examples.Plugins
         public string Name { get { return "CalcPlugin"; } }
         public Version Version { get { return new Version(0, 1); } }
         public string ProtocolName { get { return "Calc"; } }
+        private PluginLoader loader;
 
-        public InstancePack CreateInstance(Netool.Logging.InstanceLogger logger, Netool.Network.InstanceType type, object settings)
+        public InstancePack CreateInstance(Netool.Logging.InstanceLogger logger, InstanceType type, object settings)
         {
             IInstance instance;
             if (settings == null) throw new ArgumentNullException("settings");
@@ -38,12 +39,12 @@ namespace Examples.Plugins
                     throw new NotImplementedException();
             }
             var view = new DefaultInstanceView();
-            var cont = new DefaultInstanceController(view, instance, logger);
+            var cont = new DefaultInstanceController(view, instance, logger, loader);
             view.SetController(cont);
             return new InstancePack(view, cont, type);
         }
 
-        public InstancePack CreateInstance(Netool.Logging.InstanceLogger logger, Netool.Network.InstanceType type)
+        public InstancePack CreateInstance(Netool.Logging.InstanceLogger logger, InstanceType type)
         {
             IInstance instance;
             switch (type)
@@ -57,7 +58,7 @@ namespace Examples.Plugins
             }
             if (instance == null) throw new SetupAbortedByUserException();
             var view = new DefaultInstanceView();
-            var cont = new DefaultInstanceController(view, instance, logger);
+            var cont = new DefaultInstanceController(view, instance, logger, loader);
             view.SetController(cont);
             return new InstancePack(view, cont, type);
         }
@@ -65,7 +66,7 @@ namespace Examples.Plugins
         public InstancePack RestoreInstance(Netool.Logging.InstanceLogger logger)
         {
             var view = new DefaultInstanceView();
-            var cont = new DefaultInstanceController(view, logger, new DefaultInstanceController.DefaultChannelViewFactory());
+            var cont = new DefaultInstanceController(view, logger, loader);
             view.SetController(cont);
             return new InstancePack(view, cont, cont.GetInstanceType());
         }
@@ -80,6 +81,11 @@ namespace Examples.Plugins
                 return new CalcServer(settings);
             }
             return null;
+        }
+
+        void IExtensiblePlugin.AfterLoad(PluginLoader loader)
+        {
+            this.loader = loader;
         }
     }
 }
