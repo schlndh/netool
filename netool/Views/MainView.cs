@@ -147,7 +147,7 @@ namespace Netool
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             controller.RemoveInstance(((TabPageTag)instances.SelectedTab.Tag).ID);
-            instances.TabPages.RemoveAt(instances.SelectedIndex);
+            instances.TabPages.Remove(instances.SelectedTab);
         }
 
         private void instances_SelectedIndexChanged(object sender, EventArgs e)
