@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Netool.Network.DataFormats;
 using Netool.Network.DataFormats.Http;
@@ -13,7 +8,7 @@ using Netool.Plugins;
 using Netool.Plugins.Http;
 namespace Netool.Views
 {
-    public partial class HttpDataView : Form, IEventView, IEditorView
+    public partial class HttpDataView : BaseForm, IEventView, IEditorView
     {
         private bool isEditor;
 
@@ -27,6 +22,7 @@ namespace Netool.Views
         public HttpDataView(IEnumerable<IEventViewPlugin> eventViews, IReadOnlyDictionary<string, IStreamDecoderPlugin> decoders)
         {
             InitializeComponent();
+            this.MinimumSize = this.Size;
             isEditor = dataViewSelection.IsEditor = false;
             this.decoders = decoders;
             dataViewSelection.AddEventViews(eventViews, typeof(Event.HexView));
@@ -36,6 +32,7 @@ namespace Netool.Views
         public HttpDataView(IEnumerable<IEditorViewPlugin> editors)
         {
             InitializeComponent();
+            this.MinimumSize = this.Size;
             isEditor = dataViewSelection.IsEditor = true;
             dataViewSelection.AddEditors(editors, typeof(Editor.HexView));
             init();
@@ -167,6 +164,29 @@ namespace Netool.Views
             {
                 encodings.AddRange(data.Headers[header].ToLower().Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
             }
+        }
+
+        private Size calculateMinSize()
+        {
+            var dist = splitContainer1.SplitterDistance;
+            var size = dataViewSelection.MinimumSize;
+            size.Height += dist + splitContainer1.Panel1.Margin.Vertical
+                + flowLayoutPanel1.Height + flowLayoutPanel1.Margin.Vertical + dataViewSelection.Margin.Vertical
+                + splitContainer1.SplitterWidth;
+            size.Width = Math.Max(size.Width, 480);
+            return size;
+        }
+
+        private void dataViewSelection_MinimumSizeChanged(object sender, EventArgs e)
+        {
+            MinimumSize = calculateMinSize();
+        }
+
+        private void splitContainer1_SplitterMoved(object sender, SplitterEventArgs e)
+        {
+            dataViewSelection_MinimumSizeChanged(dataViewSelection, EventArgs.Empty);
+            // this seems to be necessary to resize the split container again
+            splitContainer1.Dock = DockStyle.Fill;
         }
     }
 }

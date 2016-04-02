@@ -41,12 +41,13 @@
             this.dataView = new Netool.Views.Components.DataViewSelection();
             this.mainSplitContainer = new System.Windows.Forms.SplitContainer();
             this.channelMenu = new System.Windows.Forms.MenuStrip();
+            this.templatesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewsTabControl = new System.Windows.Forms.TabControl();
             this.eventTabPage = new System.Windows.Forms.TabPage();
+            this.eventScrollPanel = new System.Windows.Forms.Panel();
             this.editorTabPage = new System.Windows.Forms.TabPage();
             this.eventsContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.eventsEditMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.templatesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mainSplitContainer)).BeginInit();
@@ -56,6 +57,7 @@
             this.channelMenu.SuspendLayout();
             this.viewsTabControl.SuspendLayout();
             this.eventTabPage.SuspendLayout();
+            this.eventScrollPanel.SuspendLayout();
             this.eventsContextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -65,7 +67,7 @@
             this.events.FullRowSelect = true;
             this.events.GridLines = true;
             this.events.Location = new System.Drawing.Point(0, 28);
-            this.events.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.events.Margin = new System.Windows.Forms.Padding(4);
             this.events.MultiSelect = false;
             this.events.Name = "events";
             this.events.ShowGroups = false;
@@ -85,14 +87,14 @@
             this.tableLayoutPanel2.Controls.Add(this.flowLayoutPanel1, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.dataView, 0, 1);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(4, 4);
-            this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(4);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 2;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 49F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(879, 304);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(887, 309);
             this.tableLayoutPanel2.TabIndex = 1;
             // 
             // flowLayoutPanel1
@@ -105,10 +107,10 @@
             this.flowLayoutPanel1.Controls.Add(this.timeLabel);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(4, 4);
-            this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(4);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(871, 41);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(879, 41);
             this.flowLayoutPanel1.TabIndex = 3;
             // 
             // label3
@@ -177,19 +179,20 @@
             this.dataView.IsEditor = false;
             this.dataView.Label = "Data view type:";
             this.dataView.Location = new System.Drawing.Point(5, 54);
-            this.dataView.Margin = new System.Windows.Forms.Padding(5, 5, 5, 5);
+            this.dataView.Margin = new System.Windows.Forms.Padding(5);
             this.dataView.Name = "dataView";
             this.dataView.SelectedIndex = -1;
-            this.dataView.Size = new System.Drawing.Size(869, 245);
+            this.dataView.Size = new System.Drawing.Size(877, 250);
             this.dataView.Stream = null;
             this.dataView.TabIndex = 4;
+            this.dataView.MinimumSizeChanged += new System.EventHandler(this.dataView_MinimumSizeChanged);
             // 
             // mainSplitContainer
             // 
             this.mainSplitContainer.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.mainSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mainSplitContainer.Location = new System.Drawing.Point(0, 0);
-            this.mainSplitContainer.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.mainSplitContainer.Margin = new System.Windows.Forms.Padding(4);
             this.mainSplitContainer.Name = "mainSplitContainer";
             this.mainSplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -217,13 +220,20 @@
             this.channelMenu.Size = new System.Drawing.Size(895, 28);
             this.channelMenu.TabIndex = 1;
             // 
+            // templatesToolStripMenuItem
+            // 
+            this.templatesToolStripMenuItem.Name = "templatesToolStripMenuItem";
+            this.templatesToolStripMenuItem.Size = new System.Drawing.Size(89, 24);
+            this.templatesToolStripMenuItem.Text = "Templates";
+            this.templatesToolStripMenuItem.Click += new System.EventHandler(this.templatesToolStripMenuItem_Click);
+            // 
             // viewsTabControl
             // 
             this.viewsTabControl.Controls.Add(this.eventTabPage);
             this.viewsTabControl.Controls.Add(this.editorTabPage);
             this.viewsTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.viewsTabControl.Location = new System.Drawing.Point(0, 0);
-            this.viewsTabControl.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.viewsTabControl.Margin = new System.Windows.Forms.Padding(4);
             this.viewsTabControl.Name = "viewsTabControl";
             this.viewsTabControl.SelectedIndex = 0;
             this.viewsTabControl.Size = new System.Drawing.Size(895, 341);
@@ -231,23 +241,36 @@
             // 
             // eventTabPage
             // 
-            this.eventTabPage.Controls.Add(this.tableLayoutPanel2);
+            this.eventTabPage.AutoScroll = true;
+            this.eventTabPage.Controls.Add(this.eventScrollPanel);
             this.eventTabPage.Location = new System.Drawing.Point(4, 25);
-            this.eventTabPage.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.eventTabPage.Margin = new System.Windows.Forms.Padding(4);
             this.eventTabPage.Name = "eventTabPage";
-            this.eventTabPage.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.eventTabPage.Padding = new System.Windows.Forms.Padding(4);
             this.eventTabPage.Size = new System.Drawing.Size(887, 312);
             this.eventTabPage.TabIndex = 0;
             this.eventTabPage.Text = "Event";
             this.eventTabPage.UseVisualStyleBackColor = true;
             // 
+            // eventScrollPanel
+            // 
+            this.eventScrollPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.eventScrollPanel.AutoScroll = true;
+            this.eventScrollPanel.Controls.Add(this.tableLayoutPanel2);
+            this.eventScrollPanel.Location = new System.Drawing.Point(0, 0);
+            this.eventScrollPanel.Name = "eventScrollPanel";
+            this.eventScrollPanel.Size = new System.Drawing.Size(887, 309);
+            this.eventScrollPanel.TabIndex = 2;
+            // 
             // editorTabPage
             // 
             this.editorTabPage.Location = new System.Drawing.Point(4, 25);
-            this.editorTabPage.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.editorTabPage.Margin = new System.Windows.Forms.Padding(4);
             this.editorTabPage.Name = "editorTabPage";
-            this.editorTabPage.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.editorTabPage.Size = new System.Drawing.Size(885, 311);
+            this.editorTabPage.Padding = new System.Windows.Forms.Padding(4);
+            this.editorTabPage.Size = new System.Drawing.Size(887, 312);
             this.editorTabPage.TabIndex = 1;
             this.editorTabPage.Text = "Editor";
             this.editorTabPage.UseVisualStyleBackColor = true;
@@ -267,13 +290,6 @@
             this.eventsEditMenuItem.Text = "Edit";
             this.eventsEditMenuItem.Click += new System.EventHandler(this.editToolStripMenuItem_Click);
             // 
-            // templatesToolStripMenuItem
-            // 
-            this.templatesToolStripMenuItem.Name = "templatesToolStripMenuItem";
-            this.templatesToolStripMenuItem.Size = new System.Drawing.Size(89, 24);
-            this.templatesToolStripMenuItem.Text = "Templates";
-            this.templatesToolStripMenuItem.Click += new System.EventHandler(this.templatesToolStripMenuItem_Click);
-            // 
             // DefaultChannelView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -281,7 +297,7 @@
             this.ClientSize = new System.Drawing.Size(899, 521);
             this.Controls.Add(this.mainSplitContainer);
             this.MainMenuStrip = this.channelMenu;
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "DefaultChannelView";
             this.Text = "DefaultServerChannelView";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.DefaultServerChannelView_FormClosed);
@@ -297,6 +313,7 @@
             this.channelMenu.PerformLayout();
             this.viewsTabControl.ResumeLayout(false);
             this.eventTabPage.ResumeLayout(false);
+            this.eventScrollPanel.ResumeLayout(false);
             this.eventsContextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -322,5 +339,6 @@
         private Components.DataViewSelection dataView;
         private System.Windows.Forms.MenuStrip channelMenu;
         private System.Windows.Forms.ToolStripMenuItem templatesToolStripMenuItem;
+        private System.Windows.Forms.Panel eventScrollPanel;
     }
 }

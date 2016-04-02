@@ -259,5 +259,13 @@ namespace Netool.Views.Channel
                 editor.SetValue(s);
             }
         }
+
+        private void dataView_MinimumSizeChanged(object sender, EventArgs e)
+        {
+            var s = dataView.MinimumSize;
+            s.Height += flowLayoutPanel1.Height + flowLayoutPanel1.Margin.Vertical + dataView.Margin.Vertical;
+            eventScrollPanel.AutoScrollMinSize = s;
+            dataView.Invalidate();
+        }
     }
 }

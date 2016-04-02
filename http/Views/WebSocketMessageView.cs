@@ -3,12 +3,13 @@ using Netool.Network.DataFormats.WebSocket;
 using Netool.Plugins;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
 
 namespace Netool.Views
 {
-    public partial class WebSocketMessageView : Form, IEventView, IEditorView
+    public partial class WebSocketMessageView : BaseForm, IEventView, IEditorView
     {
         public static string StaticID { get { return "WebSocketView"; } }
 
@@ -152,6 +153,18 @@ namespace Netool.Views
         private static string maskingKeyToString(byte[] key)
         {
             return "0x" + key[0].ToString("X") + key[1].ToString("X") + key[2].ToString("X") + key[3].ToString("X");
+        }
+
+        private Size calculateMinSize()
+        {
+            var s = dataViewSelection.MinimumSize;
+            s.Height += dataViewSelection.Margin.Vertical + flowLayoutPanel1.Height + flowLayoutPanel1.Margin.Vertical;
+            return s;
+        }
+
+        private void dataViewSelection_MinimumSizeChanged(object sender, EventArgs e)
+        {
+            MinimumSize = calculateMinSize();
         }
     }
 }

@@ -35,8 +35,8 @@
             this.sendButton = new System.Windows.Forms.Button();
             this.editorViewPanel = new System.Windows.Forms.Panel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
-            this.editorViewSelect = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.editorViewSelect = new System.Windows.Forms.ComboBox();
             this.proxyFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.proxyRadioClient = new System.Windows.Forms.RadioButton();
             this.proxyRadioServer = new System.Windows.Forms.RadioButton();
@@ -55,12 +55,13 @@
             this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel2, 0, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 3;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 49F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(533, 389);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 49F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(711, 479);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // flowLayoutPanel1
@@ -70,16 +71,18 @@
             this.flowLayoutPanel1.Controls.Add(this.sendButton);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 352);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(4, 434);
+            this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(527, 34);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(703, 41);
             this.flowLayoutPanel1.TabIndex = 0;
             // 
             // closeButton
             // 
-            this.closeButton.Location = new System.Drawing.Point(449, 3);
+            this.closeButton.Location = new System.Drawing.Point(599, 4);
+            this.closeButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.closeButton.Name = "closeButton";
-            this.closeButton.Size = new System.Drawing.Size(75, 23);
+            this.closeButton.Size = new System.Drawing.Size(100, 28);
             this.closeButton.TabIndex = 3;
             this.closeButton.Text = "Close";
             this.closeButton.UseVisualStyleBackColor = true;
@@ -87,9 +90,10 @@
             // 
             // clearButton
             // 
-            this.clearButton.Location = new System.Drawing.Point(368, 3);
+            this.clearButton.Location = new System.Drawing.Point(491, 4);
+            this.clearButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.clearButton.Name = "clearButton";
-            this.clearButton.Size = new System.Drawing.Size(75, 23);
+            this.clearButton.Size = new System.Drawing.Size(100, 28);
             this.clearButton.TabIndex = 1;
             this.clearButton.Text = "Clear";
             this.clearButton.UseVisualStyleBackColor = true;
@@ -97,9 +101,10 @@
             // 
             // sendButton
             // 
-            this.sendButton.Location = new System.Drawing.Point(287, 3);
+            this.sendButton.Location = new System.Drawing.Point(383, 4);
+            this.sendButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.sendButton.Name = "sendButton";
-            this.sendButton.Size = new System.Drawing.Size(75, 23);
+            this.sendButton.Size = new System.Drawing.Size(100, 28);
             this.sendButton.TabIndex = 2;
             this.sendButton.Text = "Send";
             this.sendButton.UseVisualStyleBackColor = true;
@@ -108,9 +113,10 @@
             // editorViewPanel
             // 
             this.editorViewPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.editorViewPanel.Location = new System.Drawing.Point(3, 43);
+            this.editorViewPanel.Location = new System.Drawing.Point(4, 53);
+            this.editorViewPanel.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.editorViewPanel.Name = "editorViewPanel";
-            this.editorViewPanel.Size = new System.Drawing.Size(527, 303);
+            this.editorViewPanel.Size = new System.Drawing.Size(703, 373);
             this.editorViewPanel.TabIndex = 1;
             // 
             // flowLayoutPanel2
@@ -119,47 +125,51 @@
             this.flowLayoutPanel2.Controls.Add(this.editorViewSelect);
             this.flowLayoutPanel2.Controls.Add(this.proxyFlowPanel);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 3);
+            this.flowLayoutPanel2.Location = new System.Drawing.Point(4, 4);
+            this.flowLayoutPanel2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(527, 34);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(703, 41);
             this.flowLayoutPanel2.TabIndex = 2;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(4, 6);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 6, 4, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(80, 17);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "Editor type:";
             // 
             // editorViewSelect
             // 
             this.editorViewSelect.DisplayMember = "ID";
             this.editorViewSelect.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.editorViewSelect.Location = new System.Drawing.Point(69, 3);
+            this.editorViewSelect.Location = new System.Drawing.Point(92, 4);
+            this.editorViewSelect.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.editorViewSelect.Name = "editorViewSelect";
-            this.editorViewSelect.Size = new System.Drawing.Size(121, 21);
+            this.editorViewSelect.Size = new System.Drawing.Size(160, 24);
             this.editorViewSelect.TabIndex = 1;
             this.editorViewSelect.SelectedIndexChanged += new System.EventHandler(this.editorViewSelect_SelectedIndexChanged);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(3, 5);
-            this.label1.Margin = new System.Windows.Forms.Padding(3, 5, 3, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(60, 13);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "Editor type:";
             // 
             // proxyFlowPanel
             // 
             this.proxyFlowPanel.Controls.Add(this.proxyRadioClient);
             this.proxyFlowPanel.Controls.Add(this.proxyRadioServer);
             this.proxyFlowPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.proxyFlowPanel.Location = new System.Drawing.Point(196, 3);
+            this.proxyFlowPanel.Location = new System.Drawing.Point(260, 4);
+            this.proxyFlowPanel.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.proxyFlowPanel.Name = "proxyFlowPanel";
-            this.proxyFlowPanel.Size = new System.Drawing.Size(200, 21);
+            this.proxyFlowPanel.Size = new System.Drawing.Size(267, 24);
             this.proxyFlowPanel.TabIndex = 3;
             // 
             // proxyRadioClient
             // 
             this.proxyRadioClient.AutoSize = true;
-            this.proxyRadioClient.Location = new System.Drawing.Point(3, 3);
+            this.proxyRadioClient.Location = new System.Drawing.Point(4, 4);
+            this.proxyRadioClient.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.proxyRadioClient.Name = "proxyRadioClient";
-            this.proxyRadioClient.Size = new System.Drawing.Size(66, 17);
+            this.proxyRadioClient.Size = new System.Drawing.Size(83, 21);
             this.proxyRadioClient.TabIndex = 0;
             this.proxyRadioClient.Text = "To client";
             this.proxyRadioClient.UseVisualStyleBackColor = true;
@@ -168,9 +178,10 @@
             // 
             this.proxyRadioServer.AutoSize = true;
             this.proxyRadioServer.Checked = true;
-            this.proxyRadioServer.Location = new System.Drawing.Point(75, 3);
+            this.proxyRadioServer.Location = new System.Drawing.Point(95, 4);
+            this.proxyRadioServer.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.proxyRadioServer.Name = "proxyRadioServer";
-            this.proxyRadioServer.Size = new System.Drawing.Size(70, 17);
+            this.proxyRadioServer.Size = new System.Drawing.Size(90, 21);
             this.proxyRadioServer.TabIndex = 1;
             this.proxyRadioServer.TabStop = true;
             this.proxyRadioServer.Text = "To server";
@@ -178,10 +189,12 @@
             // 
             // EditorMasterView
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(533, 389);
+            this.AutoScroll = true;
+            this.ClientSize = new System.Drawing.Size(711, 479);
             this.Controls.Add(this.tableLayoutPanel1);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "EditorMasterView";
             this.Text = "EditorMasterView";
             this.tableLayoutPanel1.ResumeLayout(false);

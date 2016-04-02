@@ -40,11 +40,12 @@
             this.tableLayoutPanel1.Controls.Add(this.data, 0, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(501, 329);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(668, 405);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // data
@@ -53,21 +54,24 @@
             this.data.Dock = System.Windows.Forms.DockStyle.Fill;
             this.data.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.data.LineInfoVisible = true;
-            this.data.Location = new System.Drawing.Point(3, 3);
+            this.data.Location = new System.Drawing.Point(4, 4);
+            this.data.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.data.Name = "data";
             this.data.ReadOnly = true;
             this.data.ShadowSelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(60)))), ((int)(((byte)(188)))), ((int)(((byte)(255)))));
-            this.data.Size = new System.Drawing.Size(495, 323);
+            this.data.Size = new System.Drawing.Size(660, 397);
             this.data.StringViewVisible = true;
             this.data.TabIndex = 1;
             this.data.VScrollBarVisible = true;
             // 
             // HexView
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(501, 329);
+            this.ClientSize = new System.Drawing.Size(668, 405);
             this.Controls.Add(this.tableLayoutPanel1);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.MinimumSize = new System.Drawing.Size(300, 300);
             this.Name = "HexView";
             this.Text = "HexView";
             this.tableLayoutPanel1.ResumeLayout(false);

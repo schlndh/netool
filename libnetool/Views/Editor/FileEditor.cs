@@ -12,6 +12,7 @@ namespace Netool.Views.Editor
         public FileEditor()
         {
             InitializeComponent();
+            MinimumSize = Size;
         }
 
         private void editBtn_Click(object sender, EventArgs e)

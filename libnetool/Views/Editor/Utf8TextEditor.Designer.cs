@@ -47,6 +47,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(282, 253);
             this.Controls.Add(this.textBox1);
+            this.MinimumSize = new System.Drawing.Size(256, 256);
             this.Name = "Utf8TextEditor";
             this.Text = "Utf8Text";
             this.ResumeLayout(false);

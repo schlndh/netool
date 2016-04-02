@@ -4,10 +4,11 @@ using Netool.Plugins;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using System.Drawing;
 
 namespace Netool.Views
 {
-    public partial class StreamWrapperView : Form, IEventView, IEditorView
+    public partial class StreamWrapperView : BaseForm, IEventView, IEditorView
     {
         /// <inheritdoc />
         public string ID { get { return "StreamWrapper"; } }
@@ -31,6 +32,7 @@ namespace Netool.Views
         public StreamWrapperView(IEnumerable<IStreamWrapperPlugin> wrapperPlugins, IEnumerable<IEventView> innerViews)
         {
             InitializeComponent();
+            this.MinimumSize = this.Size;
             this.wrapperPlugins = wrapperPlugins;
             this.isEditor = dataViewSelection.IsEditor = false;
             foreach (var v in innerViews)
@@ -51,6 +53,7 @@ namespace Netool.Views
         public StreamWrapperView(IEnumerable<IStreamWrapperPlugin> wrapperPlugins, IEnumerable<IEditorView> innerEditors)
         {
             InitializeComponent();
+            this.MinimumSize = this.Size;
             this.wrapperPlugins = wrapperPlugins;
             this.isEditor = dataViewSelection.IsEditor = true;
             foreach (var v in innerEditors)
@@ -134,6 +137,18 @@ namespace Netool.Views
             {
                 dataViewSelection.Stream = applyWrappers(currentStream);
             }
+        }
+
+        private Size calculateMinSize()
+        {
+            var s = dataViewSelection.MinimumSize;
+            s.Height += tableLayoutPanel2.Height + tableLayoutPanel1.Margin.Vertical + dataViewSelection.Margin.Vertical;
+            return s;
+        }
+
+        private void dataViewSelection_MinimumSizeChanged(object sender, EventArgs e)
+        {
+            this.MinimumSize = calculateMinSize();
         }
     }
 }

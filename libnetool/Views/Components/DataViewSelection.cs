@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
+using System.Drawing;
 
 namespace Netool.Views.Components
 {
     public partial class DataViewSelection : UserControl
     {
+
         private class TypedIListAdapter<T> : IList<T>
         {
             private IList inner;
@@ -102,6 +104,24 @@ namespace Netool.Views.Components
             }
         }
 
+        private Size minSize;
+        public override Size MinimumSize
+        {
+            get
+            {
+                return minSize;
+            }
+
+            set
+            {
+                var oldMinSize = minSize;
+                minSize = value;
+                if (MinimumSizeChanged != null && oldMinSize != minSize) MinimumSizeChanged(this, EventArgs.Empty);
+            }
+        }
+
+        public event EventHandler MinimumSizeChanged;
+
         private class ExportArgs
         {
             public IDataStream Input;
@@ -162,6 +182,7 @@ namespace Netool.Views.Components
         public string Label { get { return innerViewSelectLabel.Text; } set { innerViewSelectLabel.Text = value; } }
         private TypedIListAdapter<IEventView> innerViews;
         private TypedIListAdapter<IEditorView> innerEditors;
+        private Form innerForm;
 
         /// <summary>
         /// Get a list of possible inner views or null if IsEditor
@@ -282,19 +303,36 @@ namespace Netool.Views.Components
         private void showStream()
         {
             innerViewPanel.Controls.Clear();
-            if(!isEditor)
+            if (innerForm != null) innerForm.MinimumSizeChanged -= Form_MinimumSizeChanged;
+            if (!isEditor)
             {
                 exportBtn.Enabled = stream != null;
                 if (currentView == null || stream == null) return;
                 currentView.Show(stream);
-                innerViewPanel.Embed(currentView.GetForm());
+                innerForm = currentView.GetForm();
             }
             else
             {
                 if (currentEditor == null) return;
                 exportBtn.Enabled = true;
-                innerViewPanel.Embed(currentEditor.GetForm());
+                innerForm = currentEditor.GetForm();
             }
+            if (innerForm.MinimumSize.Height == 0) innerForm.MinimumSize = innerForm.Size;
+            innerViewPanel.Embed(innerForm);
+            Form_MinimumSizeChanged(innerForm, EventArgs.Empty);
+            innerForm.MinimumSizeChanged += Form_MinimumSizeChanged;
+        }
+
+        private Size calculateMinSize()
+        {
+            return new Size(innerForm.MinimumSize.Width,
+                innerForm.MinimumSize.Height + flowLayoutPanel1.Height + innerViewPanel.Margin.Vertical
+                + flowLayoutPanel1.Margin.Vertical);
+        }
+
+        private void Form_MinimumSizeChanged(object sender, EventArgs e)
+        {
+            this.MinimumSize = calculateMinSize();
         }
 
         private void exportBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)

@@ -19,6 +19,8 @@ namespace Netool.Views.Editor
         public event EventHandler<SendEventArgs> SendClicked;
         public event CloseClickedHandler CloseClicked;
 
+        private Form innerForm = null;
+
         public EditorMasterView()
         {
             InitializeComponent();
@@ -69,9 +71,29 @@ namespace Netool.Views.Editor
             if (editorViewSelect.SelectedIndex > -1)
             {
                 editorViewPanel.Controls.Clear();
-                var frm = ((IEditorView)editorViewSelect.SelectedItem).GetForm();
-                editorViewPanel.Embed(frm);
+                if(innerForm != null)
+                {
+                    innerForm.MinimumSizeChanged -= InnerForm_MinimumSizeChanged;
+                }
+                innerForm = ((IEditorView)editorViewSelect.SelectedItem).GetForm();
+                InnerForm_MinimumSizeChanged(this, EventArgs.Empty);
+                innerForm.MinimumSizeChanged += InnerForm_MinimumSizeChanged;
+                editorViewPanel.Embed(innerForm);
             }
+        }
+
+        private System.Drawing.Size calculateMinSize()
+        {
+            var s = innerForm.MinimumSize;
+            s.Height += flowLayoutPanel1.Height + flowLayoutPanel1.Margin.Vertical
+                + flowLayoutPanel2.Height + flowLayoutPanel2.Margin.Vertical
+                + editorViewPanel.Margin.Vertical;
+            return s;
+        }
+
+        private void InnerForm_MinimumSizeChanged(object sender, EventArgs e)
+        {
+            this.AutoScrollMinSize = calculateMinSize();
         }
 
         private void clearButton_Click(object sender, EventArgs e)
