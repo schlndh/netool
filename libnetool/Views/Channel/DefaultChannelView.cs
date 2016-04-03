@@ -61,6 +61,8 @@ namespace Netool.Views.Channel
             var r = logger.channel as IReplaceableChannel;
             handlers = new IChannelExtensions.ChannelHandlers { ChannelReplaced = channelReplacedHandler };
             templatesToolStripMenuItem.Visible = false;
+            // hide by default
+            viewsTabControl.TabPages.Remove(editorTabPage);
         }
 
         private void channelReplacedHandler(object sender, IChannel e)
@@ -85,6 +87,7 @@ namespace Netool.Views.Channel
                 this.editor.SetProxy(true);
             }
             templatesToolStripMenuItem.Visible = messageTemplates.Count > 0;
+            viewsTabControl.TabPages.Add(editorTabPage);
         }
 
         public void AddMessageTemplates(IEnumerable<IMessageTemplatePlugin> templatePlugins)

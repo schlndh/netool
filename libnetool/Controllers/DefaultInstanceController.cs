@@ -14,7 +14,7 @@ namespace Netool.Controllers
     {
         public interface IChannelViewFactory
         {
-            IChannelView CreateChannelView(ChannelLogger info);
+            IChannelView CreateChannelView(ChannelLogger info, bool active);
         }
 
         public class DefaultChannelViewFactory : IChannelViewFactory
@@ -43,7 +43,7 @@ namespace Netool.Controllers
             }
 
             /// <inheritdoc/>
-            public IChannelView CreateChannelView(ChannelLogger logger)
+            public IChannelView CreateChannelView(ChannelLogger logger, bool active)
             {
                 var v = new Views.Channel.DefaultChannelView(logger);
                 foreach(var pl in eventViewPlugins)
@@ -54,7 +54,7 @@ namespace Netool.Controllers
                     }
                 }
 
-                if (logger.channel != null && logger.channel.Driver != null && logger.channel.Driver.AllowManualControl)
+                if (active && logger.channel != null && logger.channel.Driver != null && logger.channel.Driver.AllowManualControl)
                 {
                     var masterEd = new Views.Editor.EditorMasterView();
                     foreach (var pl in editorViewPlugins)
@@ -201,7 +201,7 @@ namespace Netool.Controllers
 
         public void ShowDetail(int id)
         {
-            var v = detailFactory.CreateChannelView(logger.GetChannelLogger(id));
+            var v = detailFactory.CreateChannelView(logger.GetChannelLogger(id), Active);
             channelViews.Add(v);
             var form = v.GetForm();
             form.FormClosed += delegate (object sender, System.Windows.Forms.FormClosedEventArgs args) { channelViews.Remove(v); };
