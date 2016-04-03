@@ -141,6 +141,7 @@ namespace Netool.Network.DataFormats.Http
         public void ReadBytesToBuffer(byte[] buffer, long start = 0, int length = -1, int offset = 0)
         {
             IDataStreamHelpers.ReadBytesToBufferArgsCheck(this, buffer, start, ref length, offset);
+            if (length == 0) return;
             var remaining = length;
             var hintIdx = locateChunk(start);
             var hint = chunkHints[hintIdx];
