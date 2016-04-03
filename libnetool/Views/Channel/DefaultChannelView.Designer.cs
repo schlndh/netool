@@ -175,6 +175,7 @@
             // 
             // dataView
             // 
+            this.dataView.AutoSize = true;
             this.dataView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataView.IsEditor = false;
             this.dataView.Label = "Data view type:";
@@ -300,8 +301,10 @@
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "DefaultChannelView";
             this.Text = "DefaultServerChannelView";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.DefaultServerChannelView_FormClosed);
             this.tableLayoutPanel2.ResumeLayout(false);
+            this.tableLayoutPanel2.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
             this.mainSplitContainer.Panel1.ResumeLayout(false);
