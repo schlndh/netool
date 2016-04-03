@@ -298,6 +298,10 @@ namespace Netool.Views.Components
             {
                 MessageBox.Show("Given data stream is not supported by current view.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void showStream()
@@ -308,7 +312,6 @@ namespace Netool.Views.Components
             {
                 exportBtn.Enabled = stream != null;
                 if (currentView == null || stream == null) return;
-                currentView.Show(stream);
                 innerForm = currentView.GetForm();
             }
             else
@@ -321,6 +324,10 @@ namespace Netool.Views.Components
             innerViewPanel.Embed(innerForm);
             Form_MinimumSizeChanged(innerForm, EventArgs.Empty);
             innerForm.MinimumSizeChanged += Form_MinimumSizeChanged;
+            if(!isEditor)
+            {
+                currentView.Show(stream);
+            }
         }
 
         private Size calculateMinSize()
