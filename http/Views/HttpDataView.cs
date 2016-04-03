@@ -118,8 +118,8 @@ namespace Netool.Views
                 {
                     var usedDecoders = new List<IStreamWrapper>();
                     List<string> encodings = new List<string>();
-                    addEncodings(data, "Transfer-Encoding", encodings);
                     addEncodings(data, "Content-Encoding", encodings);
+                    addEncodings(data, "Transfer-Encoding", encodings);
                     for (int i = encodings.Count - 1; i > -1; --i)
                     {
                         IStreamDecoderPlugin decoder = null;
