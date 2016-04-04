@@ -21,7 +21,8 @@ namespace Netool.Network.Tcp
     {
         [NonSerialized]
         protected Socket socket;
-        private object stopLock = new object();
+        [NonSerialized]
+        private TcpAsyncSender sender;
 
         public int ReceiveBufferSize { get; set; }
 
@@ -29,6 +30,7 @@ namespace Netool.Network.Tcp
         {
             this.socket = socket;
             this.id = id;
+            this.sender = new TcpAsyncSender(socket, s => OnRequestSent(s), sendErrorHandler, OnChannelClosed);
             name = socket.LocalEndPoint.ToString();
             ReceiveBufferSize = receiveBufferSize;
             Debug.WriteLine("TcpClientChannel created: id {0}, name {1}", id, name);
@@ -95,46 +97,20 @@ namespace Netool.Network.Tcp
         /// <inheritdoc />
         public void Send(IDataStream request)
         {
-            try
-            {
-                TcpHelpers.Send(socket, request);
-            }
-            catch (ObjectDisposedException)
-            {
-                return;
-            }
-            catch(Exception e)
-            {
-                OnErrorOccured(e);
-                return;
-            }
-
-            OnRequestSent(request);
+            sender.Send(request);
         }
 
         /// <inheritdoc />
         public void Close()
         {
-            lock (stopLock)
+            sender.Stop();
+        }
+
+        private void sendErrorHandler(Exception e)
+        {
+            if (!(e is ObjectDisposedException))
             {
-                try
-                {
-                    socket.Shutdown(SocketShutdown.Both);
-                    socket.Close();
-                }
-                catch (ObjectDisposedException)
-                {
-                    // already closed
-                    return;
-                }
-                catch(Exception e)
-                {
-                    OnErrorOccured(e);
-                    return;
-                }
-                Debug.WriteLine("TcpClientChannel (id: {0}, name: {1}) calling OnChannelClosed", ID, Name);
-                OnChannelClosed();
-                Debug.WriteLine("TcpClientChannel (id: {0}, name: {1}) OnChannelClosed finished", ID, Name);
+                OnErrorOccured(e);
             }
         }
     }

@@ -35,13 +35,15 @@ namespace Netool.Network.Tcp
     {
         [NonSerialized]
         protected Socket socket;
+        [NonSerialized]
+        private TcpAsyncSender sender;
         public int ReceiveBufferSize { get; set; }
-        private object stopLock = new object();
 
         public TcpServerChannel(Socket socket, int id, int receiveBufferSize = 8192)
         {
             this.socket = socket;
             this.id = id;
+            this.sender = new TcpAsyncSender(socket, s => OnResponseSent(s), sendErrorHandler, OnChannelClosed);
             name = socket.RemoteEndPoint.ToString();
             ReceiveBufferSize = receiveBufferSize;
             // don't call scheduleNextReceive right away, the ChannelCreated event must be raised first
@@ -108,42 +110,21 @@ namespace Netool.Network.Tcp
         /// <inheritdoc />
         public void Send(IDataStream response)
         {
-            try
-            {
-                TcpHelpers.Send(socket, response);
-            }
-            catch (ObjectDisposedException)
-            {
-                return;
-            }
-            catch (Exception e)
+            sender.Send(response);
+        }
+
+        private void sendErrorHandler(Exception e)
+        {
+            if(!(e is ObjectDisposedException))
             {
                 OnErrorOccured(e);
-                return;
             }
-            OnResponseSent(response);
         }
 
         /// <inheritdoc />
         public void Close()
         {
-            lock(stopLock)
-            {
-                try
-                {
-                    socket.Shutdown(SocketShutdown.Both);
-                    socket.Close();
-                    OnChannelClosed();
-                }
-                catch (ObjectDisposedException)
-                {
-                    // already closed
-                }
-                catch (Exception e)
-                {
-                    OnErrorOccured(e);
-                }
-            }
+            sender.Stop();
         }
     }
 
