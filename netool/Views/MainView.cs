@@ -67,7 +67,7 @@ namespace Netool
 
         private void MainView_FormClosing(object sender, FormClosingEventArgs e)
         {
-            controller.Close();
+            e.Cancel = !controller.Close();
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
