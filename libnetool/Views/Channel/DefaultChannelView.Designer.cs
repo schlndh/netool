@@ -48,6 +48,7 @@
             this.editorTabPage = new System.Windows.Forms.TabPage();
             this.eventsContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.eventsEditMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.tableLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mainSplitContainer)).BeginInit();
@@ -291,6 +292,12 @@
             this.eventsEditMenuItem.Text = "Edit";
             this.eventsEditMenuItem.Click += new System.EventHandler(this.editToolStripMenuItem_Click);
             // 
+            // timer1
+            // 
+            this.timer1.Enabled = true;
+            this.timer1.Interval = 250;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
             // DefaultChannelView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -302,7 +309,6 @@
             this.Name = "DefaultChannelView";
             this.Text = "DefaultServerChannelView";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.DefaultServerChannelView_FormClosed);
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);
@@ -343,5 +349,6 @@
         private System.Windows.Forms.MenuStrip channelMenu;
         private System.Windows.Forms.ToolStripMenuItem templatesToolStripMenuItem;
         private System.Windows.Forms.Panel eventScrollPanel;
+        private System.Windows.Forms.Timer timer1;
     }
 }

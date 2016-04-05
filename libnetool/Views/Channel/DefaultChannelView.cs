@@ -4,6 +4,7 @@ using Netool.Network;
 using Netool.Plugins;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Netool.Views.Channel
@@ -55,7 +56,6 @@ namespace Netool.Views.Channel
             channelMenu.Visible = channelMenu.Items.Count > 0;
             this.logger = logger;
             this.events.VirtualListSize = logger.GetEventCount();
-            this.logger.EventCountChanged += eventCountChanged;
             filler(this.events.Columns);
             createItem = factory;
             var r = logger.channel as IReplaceableChannel;
@@ -116,11 +116,6 @@ namespace Netool.Views.Channel
             channelMenu.Visible = true;
         }
 
-        private void eventCountChanged(object sender, int e)
-        {
-            this.events.BeginInvoke(new Action(() => this.events.VirtualListSize = e));
-        }
-
         private void events_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
         {
             if (cache != null && e.ItemIndex >= cacheStart && e.ItemIndex < cacheStart + cache.Count)
@@ -136,17 +131,9 @@ namespace Netool.Views.Channel
         private void events_CacheVirtualItems(object sender, CacheVirtualItemsEventArgs e)
         {
             // new cache is a subset of current cache
-            if (cache != null && cacheStart <= e.StartIndex && cache.Count > e.EndIndex - e.StartIndex) return;
-            cache = new List<ListViewItem>(e.EndIndex - e.StartIndex + 1);
+            if (cache != null && cacheStart <= e.StartIndex && cacheStart + cache.Count > e.EndIndex) return;
+            cache = new List<ListViewItem>(logger.GetEventRange(e.StartIndex + 1, e.EndIndex + 1 - e.StartIndex).Select(ev => createItem(ev)));
             cacheStart = e.StartIndex;
-            // 1-indexed
-            var node = logger.GetByID(e.StartIndex + 1);
-            int i = 0;
-            do
-            {
-                cache.Insert(i, createItem(node.Value));
-                node = node.Next;
-            } while (++i < e.EndIndex - e.StartIndex);
         }
 
         private void events_SelectedIndexChanged(object sender, EventArgs e)
@@ -226,11 +213,6 @@ namespace Netool.Views.Channel
             }
         }
 
-        private void DefaultServerChannelView_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            logger.EventCountChanged -= eventCountChanged;
-        }
-
         private void editToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var item = sender as ToolStripMenuItem;
@@ -251,10 +233,10 @@ namespace Netool.Views.Channel
             }
         }
 
-        private Netool.Logging.Event getEventByPosition(int pos)
+        private Logging.Event getEventByPosition(int pos)
         {
             // position is 0-indexed, whereas id is 1-indexed
-            return logger.GetByID(pos + 1).Value;
+            return logger.GetEventByID(pos + 1);
         }
 
         private void templatesToolStripMenuItem_Click(object sender, EventArgs e)
@@ -273,6 +255,11 @@ namespace Netool.Views.Channel
             s.Height += flowLayoutPanel1.Height + flowLayoutPanel1.Margin.Vertical + dataView.Margin.Vertical;
             eventScrollPanel.AutoScrollMinSize = s;
             dataView.Invalidate();
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            this.events.VirtualListSize = logger.GetEventCount();
         }
     }
 }

@@ -9,14 +9,20 @@ namespace Netool.Logging
     public class ChannelLogger
     {
         public IChannel channel;
-        private LinkedList<Event> events = new LinkedList<Event>();
-        private LinkedList<long> logPositions = new LinkedList<long>();
+        private object eventsLock = new object();
         private int eventCount = 0;
         private FileLog log;
         private long hint = 0;
         private IChannelExtensions.ChannelHandlers handlers;
 
-        public event EventHandler<int> EventCountChanged;
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="count">current event count</param>
+        /// <param name="lastEvent">event with ID = count</param>
+        public delegate void EventCountChangedHandler(object sender, int count, Event lastEvent);
+        public event EventCountChangedHandler EventCountChanged;
 
         private ChannelLogger()
         {
@@ -59,47 +65,55 @@ namespace Netool.Logging
             this.hint = hint;
             this.channel = channel;
             this.eventCount = eventCount;
-            // temporary workaround - load all events
-            GetByID(eventCount);
         }
 
         public int GetEventCount()
         {
-            lock (events)
+            lock (eventsLock)
             {
                 return eventCount;
             }
         }
 
         /// <summary>
-        /// Get node by id
+        /// Get event by id
         /// </summary>
-        /// <param name="id"><![CDATA[Position has to be <= count given by GetEventCount or by EventCountChanged event.
-        /// This method DOESN'T check that.]]>
-        /// </param>
-        public LinkedListNode<Event> GetByID(int id)
+        /// <param name="id">1-based event ID</param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public Event GetEventByID(int id)
         {
-            lock (events)
+            if (id < 1 || id > GetEventCount()) throw new ArgumentOutOfRangeException("id");
+            var reader = log.ReaderPool.Get();
+            try
             {
-                if (events.Count < id)
-                {
-                    var reader = log.CreateReader();
-                    // read all channels between the last already read and the one requested
-                    var missing = reader.ReadEvents(hint, events.Count + 1, id - events.Count);
-                    foreach (var item in missing)
-                    {
-                        events.AddLast(item);
-                    }
-                    reader.Close();
-                }
+                return reader.ReadEvent(hint, id);
+            }
+            finally
+            {
+                log.ReaderPool.Return(ref reader);
+            }
+        }
 
-            }
-            var curr = events.First;
-            while (id-- > 1)
+        /// <summary>
+        /// Get several consecutive events at once
+        /// </summary>
+        /// <param name="firstID">1-based event ID of the first event</param>
+        /// <param name="count">how many events to return</param>
+        /// <returns></returns>
+        /// <remarks>This method is faster than respective amount of calls to GetEventByID</remarks>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public IEnumerable<Event> GetEventRange(int firstID, int count)
+        {
+            if (firstID < 1 || count < 1 || firstID + count - 1 > GetEventCount()) throw new ArgumentOutOfRangeException("firstID,count");
+            var reader = log.ReaderPool.Get();
+            try
             {
-                curr = curr.Next;
+                return reader.ReadEvents(hint, firstID, count);
             }
-            return curr;
+            finally
+            {
+                log.ReaderPool.Return(ref reader);
+            }
         }
 
         private void responseSentHandler(object sender, DataEventArgs e)
@@ -147,25 +161,25 @@ namespace Netool.Logging
                 nd = (DataEventArgs)data.Clone();
             }
             Event e;
-            lock (events)
+            lock (eventsLock)
             {
                 if(type != EventType.ChannelReplaced)
                 {
-                    e = events.AddLast(new Event(++eventCount, type, nd, DateTime.Now)).Value;
+                    e = new Event(++eventCount, type, nd, DateTime.Now);
                 }
                 else
                 {
-                    e = events.AddLast(new Event(++eventCount, newChannel, DateTime.Now)).Value;
+                    e = new Event(++eventCount, newChannel, DateTime.Now);
                 }
-                c = events.Count;
+                c = eventCount;
+                log.LogEvent(hint, e);
             }
-            log.LogEvent(hint, e);
-            OnEventCountChanged(c);
+            OnEventCountChanged(c, e);
         }
 
-        private void OnEventCountChanged(int count)
+        private void OnEventCountChanged(int count, Event e)
         {
-            if (EventCountChanged != null) EventCountChanged(this, count);
+            if (EventCountChanged != null) EventCountChanged(this, count, e);
         }
     }
 }
