@@ -57,6 +57,7 @@ namespace Netool.Network.Tcp
         public void Stop()
         {
             queue.Add(StopSign.Instance);
+            if(worker.ManagedThreadId != Thread.CurrentThread.ManagedThreadId) worker.Join();
         }
 
         private void execute()

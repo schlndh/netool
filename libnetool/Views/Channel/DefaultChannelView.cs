@@ -5,6 +5,7 @@ using Netool.Plugins;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace Netool.Views.Channel
@@ -209,7 +210,10 @@ namespace Netool.Views.Channel
         {
             if (logger.channel != null)
             {
-                logger.channel.Close();
+                var t = new Thread(delegate () {
+                    logger.channel.Close();
+                });
+                t.Start();
             }
         }
 
