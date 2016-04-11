@@ -5,7 +5,10 @@ namespace Netool.Views.Components
 {
     public partial class SocketSettings : UserControl
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [
+            EditorBrowsable(EditorBrowsableState.Never),
+            DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
+        ]
         public SocketProperties Settings { get { return (SocketProperties)propertyGrid1.SelectedObject; } set { if(value != null) propertyGrid1.SelectedObject = value; } }
 
         public SocketSettings()
