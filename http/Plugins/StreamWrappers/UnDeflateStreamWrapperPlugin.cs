@@ -7,16 +7,16 @@ using System.IO.Compression;
 
 namespace Netool.Plugins.StreamWrappers
 {
-    public class UnGZipStreamWrapperPlugin : IStreamDecoderPlugin
+    public class UnDeflateStreamWrapperPlugin : IStreamDecoderPlugin
     {
         /// <inheritdoc />
-        public long ID { get { return 4005; } }
+        public long ID { get { return 4007; } }
 
         /// <inheritdoc />
-        public string Name { get { return "UnGZipStreamWrapperPlugin"; } }
+        public string Name { get { return "UnDeflateStreamWrapperPlugin"; } }
 
         /// <inheritdoc />
-        public string Description { get { return "Plugin for UnGZip Stream wrapper"; } }
+        public string Description { get { return "Plugin for UnDeflate Stream wrapper"; } }
 
         /// <inheritdoc />
         public Version Version { get { return new Version(0, 0, 1); } }
@@ -25,16 +25,16 @@ namespace Netool.Plugins.StreamWrappers
         public string Author { get { return "Hynek Schlindenbuch"; } }
 
         /// <inheritdoc />
-        public string EncodingName { get { return "gzip"; } }
+        public string EncodingName { get { return "deflate"; } }
 
         /// <inheritdoc />
         public Network.DataFormats.IStreamWrapper CreateWrapper()
         {
             return new DecompressionStreamWrapper(delegate (Stream s)
             {
-                return new GZipStream(s, CompressionMode.Decompress);
+                return new DeflateStream(s, CompressionMode.Decompress);
             },
-            "ungzip");
+            "undeflate");
         }
     }
 }

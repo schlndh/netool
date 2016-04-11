@@ -48,6 +48,8 @@
     <Compile Include="Network\DataFormats\Http\DechunkedStream.cs" />
     <Compile Include="Network\DataFormats\Http\HttpData.cs" />
     <Compile Include="Network\DataFormats\Http\HttpHeaderParser.cs" />
+    <Compile Include="Network\DataFormats\StreamWrappers\DecompressionStreamWrapper.cs" />
+    <Compile Include="Network\DataFormats\StreamWrappers\CompressionStreamWrapper.cs" />
     <Compile Include="Network\DataFormats\WebSocket\MaskedStream.cs" />
     <Compile Include="Network\DataFormats\WebSocket\WebSocketMessage.cs" />
     <Compile Include="Network\Http\Http.cs" />
@@ -62,6 +64,8 @@
     <Compile Include="Plugins\MessageTemplates\WebSocketTemplatesPlugin.cs" />
     <Compile Include="Plugins\Protocols\HttpPlugin.cs" />
     <Compile Include="Plugins\Http\ProtocolUpgrades\WebSocketPlugin.cs" />
+    <Compile Include="Plugins\StreamWrappers\DeflateStreamWrapperPlugin.cs" />
+    <Compile Include="Plugins\StreamWrappers\UnDeflateStreamWrapperPlugin.cs" />
     <Compile Include="Plugins\StreamWrappers\UnGZipStreamWrapperPlugin.cs" />
     <Compile Include="Plugins\StreamWrappers\GZipStreamWrapperPlugin.cs" />
     <Compile Include="Plugins\StreamWrappers\ChunkedStreamWrapperPlugin.cs" />

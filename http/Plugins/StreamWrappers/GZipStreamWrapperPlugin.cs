@@ -26,33 +26,11 @@ namespace Netool.Plugins.StreamWrappers
         /// <inheritdoc />
         public Network.DataFormats.IStreamWrapper CreateWrapper()
         {
-            return new BasicWrapper(delegate(IDataStream s)
+            return new CompressionStreamWrapper(delegate (Stream s)
             {
-                Stream baseStream;
-                if (s.Length > 50 * 1024 * 1024)
-                {
-                    baseStream = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.None, 4096, FileOptions.DeleteOnClose);
-                }
-                else
-                {
-                    baseStream = new MemoryStream();
-                }
-                using (var gzip = new GZipStream(baseStream, CompressionMode.Compress, true))
-                {
-                    var tmpStream = new ToStream(s);
-                    tmpStream.CopyTo(gzip);
-                }
-
-                var ret = FromStream.ToIDataStream(baseStream);
-                if (ret.Length > 5 * 1024 * 1024)
-                {
-                    return new LazyLoggedFile(ret);
-                }
-                else
-                {
-                    return new ByteArray(ret);
-                }
-            }, "gzip", "default");
+                return new GZipStream(s, CompressionMode.Compress, true);
+            },
+            "gzip", "default");
         }
     }
 }
