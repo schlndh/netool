@@ -1,16 +1,20 @@
 ﻿using Netool.Network.Tcp;
+using Netool.Network.Udp;
 using Netool.Windows.Forms;
 using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace Netool.Dialogs.Tcp
+namespace Netool.Dialogs
 {
-    public partial class TcpProxyDialog : Form
+    public partial class DefaultProxyDialog : Form
     {
-        public TcpServerSettings ServerSettings { get { return new TcpServerSettings { LocalEndPoint = localEndPoint.EndPoint, MaxPendingConnections = int.Parse(maxPendingConnetions.Text), Properties = socketSettings.Settings }; } }
-        public TcpClientFactorySettings ClientFactorySettings { get { return new TcpClientFactorySettings { RemoteEndPoint = remoteEndPoint.EndPoint, LocalIPAddress = localIP.IP, Properties = socketSettings.Settings }; } }
+        public TcpServerSettings TcpServerSettings { get { return new TcpServerSettings { LocalEndPoint = localEndPoint.EndPoint, MaxPendingConnections = int.Parse(maxPendingConnetions.Text), Properties = socketSettings.Settings }; } }
+        public TcpClientFactorySettings TcpClientFactorySettings { get { return new TcpClientFactorySettings { RemoteEndPoint = remoteEndPoint.EndPoint, LocalIPAddress = localIP.IP, Properties = socketSettings.Settings }; } }
 
-        public TcpProxyDialog()
+        public UdpServerSettings UdpServerSettings { get { return new UdpServerSettings { LocalEndPoint = localEndPoint.EndPoint, Properties = socketSettings.Settings }; } }
+        public UdpClientFactorySettings UdpClientFactorySettings { get { return new UdpClientFactorySettings { RemoteEndPoint = remoteEndPoint.EndPoint, LocalIPAddress = localIP.IP, Properties = socketSettings.Settings }; } }
+
+        public DefaultProxyDialog()
         {
             InitializeComponent();
         }

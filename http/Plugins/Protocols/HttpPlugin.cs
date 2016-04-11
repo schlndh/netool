@@ -1,5 +1,5 @@
 ﻿using Netool.Controllers;
-using Netool.Dialogs.Tcp;
+using Netool.Dialogs;
 using Netool.Logging;
 using Netool.Network;
 using Netool.Network.Http;
@@ -115,11 +115,11 @@ namespace Netool.Plugins.Protocols
 
         private HttpServer createServer(InstanceLogger logger)
         {
-            var dialog = new TcpServerDialog();
+            var dialog = new DefaultServerDialog();
             dialog.ShowDialog();
             if (dialog.DialogResult == DialogResult.OK)
             {
-                var settings = dialog.Settings;
+                var settings = dialog.TcpSettings;
                 return new HttpServer(new HttpServerSettings { TcpSettings = settings }, logger);
             }
             return null;
@@ -127,11 +127,11 @@ namespace Netool.Plugins.Protocols
 
         private HttpClient createClient(InstanceLogger logger)
         {
-            var dialog = new TcpClientDialog();
+            var dialog = new DefaultClientDialog();
             dialog.ShowDialog();
             if (dialog.DialogResult == DialogResult.OK)
             {
-                var settings = dialog.Settings;
+                var settings = dialog.TcpSettings;
                 return new HttpClient(new HttpClientSettings { TcpSettings = settings }, logger);
             }
             return null;
@@ -139,12 +139,12 @@ namespace Netool.Plugins.Protocols
 
         private DefaultProxy createProxy(InstanceLogger logger)
         {
-            var dialog = new TcpProxyDialog();
+            var dialog = new DefaultProxyDialog();
             dialog.ShowDialog();
             if (dialog.DialogResult == DialogResult.OK)
             {
-                var clFactory = new HttpClientFactory(dialog.ClientFactorySettings, logger);
-                var srv = new HttpServer(new HttpServerSettings { TcpSettings = dialog.ServerSettings }, logger);
+                var clFactory = new HttpClientFactory(dialog.TcpClientFactorySettings, logger);
+                var srv = new HttpServer(new HttpServerSettings { TcpSettings = dialog.TcpServerSettings }, logger);
                 return new DefaultProxy(new DefaultProxySettings { Server = srv, ClientFactory = clFactory });
             }
             return null;

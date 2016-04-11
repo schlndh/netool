@@ -1,6 +1,6 @@
-﻿namespace Netool.Dialogs.Tcp
+﻿namespace Netool.Dialogs
 {
-    partial class TcpProxyDialog
+    partial class DefaultProxyDialog
     {
         /// <summary>
         /// Required designer variable.
@@ -40,12 +40,12 @@
             this.localIP = new Netool.Windows.Forms.IPAddressControl();
             this.label4 = new System.Windows.Forms.Label();
             this.remoteEndPoint = new Netool.Windows.Forms.IPEndPointControl();
-            this.socketSettings = new Netool.Views.Components.SocketSettings();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.maxPendingConnetions = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.localEndPoint = new Netool.Windows.Forms.IPEndPointControl();
+            this.socketSettings = new Netool.Views.Components.SocketSettings();
             this.tableLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -219,15 +219,6 @@
             this.remoteEndPoint.TabIndex = 6;
             this.remoteEndPoint.Validating += new System.ComponentModel.CancelEventHandler(this.endPoint_Validating);
             // 
-            // socketSettings
-            // 
-            this.socketSettings.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.socketSettings.Location = new System.Drawing.Point(3, 213);
-            this.socketSettings.Name = "socketSettings";
-            this.socketSettings.Settings = null;
-            this.socketSettings.Size = new System.Drawing.Size(854, 204);
-            this.socketSettings.TabIndex = 7;
-            // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.tableLayoutPanel3);
@@ -298,7 +289,15 @@
             this.localEndPoint.TabIndex = 2;
             this.localEndPoint.Validating += new System.ComponentModel.CancelEventHandler(this.endPoint_Validating);
             // 
-            // TcpProxyDialog
+            // socketSettings
+            // 
+            this.socketSettings.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.socketSettings.Location = new System.Drawing.Point(3, 213);
+            this.socketSettings.Name = "socketSettings";
+            this.socketSettings.Size = new System.Drawing.Size(854, 204);
+            this.socketSettings.TabIndex = 7;
+            // 
+            // DefaultProxyDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -306,8 +305,8 @@
             this.ClientSize = new System.Drawing.Size(876, 700);
             this.Controls.Add(this.tableLayoutPanel2);
             this.Margin = new System.Windows.Forms.Padding(4);
-            this.Name = "TcpProxyDialog";
-            this.Text = "Tcp Proxy Settings";
+            this.Name = "DefaultProxyDialog";
+            this.Text = "Proxy Settings";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TcpProxyDialog_FormClosing);
             this.tableLayoutPanel2.ResumeLayout(false);
             this.flowLayoutPanel1.ResumeLayout(false);

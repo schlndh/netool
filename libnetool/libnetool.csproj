@@ -81,23 +81,23 @@
     <Compile Include="Dialogs\StreamWrapperViewSetupDialog.Designer.cs">
       <DependentUpon>StreamWrapperViewSetupDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\Tcp\TcpClientDialog.cs">
+    <Compile Include="Dialogs\DefaultClientDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Dialogs\Tcp\TcpClientDialog.Designer.cs">
-      <DependentUpon>TcpClientDialog.cs</DependentUpon>
+    <Compile Include="Dialogs\DefaultClientDialog.Designer.cs">
+      <DependentUpon>DefaultClientDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\Tcp\TcpProxyDialog.cs">
+    <Compile Include="Dialogs\DefaultProxyDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Dialogs\Tcp\TcpProxyDialog.Designer.cs">
-      <DependentUpon>TcpProxyDialog.cs</DependentUpon>
+    <Compile Include="Dialogs\DefaultProxyDialog.Designer.cs">
+      <DependentUpon>DefaultProxyDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\Tcp\TcpServerDialog.cs">
+    <Compile Include="Dialogs\DefaultServerDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Dialogs\Tcp\TcpServerDialog.Designer.cs">
-      <DependentUpon>TcpServerDialog.cs</DependentUpon>
+    <Compile Include="Dialogs\DefaultServerDialog.Designer.cs">
+      <DependentUpon>DefaultServerDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\TextBoxDialog.cs">
       <SubType>Form</SubType>
@@ -156,6 +156,7 @@
     <Compile Include="Plugins\PluginExceptions.cs" />
     <Compile Include="Plugins\PluginLoader.cs" />
     <Compile Include="Plugins\Plugins.cs" />
+    <Compile Include="Plugins\Protocols\UdpPlugin.cs" />
     <Compile Include="Plugins\Protocols\TcpPlugin.cs" />
     <Compile Include="Plugins\StreamWrappers\StreamSegmentWrapperPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -253,14 +254,14 @@
     <EmbeddedResource Include="Dialogs\StreamWrapperViewSetupDialog.resx">
       <DependentUpon>StreamWrapperViewSetupDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\Tcp\TcpClientDialog.resx">
-      <DependentUpon>TcpClientDialog.cs</DependentUpon>
+    <EmbeddedResource Include="Dialogs\DefaultClientDialog.resx">
+      <DependentUpon>DefaultClientDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\Tcp\TcpProxyDialog.resx">
-      <DependentUpon>TcpProxyDialog.cs</DependentUpon>
+    <EmbeddedResource Include="Dialogs\DefaultProxyDialog.resx">
+      <DependentUpon>DefaultProxyDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\Tcp\TcpServerDialog.resx">
-      <DependentUpon>TcpServerDialog.cs</DependentUpon>
+    <EmbeddedResource Include="Dialogs\DefaultServerDialog.resx">
+      <DependentUpon>DefaultServerDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\TextBoxDialog.resx">
       <DependentUpon>TextBoxDialog.cs</DependentUpon>

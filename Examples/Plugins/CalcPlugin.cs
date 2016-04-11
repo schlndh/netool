@@ -1,6 +1,6 @@
 ﻿using Examples.Network.Calc;
 using Netool.Controllers;
-using Netool.Dialogs.Tcp;
+using Netool.Dialogs;
 using Netool.Network;
 using Netool.Network.Tcp;
 using Netool.Plugins;
@@ -20,7 +20,7 @@ namespace Examples.Plugins
         public long ID { get { return 100001; } }
         public string Name { get { return "CalcPlugin"; } }
         public Version Version { get { return new Version(0, 1); } }
-        public string ProtocolName { get { return "Calc"; } }
+        public string ProtocolName { get { return "Example-Calc"; } }
         private PluginLoader loader;
 
         public InstancePack CreateInstance(Netool.Logging.InstanceLogger logger, InstanceType type, object settings)
@@ -73,11 +73,11 @@ namespace Examples.Plugins
 
         private CalcServer createServer()
         {
-            var dialog = new TcpServerDialog();
+            var dialog = new DefaultServerDialog();
             dialog.ShowDialog();
             if (dialog.DialogResult == DialogResult.OK)
             {
-                var settings = dialog.Settings;
+                var settings = dialog.TcpSettings;
                 return new CalcServer(settings);
             }
             return null;

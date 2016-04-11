@@ -5,6 +5,7 @@ For 3rd-party plugins please choose high numbers. Numbers 1-100000 are reserved 
 |			ID			|				Plugin Name				|		   Type			|				Link				|
 |-----------------------|---------------------------------------|-----------------------|-----------------------------------|
 | 1						| TcpPlugin								| Protocol				| Built-in							|
+| 2						| UdpPlugin								| Protocol				| Built-in							|
 | 1001					| DefaulProxyChannelDriverPlugin		| ChannelDriver			| Built-in							|
 | 1002					| ManualChannelDriverPlugin				| ChannelDriver			| Built-in							|
 | 1003					| CSScriptlChannelDriverPlugin			| ChannelDriver			| Built-in							|

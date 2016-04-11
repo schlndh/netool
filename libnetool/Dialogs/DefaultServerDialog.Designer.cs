@@ -1,6 +1,6 @@
-﻿namespace Netool.Dialogs.Tcp
+﻿namespace Netool.Dialogs
 {
-    partial class TcpServerDialog
+    partial class DefaultServerDialog
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TcpServerDialog));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DefaultServerDialog));
             this.cancel = new System.Windows.Forms.Button();
             this.ok = new System.Windows.Forms.Button();
             this.maxConnections = new System.Windows.Forms.TextBox();
@@ -147,7 +147,7 @@
             this.socketSettings.Size = new System.Drawing.Size(615, 277);
             this.socketSettings.TabIndex = 11;
             // 
-            // TcpServerDialog
+            // DefaultServerDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -155,9 +155,9 @@
             this.ClientSize = new System.Drawing.Size(621, 505);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Margin = new System.Windows.Forms.Padding(4);
-            this.Name = "TcpServerDialog";
-            this.Text = "Tcp Server Settings";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TcpServerDialog_FormClosing);
+            this.Name = "DefaultServerDialog";
+            this.Text = "Server Settings";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.DefaultServerDialog_FormClosing);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);

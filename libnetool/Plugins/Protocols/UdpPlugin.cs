@@ -2,7 +2,7 @@
 using Netool.Dialogs;
 using Netool.Logging;
 using Netool.Network;
-using Netool.Network.Tcp;
+using Netool.Network.Udp;
 using Netool.Views.Instance;
 using System;
 using System.Windows.Forms;
@@ -10,16 +10,16 @@ using System.Windows.Forms;
 namespace Netool.Plugins.Protocols
 {
     /// <summary>
-    /// Plugin for basic TCP functions.
+    /// Plugin for basic Udp functions.
     /// </summary>
-    public class TcpPlugin : IProtocolPlugin, IExtensiblePlugin
+    public class UdpPlugin : IProtocolPlugin, IExtensiblePlugin
     {
         /// <inheritdoc/>
-        public long ID { get { return 1; } }
+        public long ID { get { return 2; } }
         /// <inheritdoc/>
-        public string Name { get { return "TcpPlugin"; } }
+        public string Name { get { return "UdpPlugin"; } }
         /// <inheritdoc/>
-        public string Description { get { return "Plugin for basic TCP functions. Supports Client, Server and Proxy."; } }
+        public string Description { get { return "Plugin for basic Udp functions. Supports Client, Server and Proxy."; } }
         private Version version = new Version(0, 1);
         /// <inheritdoc/>
         public Version Version { get { return version; } }
@@ -33,7 +33,7 @@ namespace Netool.Plugins.Protocols
         /// <inheritdoc/>
         public bool SupportsProxy { get { return true; } }
         /// <inheritdoc/>
-        public string ProtocolName { get { return "Tcp"; } }
+        public string ProtocolName { get { return "Udp"; } }
 
         private PluginLoader loader;
 
@@ -71,15 +71,15 @@ namespace Netool.Plugins.Protocols
             switch(type)
             {
                 case InstanceType.Server:
-                    var s = settings as TcpServerSettings;
+                    var s = settings as UdpServerSettings;
                     if (s == null) throw new InvalidSettingsTypeException();
-                    instance = new TcpServer(s);
+                    instance = new UdpServer(s);
                     break;
 
                 case InstanceType.Client:
-                    var c = settings as TcpClientSettings;
+                    var c = settings as UdpClientSettings;
                     if (c == null) throw new InvalidSettingsTypeException();
-                    instance = new TcpClient(c);
+                    instance = new UdpClient(c);
                     break;
 
                 default:
@@ -104,26 +104,26 @@ namespace Netool.Plugins.Protocols
             return new InstancePack(view, cont, cont.GetInstanceType());
         }
 
-        private TcpServer createServer()
+        private UdpServer createServer()
         {
             var dialog = new DefaultServerDialog();
             dialog.ShowDialog();
             if (dialog.DialogResult == DialogResult.OK)
             {
-                var settings = dialog.TcpSettings;
-                return new TcpServer(settings);
+                var settings = dialog.UdpSettings;
+                return new UdpServer(settings);
             }
             return null;
         }
 
-        private TcpClient createClient()
+        private UdpClient createClient()
         {
             var dialog = new DefaultClientDialog();
             dialog.ShowDialog();
             if (dialog.DialogResult == DialogResult.OK)
             {
-                var settings = dialog.TcpSettings;
-                return new TcpClient(settings);
+                var settings = dialog.UdpSettings;
+                return new UdpClient(settings);
             }
             return null;
         }
@@ -134,8 +134,8 @@ namespace Netool.Plugins.Protocols
             dialog.ShowDialog();
             if (dialog.DialogResult == DialogResult.OK)
             {
-                var clFactory = new TcpClientFactory(dialog.TcpClientFactorySettings);
-                var srv = new TcpServer(dialog.TcpServerSettings);
+                var clFactory = new UdpClientFactory(dialog.UdpClientFactorySettings);
+                var srv = new UdpServer(dialog.UdpServerSettings);
                 return new DefaultProxy(new DefaultProxySettings { Server = srv, ClientFactory = clFactory });
             }
             return null;

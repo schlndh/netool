@@ -1,13 +1,14 @@
 ﻿using Netool.Network.Tcp;
+using Netool.Network.Udp;
 using Netool.Windows.Forms;
 using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace Netool.Dialogs.Tcp
+namespace Netool.Dialogs
 {
-    public partial class TcpClientDialog : Form
+    public partial class DefaultClientDialog : Form
     {
-        public TcpClientSettings Settings
+        public TcpClientSettings TcpSettings
         {
             get
             {
@@ -20,7 +21,20 @@ namespace Netool.Dialogs.Tcp
             }
         }
 
-        public TcpClientDialog()
+        public UdpClientSettings UdpSettings
+        {
+            get
+            {
+                return new UdpClientSettings
+                {
+                    LocalEndPoint = localEndPoint.EndPoint,
+                    RemoteEndPoint = remoteEndPoint.EndPoint,
+                    Properties = socketSettings.Settings,
+                };
+            }
+        }
+
+        public DefaultClientDialog()
         {
             InitializeComponent();
         }
@@ -44,7 +58,7 @@ namespace Netool.Dialogs.Tcp
             }
         }
 
-        private void TcpClientDialog_FormClosing(object sender, FormClosingEventArgs e)
+        private void DefaultClientDialog_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (this.DialogResult == DialogResult.OK && !this.ValidateChildren())
             {
