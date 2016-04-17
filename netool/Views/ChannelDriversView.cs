@@ -39,10 +39,10 @@ namespace Netool.Views
         {
             if (this.channelDrivers.SelectedItems.Count > 0)
             {
-                var pack = (ChannelDriverPack)this.channelDrivers.SelectedItems[0].Tag;
-                if (pack.View != null)
+                var pack = (Tuple<int, ChannelDriverPack>)channelDrivers.SelectedItems[0].Tag;
+                if (pack.Item2.View != null)
                 {
-                    pack.View.GetForm().Show();
+                    pack.Item2.View.GetForm().Show();
                 }
             }
         }
