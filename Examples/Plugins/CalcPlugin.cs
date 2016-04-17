@@ -32,7 +32,7 @@ namespace Examples.Plugins
                 case InstanceType.Server:
                     var s = settings as TcpServerSettings;
                     if (s == null) throw new InvalidSettingsTypeException();
-                    instance = new TcpServer(s);
+                    instance = new CalcServer(s);
                     break;
 
                 default:
