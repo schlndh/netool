@@ -46,5 +46,14 @@ namespace Netool.Views
                 }
             }
         }
+
+        private void channelDrivers_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if(channelDrivers.SelectedIndices.Count > 0 && channelDrivers.SelectedIndices[0] >= 0)
+            {
+                var pack = ((Tuple<int, ChannelDriverPack>)channelDrivers.SelectedItems[0].Tag).Item2;
+                detailBtn.Enabled = pack.View != null;
+            }
+        }
     }
 }
