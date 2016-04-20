@@ -60,15 +60,15 @@ namespace Netool.Network.Http
             if (e.Data == null) return;
             lock (parser)
             {
-                HttpData data = null;
+                IDataStream data = null;
                 try
                 {
                     data = parser.Receive(e.Data);
                 }
                 catch
                 {
-                    Close();
-                    return;
+                    data = parser.GetRawData();
+                    parser = new HttpMessageParser(logger, false);
                 }
                 if (data != null)
                 {

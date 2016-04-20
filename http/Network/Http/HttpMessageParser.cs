@@ -158,5 +158,21 @@ namespace Netool.Network.Http
             }
             return null;
         }
+
+        /// <summary>
+        /// Gets raw binary data acumulated in the parser.
+        /// </summary>
+        /// <remarks>
+        /// You can use this method to obtain received data if an exception is throw from Receive method.
+        /// This method invalidates the parser and it cannot be used after calling it.
+        /// </remarks>
+        /// <returns></returns>
+        public IDataStream GetRawData()
+        {
+            lock(contentLock)
+            {
+                return dataBuilder.Close();
+            }
+        }
     }
 }
