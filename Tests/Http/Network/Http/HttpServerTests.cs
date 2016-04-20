@@ -103,14 +103,17 @@ namespace Tests.Http.Network.Http
         {
             var innerChannel = new TestServerChannel();
             var httpChannel = new HttpServerChannel(innerChannel, logger);
+            int i = 0;
             httpChannel.RequestReceived += delegate(object sender, DataEventArgs e)
             {
-                // this is not a valid response
-                Assert.True(false);
+                ++i;
+                Assert.IsNotType<HttpData>(e.Data);
             };
+            Assert.Equal(0, i);
             IDataStream stream = new ByteArray(ASCIIEncoding.ASCII.GetBytes(response));
             innerChannel.Receive(stream);
             innerChannel.Close();
+            Assert.Equal(1, i);
         }
     }
 }
