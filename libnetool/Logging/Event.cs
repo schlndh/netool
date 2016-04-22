@@ -26,8 +26,17 @@ namespace Netool.Logging
         /// </summary>
         public readonly IChannel Channel;
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="id">1-based ID</param>
+        /// <param name="type"></param>
+        /// <param name="data"></param>
+        /// <param name="time"></param>
+        /// <exception cref="ArgumentOutOfRangeException">id </exception>
         public Event(int id, EventType type, DataEventArgs data, DateTime time)
         {
+            if (id < 1) throw new ArgumentOutOfRangeException("id");
             ID = id;
             Type = type;
             Data = data;
@@ -37,11 +46,13 @@ namespace Netool.Logging
         /// <summary>
         /// Use this constructor for ChannelReplaced event
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">1-based ID</param>
         /// <param name="newChannel"></param>
         /// <param name="time"></param>
+        /// <exception cref="ArgumentOutOfRangeException">id </exception>
         public Event(int id, IChannel newChannel, DateTime time)
         {
+            if (id < 1) throw new ArgumentOutOfRangeException("id");
             ID = id;
             Type = EventType.ChannelReplaced;
             Data = null;
