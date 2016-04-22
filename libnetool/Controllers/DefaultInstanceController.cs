@@ -78,6 +78,7 @@ namespace Netool.Controllers
         private SortedList<int, IChannelDriver> drivers = new SortedList<int, IChannelDriver>();
         private List<IChannelView> channelViews = new List<IChannelView>();
         private InstanceLogger logger;
+        private string instanceName;
         public InstanceLogger Logger { get { return logger; } }
 
         /// <summary>
@@ -116,6 +117,7 @@ namespace Netool.Controllers
             this.view.SetLogger(logger);
             this.detailFactory = detailFactory;
             this.Active = true;
+            this.instanceName = logger.ReadInstanceName();
         }
 
         /// <summary>
@@ -144,6 +146,7 @@ namespace Netool.Controllers
             this.logger = logger;
             this.detailFactory = detailFactory;
             this.Active = false;
+            this.instanceName = logger.ReadInstanceName();
         }
 
         public void Start()
@@ -201,9 +204,11 @@ namespace Netool.Controllers
 
         public void ShowDetail(int id)
         {
-            var v = detailFactory.CreateChannelView(logger.GetChannelLogger(id), Active);
+            var channelLogger = logger.GetChannelLogger(id);
+            var v = detailFactory.CreateChannelView(channelLogger, Active);
             channelViews.Add(v);
             var form = v.GetForm();
+            form.Text = string.Format("{0} ({2}): {1}", instanceName, channelLogger.channel.Name, Instance.GetType().Name);
             form.FormClosed += delegate (object sender, System.Windows.Forms.FormClosedEventArgs args) { channelViews.Remove(v); };
             form.Show();
         }

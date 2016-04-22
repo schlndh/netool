@@ -24,6 +24,7 @@ namespace Netool.Dialogs
             }
             protocolSelect.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
             protocolSelect.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+            this.Text = "New " + type.ToString();
         }
 
         private void instanceName_Validating(object sender, CancelEventArgs e)
