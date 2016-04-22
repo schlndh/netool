@@ -180,7 +180,6 @@ namespace Netool.Logging
         {
             this.filename = filename;
             stream = new FileStream(filename, mode, FileAccess.ReadWrite, FileShare.Read);
-            formatter = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, new SerializationContext(this)));
             init();
         }
 
@@ -189,13 +188,13 @@ namespace Netool.Logging
             if (stream == null)
             {
                 stream = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
-                binWriter = new BinaryWriter(stream);
-                binReader = new BinaryReader(stream);
+                init();
             }
         }
 
         private void init()
         {
+            formatter = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, new SerializationContext(this)));
             readerPool = new FileLogReaderPoolPrivate(this);
             // TODO: add some checks here
             binReader = new BinaryReader(stream);
@@ -445,6 +444,10 @@ namespace Netool.Logging
         /// </summary>
         /// <param name="hint">a pointer to the begging of the channel info, as returned by AddChannel method</param>
         /// <param name="e">event to log</param>
+        /// <remarks>
+        /// To save IO operations this method doesn't update channel's event count field.
+        /// Final count will be written when WriteChannelData is called.
+        /// </remarks>
         public void LogEvent(long hint, Event e)
         {
             lock (streamLock)

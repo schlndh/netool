@@ -619,5 +619,28 @@ namespace Tests.Logging
                 Assert.Equal(0, binReader.ReadInt64());
             }
         }
+
+        [Fact]
+        public void TestCloseAndOpen()
+        {
+            log.WritePluginID(55);
+            var hint = log.AddChannel();
+            log.LogEvent(hint, new Event(1, new TestChannel(), DateTime.Now));
+            log.WriteChannelData(hint, 1, new TestChannel());
+            Action test = delegate ()
+            {
+                var reader = log.ReaderPool.Get();
+                Assert.Equal(55, reader.ReadPluginID());
+                Assert.Equal(1, log.GetChannelCount());
+                var c = reader.GetEventCount(hint);
+                Assert.Equal(1, reader.GetEventCount(hint));
+                log.ReaderPool.Return(ref reader);
+            };
+            test();
+            log.Close();
+            log.Open();
+            test();
+            log.Close();
+        }
     }
 }
