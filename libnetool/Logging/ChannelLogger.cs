@@ -83,14 +83,9 @@ namespace Netool.Logging
         public Event GetEventByID(int id)
         {
             if (id < 1 || id > GetEventCount()) throw new ArgumentOutOfRangeException("id");
-            var reader = log.ReaderPool.Get();
-            try
+            using (var reader = log.ReaderPool.Get())
             {
                 return reader.ReadEvent(hint, id);
-            }
-            finally
-            {
-                log.ReaderPool.Return(ref reader);
             }
         }
 
@@ -105,14 +100,9 @@ namespace Netool.Logging
         public IEnumerable<Event> GetEventRange(int firstID, int count)
         {
             if (firstID < 1 || count < 1 || firstID + count - 1 > GetEventCount()) throw new ArgumentOutOfRangeException("firstID,count");
-            var reader = log.ReaderPool.Get();
-            try
+            using (var reader = log.ReaderPool.Get())
             {
                 return reader.ReadEvents(hint, firstID, count);
-            }
-            finally
-            {
-                log.ReaderPool.Return(ref reader);
             }
         }
 

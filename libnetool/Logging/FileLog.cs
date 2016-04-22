@@ -12,7 +12,7 @@ namespace Netool.Logging
 {
     public class InvalidFileLogException : Exception { }
 
-    public class FileLog
+    public class FileLog : IDisposable
     {
         /**
          * Terminology:
@@ -68,8 +68,26 @@ namespace Netool.Logging
             }
         }
 
+        private class PooledFileLogReader : FileLogReader, IDisposable
+        {
+            private FileLog log;
+
+            public PooledFileLogReader(string filename, FileLog log) : base(filename, log)
+            {
+                this.log = log;
+            }
+
+            /// <inheritdoc/>
+            public override void Dispose()
+            {
+                if(!IsClosed) log.readerPool.Return(this);
+            }
+        }
+
         private class FileLogReaderPoolPrivate : FileLogReaderPool
         {
+            private FileLog log;
+
             public FileLogReaderPoolPrivate(FileLog log)
             {
                 this.log = log;
@@ -84,39 +102,37 @@ namespace Netool.Logging
                 FileLogReader r;
                 while (p.TryTake(out r)) r.Close();
             }
+
+            public void Return(FileLogReader r)
+            {
+                pool.Add(r);
+            }
+
+            protected override FileLogReader createReader()
+            {
+                return new PooledFileLogReader(log.filename, log);
+            }
         }
 
-        public class FileLogReaderPool
+        public abstract class FileLogReaderPool
         {
             protected ConcurrentBag<FileLogReader> pool = new ConcurrentBag<FileLogReader>();
-            protected FileLog log;
 
             /// <summary>
             /// Gets a reader from the pool or creates a new one if none is available.
             /// </summary>
             /// <remarks>
-            /// Don't forget to return it when you no longer need it!
+            /// Don't forget to dispose it when you no longer need it! But don't close it!
             /// </remarks>
             /// <returns></returns>
             public FileLogReader Get()
             {
                 FileLogReader ret;
-                if (!pool.TryTake(out ret)) ret = new FileLogReader(log.filename, log);
+                if (!pool.TryTake(out ret)) ret = createReader();
                 return ret;
             }
 
-            /// <summary>
-            /// Returns a reader to the pool and sets the parameter to null.
-            /// </summary>
-            /// <remarks>
-            /// You shouldn't ever keep another reference to the already returned reader!
-            /// </remarks>
-            /// <param name="reader"></param>
-            public void Return(ref FileLogReader reader)
-            {
-                pool.Add(reader);
-                reader = null;
-            }
+            protected abstract FileLogReader createReader();
         }
 
         /// <summary>
@@ -675,6 +691,12 @@ namespace Netool.Logging
             stream.Position = stream.Length;
             writeNewTable();
             return currentFBT;
+        }
+
+        /// <inheritdoc/>
+        void IDisposable.Dispose()
+        {
+            Close();
         }
     }
 }

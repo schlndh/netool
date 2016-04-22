@@ -23,9 +23,10 @@ namespace Netool.Network.DataFormats
             {
                 if(length < 0)
                 {
-                    var reader = log.ReaderPool.Get();
-                    length = reader.GetFileLength(hint);
-                    log.ReaderPool.Return(ref reader);
+                    using (var reader = log.ReaderPool.Get())
+                    {
+                        length = reader.GetFileLength(hint);
+                    }
                 }
                 return length;
             }
@@ -67,13 +68,14 @@ namespace Netool.Network.DataFormats
                 {
                     ByteCache.FillCache callback = delegate (byte[] buffer, out long cacheStart, out int cacheLength)
                     {
-                        var reader = log.ReaderPool.Get();
-                        // the file is more likely to be read from the beginning to the end
-                        cacheStart = Math.Max(0, index - 32);
-                        cacheLength = (int)Math.Min(buffer.Length, Math.Min(int.MaxValue, length - cacheStart));
-                        reader.ReadFileDataToBuffer(hint, buffer, cacheStart, cacheLength, 0);
-                        ret = buffer[index - cacheStart];
-                        log.ReaderPool.Return(ref reader);
+                        using (var reader = log.ReaderPool.Get())
+                        {
+                            // the file is more likely to be read from the beginning to the end
+                            cacheStart = Math.Max(0, index - 32);
+                            cacheLength = (int)Math.Min(buffer.Length, Math.Min(int.MaxValue, length - cacheStart));
+                            reader.ReadFileDataToBuffer(hint, buffer, cacheStart, cacheLength, 0);
+                            ret = buffer[index - cacheStart];
+                        }
                     };
                     cache.Cache(callback);
                 }
@@ -85,9 +87,10 @@ namespace Netool.Network.DataFormats
         public void ReadBytesToBuffer(byte[] buffer, long start = 0, int length = -1, int offset = 0)
         {
             IDataStreamHelpers.ReadBytesToBufferArgsCheck(this, buffer, start, ref length, offset);
-            var reader = log.ReaderPool.Get();
-            reader.ReadFileDataToBuffer(hint, buffer, start, length, offset);
-            log.ReaderPool.Return(ref reader);
+            using (var reader = log.ReaderPool.Get())
+            {
+                reader.ReadFileDataToBuffer(hint, buffer, start, length, offset);
+            }
         }
 
         /// <inheritdoc />
@@ -137,9 +140,10 @@ namespace Netool.Network.DataFormats
 
         private void init()
         {
-            var reader = log.ReaderPool.Get();
-            hint = reader.GetFileHint(id);
-            log.ReaderPool.Return(ref reader);
+            using (var reader = log.ReaderPool.Get())
+            {
+                hint = reader.GetFileHint(id);
+            }
             cache = new ByteCache(256);
             cacheLock = new object();
             serializationLock = new object();

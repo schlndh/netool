@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace Netool.Logging
 {
-    public class FileLogReader
+    public class FileLogReader : IDisposable
     {
         /// <summary>
         /// Context passed to deserialized objects
@@ -29,6 +29,8 @@ namespace Netool.Logging
         private FileLog log;
         private long fileTable = 0;
 
+        public bool IsClosed { get { lock (streamLock) { return stream == null; } } }
+
         public FileLogReader(string filename, FileLog log)
         {
             stream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
@@ -37,9 +39,22 @@ namespace Netool.Logging
             formatter = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.All, new DeserializationContext(log)));
         }
 
+        /// <summary>
+        /// Closes the reader
+        /// </summary>
+        /// <remarks>
+        /// Don't call this method if you obtained the reader from a reader pool.
+        /// Calling Dispose will only have the same effect as calling Close,
+        /// if the reader wasn't obtained from a reader pool.
+        /// </remarks>
         public void Close()
         {
-            binReader.Close();
+            lock (streamLock)
+            {
+                binReader.Close();
+                stream = null;
+                binReader = null;
+            }
         }
 
         /// <summary>
@@ -480,6 +495,12 @@ namespace Netool.Logging
                     currentFbt2 = -1;
                 }
             }
+        }
+
+        /// <inheritdoc/>
+        public virtual void Dispose()
+        {
+            Close();
         }
     }
 }

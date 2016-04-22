@@ -183,8 +183,6 @@ namespace Tests.Logging
             Assert.Equal(4, logReader.GetFileLength(hint));
             log.AppendDataToFile(hint, new ByteArray(new byte[] { 1, 2, 3, 4 }));
             Assert.Equal(8, logReader.GetFileLength(hint));
-            logReader.Close();
-            log.Close();
         }
 
         [Fact]
@@ -250,6 +248,14 @@ namespace Tests.Logging
             Assert.Equal(15, buffer[0]);
             Assert.Equal(1, buffer[1]);
             Assert.Equal(2, buffer[2]);
+        }
+
+        [Fact]
+        public void TestDispose()
+        {
+            var reader = log.CreateReader();
+            reader.Dispose();
+            Assert.True(reader.IsClosed);
         }
     }
 }

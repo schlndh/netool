@@ -52,12 +52,13 @@ namespace Netool.Logging
             channelsInfo.TryGetValue(id, out logger);
             if(logger == null)
             {
-                var reader = log.CreateReader();
-                var channel = GetChannelByID(id).Value;
-                var hint = reader.GetChannelInfoHintByID(id);
-                var eventCount = reader.GetEventCount(hint);
-                logger = new ChannelLogger(log, hint, channel, eventCount);
-                reader.Close();
+                using (var reader = log.ReaderPool.Get())
+                {
+                    var channel = GetChannelByID(id).Value;
+                    var hint = reader.GetChannelInfoHintByID(id);
+                    var eventCount = reader.GetEventCount(hint);
+                    logger = new ChannelLogger(log, hint, channel, eventCount);
+                }
             }
             return logger;
         }
@@ -80,10 +81,11 @@ namespace Netool.Logging
         /// <inheritdoc cref="FileLogReader.ReadInstanceData"/>
         public IInstance ReadInstanceData()
         {
-            var reader = log.CreateReader();
-            var ret = reader.ReadInstanceData();
-            reader.Close();
-            return ret;
+            using (var reader = log.ReaderPool.Get())
+            {
+                var ret = reader.ReadInstanceData();
+                return ret;
+            }
         }
 
         /// <inheritdoc cref="FileLog.WritePluginID"/>
@@ -95,10 +97,11 @@ namespace Netool.Logging
         /// <inheritdoc cref="FileLogReader.ReadPluginID"/>
         public long ReadPluginID()
         {
-            var reader = log.CreateReader();
-            var id = reader.ReadPluginID();
-            reader.Close();
-            return id;
+            using (var reader = log.ReaderPool.Get())
+            {
+                var id = reader.ReadPluginID();
+                return id;
+            }
         }
 
         /// <inheritdoc cref="FileLog.WriteInstanceName"/>
@@ -110,10 +113,11 @@ namespace Netool.Logging
         /// <inheritdoc cref="FileLogReader.ReadInstanceName"/>
         public string ReadInstanceName()
         {
-            var reader = log.CreateReader();
-            var name = reader.ReadInstanceName();
-            reader.Close();
-            return name;
+            using (var reader = log.ReaderPool.Get())
+            {
+                var name = reader.ReadInstanceName();
+                return name;
+            }
         }
 
         /// <inheritdoc cref="FileLog.MoveToFile"/>
@@ -152,17 +156,19 @@ namespace Netool.Logging
         {
             if(channels.Count < id)
             {
-                var reader = log.CreateReader();
-                // read all channels between the last already read and the one requested
-                var missing = reader.ReadChannelsData(channels.Count + 1, id - channels.Count);
-                lock(channels)
+                using (var reader = log.ReaderPool.Get())
                 {
-                    foreach(var item in missing)
+                    // read all channels between the last already read and the one requested
+                    var missing = reader.ReadChannelsData(channels.Count + 1, id - channels.Count);
+                    lock (channels)
                     {
-                        channels.AddLast(item);
+                        foreach (var item in missing)
+                        {
+                            channels.AddLast(item);
+                        }
                     }
                 }
-                reader.Close();
+
             }
             var curr = channels.First;
             while (id-- > 1)

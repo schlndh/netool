@@ -629,18 +629,29 @@ namespace Tests.Logging
             log.WriteChannelData(hint, 1, new TestChannel());
             Action test = delegate ()
             {
-                var reader = log.ReaderPool.Get();
-                Assert.Equal(55, reader.ReadPluginID());
-                Assert.Equal(1, log.GetChannelCount());
-                var c = reader.GetEventCount(hint);
-                Assert.Equal(1, reader.GetEventCount(hint));
-                log.ReaderPool.Return(ref reader);
+                using (var reader = log.ReaderPool.Get())
+                {
+                    Assert.Equal(55, reader.ReadPluginID());
+                    Assert.Equal(1, log.GetChannelCount());
+                    var c = reader.GetEventCount(hint);
+                    Assert.Equal(1, reader.GetEventCount(hint));
+                }
             };
             test();
             log.Close();
             log.Open();
             test();
             log.Close();
+        }
+
+        [Fact]
+        public void TestReaderPool()
+        {
+            var reader = log.ReaderPool.Get();
+            reader.Dispose();
+            Assert.False(reader.IsClosed);
+            log.Close();
+            Assert.True(reader.IsClosed);
         }
     }
 }
