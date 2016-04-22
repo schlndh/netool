@@ -3,14 +3,11 @@ using Netool.Dialogs;
 using Netool.Logging;
 using Netool.Network;
 using Netool.Plugins;
-using Netool.Plugins.ChannelDrivers;
-using Netool.Plugins.Protocols;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 
@@ -36,8 +33,6 @@ namespace Netool.Controllers
         private Dictionary<int, IChannelDriver> channelDrivers = new Dictionary<int, IChannelDriver>();
         private Dictionary<long, IProtocolPlugin> protocolPlugins = new Dictionary<long, IProtocolPlugin>();
         private Dictionary<long, IChannelDriverPlugin> channelDriverPlugins = new Dictionary<long, IChannelDriverPlugin>();
-        private Dictionary<long, IEditorViewPlugin> editorViewPlugins = new Dictionary<long, IEditorViewPlugin>();
-        private Dictionary<long, IEventViewPlugin> eventViewPlugins = new Dictionary<long, IEventViewPlugin>();
         private PluginLoader pluginLoader = new PluginLoader();
 
         private int itemID = 0;
@@ -66,16 +61,6 @@ namespace Netool.Controllers
                 if (cd != null)
                 {
                     channelDriverPlugins.Add(cd.ID, cd);
-                }
-                var evt = pl as IEventViewPlugin;
-                if (evt != null)
-                {
-                    eventViewPlugins.Add(evt.ID, evt);
-                }
-                var ed = pl as IEditorViewPlugin;
-                if (ed != null)
-                {
-                    editorViewPlugins.Add(ed.ID, ed);
                 }
             }
         }
@@ -413,26 +398,6 @@ namespace Netool.Controllers
                 throw new SetupAbortedByUserException();
             }
 
-        }
-
-        public List<Views.IEditorView> CreateEditorViews()
-        {
-            var ret = new List<Views.IEditorView>();
-            foreach(var item in editorViewPlugins)
-            {
-                ret.AddRange(item.Value.CreateEditorViews());
-            }
-            return ret;
-        }
-
-        public List<Views.IEventView> CreateEventViews()
-        {
-            var ret = new List<Views.IEventView>();
-            foreach (var item in eventViewPlugins)
-            {
-                ret.AddRange(item.Value.CreateEventViews());
-            }
-            return ret;
         }
 
         public void RemoveChannelDriver(int id)
