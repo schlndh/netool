@@ -183,6 +183,11 @@ namespace Netool.Network
     {
         public IServer Server;
         public IClientFactory ClientFactory;
+
+        public override string ToString()
+        {
+            return string.Format("Server={0}; ClientFactory={1}", Server == null ? "" : Server.Settings, ClientFactory);
+        }
     }
 
     /// <summary>

@@ -13,6 +13,7 @@ namespace Netool.Logging
         private LinkedList<IChannel> channels = new LinkedList<IChannel>();
         private FileLog log;
         public bool IsTempFile { get; private set; }
+        public string Filename { get { return log.Filename; } }
 
         public event EventHandler<int> ChannelCountChanged;
 

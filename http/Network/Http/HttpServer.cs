@@ -12,6 +12,12 @@ namespace Netool.Network.Http
     public class HttpServerSettings
     {
         public TcpServerSettings TcpSettings;
+
+        public override string ToString()
+        {
+            if (TcpSettings == null) return "";
+            return TcpSettings.ToString();
+        }
     }
 
     [Serializable]

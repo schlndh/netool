@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
 
 namespace Netool.Network.Helpers
@@ -6,6 +7,8 @@ namespace Netool.Network.Helpers
     [Serializable]
     public class SocketProperties : ICloneable
     {
+        private static SocketProperties DefaultProperties = new SocketProperties();
+
         public bool DontFragment { get; set; }
 
         public bool DualMode { get; set; }
@@ -68,6 +71,21 @@ namespace Netool.Network.Helpers
         public object Clone()
         {
             return MemberwiseClone();
+        }
+
+        public override string ToString()
+        {
+            List<string> parts = new List<string>(10);
+            var props = typeof(SocketProperties).GetProperties();
+            foreach (var prop in props)
+            {
+                if (!prop.GetValue(DefaultProperties).Equals(prop.GetValue(this)))
+                {
+                    parts.Add(string.Format("{0}={1}", prop.Name, prop.GetValue(this)));
+                }
+            }
+            if (parts.Count == 0) return "(default)";
+            return "(" + string.Join(", ", parts.ToArray()) + ")";
         }
     }
 }

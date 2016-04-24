@@ -39,5 +39,11 @@ namespace Netool.Network.Http
             if (this.logger != null) throw new InvalidOperationException("Logger already set!");
             this.logger = logger;
         }
+
+        public override string ToString()
+        {
+            if (settings == null) return "";
+            return settings.ToString();
+        }
     }
 }

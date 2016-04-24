@@ -187,6 +187,8 @@ namespace Netool.Logging
         public const int FilesPerBlock = BlockSize / sizeof(long) - 1;
         private string filename;
 
+        public string Filename { get { return filename; } }
+
         // first table
         private long currentChannelTable = 2 * sizeof(long);
 

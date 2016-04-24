@@ -3,11 +3,10 @@
 namespace Netool.Network.Http
 {
     /// <summary>
-    /// Basic interface for Http protocol upgrade (Upgrade header)
+    /// Encapsulates given channel into a new channel.
     /// </summary>
     /// <remarks>
-    /// The inner channel is unlocked automatically by http channel after ChannelReplaced event is raised.
-    /// Don't unlock the inner channel yourself.
+    /// Exact channel type given is not defined and cannot be relied upon.
     /// </remarks>
     public interface IProtocolUpgrader
     {

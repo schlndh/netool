@@ -10,6 +10,11 @@ namespace Netool.Network.Tcp
         public IPAddress LocalIPAddress;
         public IPEndPoint RemoteEndPoint;
         public SocketProperties Properties;
+
+        public override string ToString()
+        {
+            return LocalIPAddress.ToString() + ":0->" + RemoteEndPoint.ToString() + ", SocketProperties=" + Properties.ToString();
+        }
     }
 
     [Serializable]
@@ -32,6 +37,12 @@ namespace Netool.Network.Tcp
                     LocalEndPoint = new IPEndPoint(settings.LocalIPAddress, 0),
                     Properties = settings.Properties,
                 });
+        }
+
+        public override string ToString()
+        {
+            if (settings == null) return "";
+            return settings.ToString();
         }
     }
 }

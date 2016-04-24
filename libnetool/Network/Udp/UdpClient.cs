@@ -13,6 +13,11 @@ namespace Netool.Network.Udp
         public IPEndPoint LocalEndPoint;
         public IPEndPoint RemoteEndPoint;
         public SocketProperties Properties;
+
+        public override string ToString()
+        {
+            return LocalEndPoint.ToString() + "->" + RemoteEndPoint.ToString() + ", SocketProperties=" + Properties.ToString();
+        }
     }
 
     [Serializable]

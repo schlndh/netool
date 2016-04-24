@@ -10,6 +10,11 @@ namespace Netool.Network.Udp
         public IPAddress LocalIPAddress;
         public IPEndPoint RemoteEndPoint;
         public SocketProperties Properties;
+
+        public override string ToString()
+        {
+            return LocalIPAddress.ToString() + ":0->" + RemoteEndPoint.ToString() + ", SocketProperties=" + Properties.ToString();
+        }
     }
 
     [Serializable]
@@ -26,6 +31,12 @@ namespace Netool.Network.Udp
         public IClient CreateClient()
         {
             return new UdpClient(new UdpClientSettings { RemoteEndPoint = settings.RemoteEndPoint, LocalEndPoint = new IPEndPoint(settings.LocalIPAddress, 0), Properties = settings.Properties });
+        }
+
+        public override string ToString()
+        {
+            if (settings == null) return "";
+            return settings.ToString();
         }
     }
 }

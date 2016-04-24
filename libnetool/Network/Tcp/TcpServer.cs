@@ -28,6 +28,11 @@ namespace Netool.Network.Tcp
         public IPEndPoint LocalEndPoint;
         public int MaxPendingConnections;
         public SocketProperties Properties;
+
+        public override string ToString()
+        {
+            return LocalEndPoint.ToString() + ", SocketProperties=" + Properties.ToString();
+        }
     }
 
     [Serializable]

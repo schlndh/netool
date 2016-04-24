@@ -1,6 +1,7 @@
 ﻿using Netool.Controllers;
 using Netool.Logging;
 using Netool.Network;
+using Netool.Plugins.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -30,6 +31,7 @@ namespace Netool.Views.Instance
 
         private IInstanceController controller;
         private ItemFactory createItem;
+        private StatusStrip instanceInfoStrip;
 
         /// <summary>
         /// Default view settings with default DataTable schema and corresponding row factory
@@ -45,7 +47,25 @@ namespace Netool.Views.Instance
             this.createItem = rowFactory;
         }
 
+        /// <summary>
+        /// Attaches view to controller and displays instance status strip
+        /// </summary>
+        /// <param name="c"></param>
         public void SetController(IInstanceController c)
+        {
+            controller = c;
+            if(instanceInfoStrip == null)
+            {
+                instanceInfoStrip = InstanceStatusStripFactories.Factory(c.Instance.GetType(), c.Instance.Settings, c.Logger.IsTempFile, c.Logger.Filename);
+                Controls.Add(instanceInfoStrip);
+            }
+        }
+
+        /// <summary>
+        /// Attaches view to controller without creating instance status strip
+        /// </summary>
+        /// <param name="c"></param>
+        public void SetControllerWithoutInfoStrip(IInstanceController c)
         {
             controller = c;
         }
