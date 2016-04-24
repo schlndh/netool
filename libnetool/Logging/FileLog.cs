@@ -520,7 +520,10 @@ namespace Netool.Logging
 
         public int GetChannelCount()
         {
-            return (int)channelCount;
+            lock(streamLock)
+            {
+                return (int)channelCount;
+            }
         }
 
         /// <summary>

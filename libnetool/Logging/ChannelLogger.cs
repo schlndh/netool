@@ -97,7 +97,7 @@ namespace Netool.Logging
         /// <returns></returns>
         /// <remarks>This method is faster than respective amount of calls to GetEventByID</remarks>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public IEnumerable<Event> GetEventRange(int firstID, int count)
+        public IList<Event> GetEventRange(int firstID, int count)
         {
             if (firstID < 1 || count < 1 || firstID + count - 1 > GetEventCount()) throw new ArgumentOutOfRangeException("firstID,count");
             using (var reader = log.ReaderPool.Get())

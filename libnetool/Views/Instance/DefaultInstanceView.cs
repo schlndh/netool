@@ -5,6 +5,7 @@ using Netool.Plugins.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Netool.Views.Instance
@@ -127,7 +128,7 @@ namespace Netool.Views.Instance
                 else
                 {
                     // ID is 1-based
-                    e.Item = createItem(logger.GetChannelByID(e.ItemIndex + 1).Value);
+                    e.Item = createItem(logger.GetChannelByID(e.ItemIndex + 1));
                 }
             }
         }
@@ -138,16 +139,8 @@ namespace Netool.Views.Instance
             {
                 // new cache is a subset of current cache
                 if (cache != null && cacheStart <= e.StartIndex && cache.Count > e.EndIndex - e.StartIndex) return;
-                cache = new List<ListViewItem>(e.EndIndex - e.StartIndex + 1);
+                cache = new List<ListViewItem>(logger.GetChannelRange(e.StartIndex + 1, e.EndIndex + 1 - e.StartIndex).Select(ch => createItem(ch)));
                 cacheStart = e.StartIndex;
-                // ID is 1-based
-                var node = logger.GetChannelByID(e.StartIndex + 1);
-                int i = 0;
-                do
-                {
-                    cache.Insert(i, createItem(node.Value));
-                    node = node.Next;
-                } while (++i < e.EndIndex - e.StartIndex);
             }
         }
 

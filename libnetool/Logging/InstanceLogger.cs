@@ -4,13 +4,15 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace Netool.Logging
 {
     public class InstanceLogger
     {
         private ConcurrentDictionary<int, ChannelLogger> channelsInfo = new ConcurrentDictionary<int, ChannelLogger>();
-        private LinkedList<IChannel> channels = new LinkedList<IChannel>();
+        private object channelsLock = new object();
+        private List<IChannel> channels = new List<IChannel>();
         private FileLog log;
         public bool IsTempFile { get; private set; }
         public string Filename { get { return log.Filename; } }
@@ -30,20 +32,23 @@ namespace Netool.Logging
         {
             log = new FileLog(filename, mode);
             IsTempFile = false;
-            // temporary workaround - load all channels
-            GetChannelByID(log.GetChannelCount());
+            int count = log.GetChannelCount();
+            using (var reader = log.ReaderPool.Get())
+            {
+                channels.AddRange(reader.ReadChannelsData(1, count));
+            }
         }
 
         public void AddChannel(IChannel channel)
         {
-            var hint = log.AddChannel();
             int c = 0;
-            lock(channels)
+            lock (channelsLock)
             {
-                channels.AddLast(channel);
+                var hint = log.AddChannel();
+                channels.Add(channel);
                 c = channels.Count;
+                channelsInfo.TryAdd(channel.ID, new ChannelLogger(log, hint, channel));
             }
-            channelsInfo.TryAdd(channel.ID, new ChannelLogger(log, hint, channel));
             OnChannelCountChanged(c);
         }
 
@@ -55,7 +60,7 @@ namespace Netool.Logging
             {
                 using (var reader = log.ReaderPool.Get())
                 {
-                    var channel = GetChannelByID(id).Value;
+                    var channel = GetChannelByID(id);
                     var hint = reader.GetChannelInfoHintByID(id);
                     var eventCount = reader.GetEventCount(hint);
                     logger = new ChannelLogger(log, hint, channel, eventCount);
@@ -147,36 +152,43 @@ namespace Netool.Logging
             if (ChannelCountChanged != null) ChannelCountChanged(this, c);
         }
 
-        /// <inheritdoc cref="FileLog.GetChannelCount"/>
         public int GetChannelCount()
         {
-            return log.GetChannelCount();
+            lock (channelsLock)
+            {
+                return channels.Count;
+            }
         }
 
-        public LinkedListNode<IChannel> GetChannelByID(int id)
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="id">1-based ID</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException">id</exception>
+        public IChannel GetChannelByID(int id)
         {
-            if(channels.Count < id)
+            lock(channelsLock)
             {
-                using (var reader = log.ReaderPool.Get())
-                {
-                    // read all channels between the last already read and the one requested
-                    var missing = reader.ReadChannelsData(channels.Count + 1, id - channels.Count);
-                    lock (channels)
-                    {
-                        foreach (var item in missing)
-                        {
-                            channels.AddLast(item);
-                        }
-                    }
-                }
+                if (id < 1 || id > GetChannelCount()) throw new ArgumentOutOfRangeException("id");
+                return channels[id - 1];
+            }
+        }
 
-            }
-            var curr = channels.First;
-            while (id-- > 1)
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="firstID">1-based ID</param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException">firstID, count</exception>
+        public IList<IChannel> GetChannelRange(int firstID, int count)
+        {
+            lock(channelsLock)
             {
-                curr = curr.Next;
+                if (firstID < 1 || firstID + count > GetChannelCount()) throw new ArgumentOutOfRangeException("firstID, count");
+                return new List<IChannel>(channels.Skip(firstID - 1).Take(count));
             }
-            return curr;
         }
 
         public LoggedFileBuilder CreateFileBuilder()

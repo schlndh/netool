@@ -139,7 +139,7 @@ namespace Netool.Logging
         /// <param name="firstID">1-based channel id</param>
         /// <param name="count"></param>
         /// <returns>chanells in a list</returns>
-        public List<IChannel> ReadChannelsData(int firstID, int count)
+        public IList<IChannel> ReadChannelsData(int firstID, int count)
         {
             var ret = new List<IChannel>(count);
             int off;
@@ -300,7 +300,7 @@ namespace Netool.Logging
         /// <param name="firstID">ID of the first required event</param>
         /// <param name="count">number of consecutive events to return</param>
         /// <returns></returns>
-        public List<Event> ReadEvents(long hint, int firstID, int count)
+        public IList<Event> ReadEvents(long hint, int firstID, int count)
         {
             var ret = new List<Event>(count);
             int off;
