@@ -10,25 +10,31 @@ namespace Netool.Controllers
         IInstance Instance { get; }
         InstanceLogger Logger { get; }
         /// <summary>
-        /// Start the associated instance.
+        /// Starts the associated instance.
         /// </summary>
         void Start();
+
         /// <summary>
-        /// Stop the associated instance.
+        /// Stops the associated instance.
         /// </summary>
         void Stop();
+
         /// <summary>
-        /// Called when instance tab is about to be closed.
+        /// Closes all associated resource.
         /// </summary>
+        /// <remarks>
+        /// Called when instance tab is about to be closed.
+        /// </remarks>
         void Close();
 
         /// <summary>
-        /// Show channel detail view
+        /// Show channel detail.
         /// </summary>
-        /// <param name="id">channel ID</param>
+        /// <param name="id">1-based channel ID</param>
         void ShowDetail(int id);
+
         /// <summary>
-        /// Adds a driver to driver queue
+        /// Adds a driver to driver queue.
         /// </summary>
         /// <param name="d">driver</param>
         /// <param name="order">lower number = higher priority</param>

@@ -36,7 +36,7 @@ namespace Netool.Network.DataFormats
         }
 
         /// <summary>
-        /// Creates new ByteArray from a copy of the given list
+        /// Creates new ByteArray from a copy of the given collection
         /// </summary>
         /// <param name="arr"></param>
         public ByteArray(ICollection<byte> arr)

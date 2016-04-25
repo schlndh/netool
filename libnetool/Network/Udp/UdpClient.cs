@@ -24,8 +24,8 @@ namespace Netool.Network.Udp
     public class UdpClientChannel : BaseClientChannel, IClientChannel
     {
         [NonSerialized]
-        protected Socket socket;
-        protected EndPoint remoteEP;
+        private Socket socket;
+        private EndPoint remoteEP;
         public int ReceiveBufferSize { get; set; }
         private object stopLock = new object();
 
@@ -105,7 +105,13 @@ namespace Netool.Network.Udp
             }
         }
 
-        private IDataStream processResponse(byte[] response, int length)
+        /// <summary>
+        /// Constructs data stream from given byte array.
+        /// </summary>
+        /// <param name="response"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        protected virtual IDataStream processResponse(byte[] response, int length)
         {
             byte[] arr = new byte[length];
             Array.Copy(response, arr, length);

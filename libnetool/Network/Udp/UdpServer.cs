@@ -34,8 +34,8 @@ namespace Netool.Network.Udp
     public class UdpServerChannel : BaseServerChannel, IServerChannel
     {
         [NonSerialized]
-        protected Socket socket;
-        protected EndPoint remoteEP;
+        private Socket socket;
+        private EndPoint remoteEP;
         private bool stopped = false;
         private object stopLock = new object();
 
@@ -77,7 +77,7 @@ namespace Netool.Network.Udp
             }
         }
 
-        public void InjectRequest(IDataStream request)
+        internal void InjectRequest(IDataStream request)
         {
             OnRequestReceived(request);
         }
@@ -90,7 +90,7 @@ namespace Netool.Network.Udp
         /// <inheritdoc/>
         public object Settings { get { return settings; } }
         [NonSerialized]
-        protected Socket socket;
+        private Socket socket;
         private volatile bool stopped = true;
         private ConcurrentDictionary<string, UdpServerChannel> channels = new ConcurrentDictionary<string, UdpServerChannel>();
         public int ReceiveBufferSize { get; set; }
@@ -219,7 +219,14 @@ namespace Netool.Network.Udp
             }
         }
 
-        private IDataStream processRequest(string id, byte[] data, int length)
+        /// <summary>
+        /// Constructs data stream from given byte array.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="data"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        protected virtual IDataStream processRequest(string id, byte[] data, int length)
         {
             byte[] arr = new byte[length];
             Array.Copy(data, arr, length);

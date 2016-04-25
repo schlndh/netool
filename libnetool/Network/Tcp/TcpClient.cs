@@ -25,7 +25,7 @@ namespace Netool.Network.Tcp
     public class TcpClientChannel : BaseClientChannel, IClientChannel
     {
         [NonSerialized]
-        protected Socket socket;
+        private Socket socket;
         [NonSerialized]
         private TcpAsyncSender sender;
 
@@ -94,7 +94,13 @@ namespace Netool.Network.Tcp
             }
         }
 
-        private IDataStream processResponse(byte[] response, int length)
+        /// <summary>
+        /// Constructs data stream from given byte array.
+        /// </summary>
+        /// <param name="response"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        protected virtual IDataStream processResponse(byte[] response, int length)
         {
             return new ByteArray(response, 0, length);
         }

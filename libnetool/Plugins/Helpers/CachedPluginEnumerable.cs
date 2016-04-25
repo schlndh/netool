@@ -55,6 +55,9 @@ namespace Netool.Plugins.Helpers
             }
         }
 
+        /// <summary>
+        /// Gets cached plugins or empty list if loader isn't set.
+        /// </summary>
         public IEnumerable<T> Plugins
         {
             get

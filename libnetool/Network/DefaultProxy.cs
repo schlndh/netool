@@ -217,13 +217,13 @@ namespace Netool.Network
             settings.Server.ErrorOccured += handleErrorOccured;
         }
 
-        public virtual void Start()
+        public void Start()
         {
             server.ChannelCreated += connectionCreatedHandler;
             server.Start();
         }
 
-        public virtual void Stop()
+        public void Stop()
         {
             server.ChannelCreated -= connectionCreatedHandler;
             foreach (var channel in channels)

@@ -6,6 +6,9 @@ using System.Threading;
 
 namespace Netool.Logging
 {
+    /// <summary>
+    /// Logs channel events to a log file and allows reading them back.
+    /// </summary>
     public class ChannelLogger
     {
         public IChannel channel;

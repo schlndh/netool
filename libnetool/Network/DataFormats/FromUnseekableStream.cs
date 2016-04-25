@@ -30,8 +30,10 @@ namespace Netool.Network.DataFormats
             this.factory = factory;
         }
 
+        /// <inheritdoc/>
         public long Length { get { if (length == -1) calculateLength(); return length; } }
 
+        /// <inheritdoc/>
         public byte ReadByte(long index)
         {
             IDataStreamHelpers.ReadByteArgsCheck(this, index);
@@ -45,6 +47,7 @@ namespace Netool.Network.DataFormats
             }
         }
 
+        /// <inheritdoc/>
         public void ReadBytesToBuffer(byte[] buffer, long start = 0, int length = -1, int offset = 0)
         {
             IDataStreamHelpers.ReadBytesToBufferArgsCheck(this, buffer, start, ref length, offset);
@@ -65,6 +68,7 @@ namespace Netool.Network.DataFormats
             }
         }
 
+        /// <inheritdoc/>
         public object Clone()
         {
             return this;

@@ -44,7 +44,7 @@ namespace Netool.Logging
         }
 
         /// <summary>
-        /// Use this constructor for ChannelReplaced event
+        /// Use this constructor for ChannelReplaced event.
         /// </summary>
         /// <param name="id">1-based ID</param>
         /// <param name="newChannel"></param>

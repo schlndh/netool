@@ -8,6 +8,12 @@ using System.Threading;
 
 namespace Netool.Logging
 {
+    /// <summary>
+    /// This class takes care of read operations from a log file.
+    /// </summary>
+    /// <remarks>
+    /// There can be many readers per log file.
+    /// </remarks>
     public class FileLogReader : IDisposable
     {
         /// <summary>

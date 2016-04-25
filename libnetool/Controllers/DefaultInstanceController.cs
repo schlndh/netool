@@ -10,6 +10,9 @@ using System.Threading;
 
 namespace Netool.Controllers
 {
+    /// <summary>
+    /// Default implementation of IInstanceController.
+    /// </summary>
     public class DefaultInstanceController : IInstanceController
     {
         public interface IChannelViewFactory
@@ -17,6 +20,9 @@ namespace Netool.Controllers
             IChannelView CreateChannelView(ChannelLogger info, bool active);
         }
 
+        /// <summary>
+        /// This factory uses DefaultChannelView and passes all available IEditorViews, IEventViews and IMessageTemplates to it.
+        /// </summary>
         public class DefaultChannelViewFactory : IChannelViewFactory
         {
             public delegate IChannelView ChannelViewCallback(Views.Channel.DefaultChannelView v);
@@ -33,7 +39,7 @@ namespace Netool.Controllers
             }
 
             /// <summary>
-            ///
+            /// Initializes factory with additional callback.
             /// </summary>
             /// <param name="loader"></param>
             /// <param name="c">callback that will be called before returning channel view from factory</param>
@@ -89,11 +95,25 @@ namespace Netool.Controllers
         private IChannelViewFactory detailFactory;
         private RejectDriver rejectDriver = new RejectDriver();
 
+        /// <summary>
+        /// Initializes controller with active instance and DefaultChannelViewFactory.
+        /// </summary>
+        /// <param name="view"></param>
+        /// <param name="instance"></param>
+        /// <param name="logger"></param>
+        /// <param name="loader"></param>
         public DefaultInstanceController(IInstanceView view, IInstance instance, InstanceLogger logger, PluginLoader loader)
             : this(view, instance, logger, new DefaultChannelViewFactory(loader))
         {
         }
 
+        /// <summary>
+        /// Initializes controller with active instance and custom channel view factory.
+        /// </summary>
+        /// <param name="view"></param>
+        /// <param name="instance"></param>
+        /// <param name="logger"></param>
+        /// <param name="detailFactory"></param>
         public DefaultInstanceController(IInstanceView view, IInstance instance, InstanceLogger logger, IChannelViewFactory detailFactory)
         {
             this.view = view;
@@ -121,7 +141,7 @@ namespace Netool.Controllers
         }
 
         /// <summary>
-        /// This constructor is used for loading communication from file
+        /// Initializes controller with logged instance and DefaultChannelViewFactory.
         /// </summary>
         /// <param name="view"></param>
         /// <param name="logger"></param>
@@ -132,7 +152,7 @@ namespace Netool.Controllers
         }
 
         /// <summary>
-        /// This constructor is used for loading communication from file
+        /// Initializes controller with logged instance and custom channel view factory.
         /// </summary>
         /// <param name="view"></param>
         /// <param name="logger"></param>
@@ -149,6 +169,7 @@ namespace Netool.Controllers
             this.instanceName = logger.ReadInstanceName();
         }
 
+        /// <inheritdoc/>
         public void Start()
         {
             if(Active)
@@ -161,6 +182,7 @@ namespace Netool.Controllers
             }
         }
 
+        /// <inheritdoc/>
         public void Stop()
         {
             if(Active)
@@ -171,6 +193,7 @@ namespace Netool.Controllers
             }
         }
 
+        /// <inheritdoc/>
         public void Close()
         {
             Debug.WriteLine("DefaultInstanceController - closing instance(type: {0})", instance.GetType(), 1);
@@ -192,16 +215,13 @@ namespace Netool.Controllers
             Debug.WriteLine("DefaultInstanceController - instance(type: {0}) closed", instance.GetType(), 1);
         }
 
-        /// <summary>
-        /// Adds a driver to driver queue
-        /// </summary>
-        /// <param name="d">driver</param>
-        /// <param name="order">lower number = higher priority</param>
+        /// <inheritdoc/>
         public void AddDriver(IChannelDriver d, int order)
         {
             drivers.Add(order, d);
         }
 
+        /// <inheritdoc/>
         public void ShowDetail(int id)
         {
             var channelLogger = logger.GetChannelLogger(id);
@@ -213,6 +233,10 @@ namespace Netool.Controllers
             form.Show();
         }
 
+        /// <summary>
+        /// Gets the type of associated instance.
+        /// </summary>
+        /// <returns></returns>
         public InstanceType GetInstanceType()
         {
             return instance.GetInstanceType();

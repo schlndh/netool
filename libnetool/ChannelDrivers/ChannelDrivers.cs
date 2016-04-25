@@ -27,20 +27,20 @@ namespace Netool.ChannelDrivers
     }
 
     /// <summary>
-    /// Channel driver interface, must be serializable
+    /// Channel driver interface, implementations must be serializable.
     /// </summary>
     public interface IChannelDriver
     {
         /// <summary>
-        /// Indicates whether the driver is capable of handling another channel
+        /// Indicates whether the driver is capable of handling given channel
         /// </summary>
         bool CanAccept(IChannel c);
         /// <summary>
-        /// This field is only used when new channel view is being created
+        /// Indicates whether associated channels can be controlled manually as well.
         /// </summary>
         bool AllowManualControl { get; }
         /// <summary>
-        /// Name given to channel driver instance by user
+        /// Name given to channel driver instance by user.
         /// </summary>
         string Name { get; set; }
         /// <summary>
@@ -52,7 +52,7 @@ namespace Netool.ChannelDrivers
         /// </summary>
         object Settings { get; }
         /// <summary>
-        /// Listen for events on channel and respond to them
+        /// Attaches event handlers to the channel.
         /// </summary>
         /// <param name="c">channel</param>
         void Handle(IChannel c);

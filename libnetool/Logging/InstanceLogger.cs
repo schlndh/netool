@@ -28,6 +28,11 @@ namespace Netool.Logging
             IsTempFile = true;
         }
 
+        /// <summary>
+        /// Constructs InstanceLogger with given file.
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="mode"></param>
         public InstanceLogger(string filename, FileMode mode = FileMode.OpenOrCreate)
         {
             log = new FileLog(filename, mode);
@@ -52,6 +57,11 @@ namespace Netool.Logging
             OnChannelCountChanged(c);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="id">1-based ID</param>
+        /// <returns></returns>
         public ChannelLogger GetChannelLogger(int id)
         {
             ChannelLogger logger;

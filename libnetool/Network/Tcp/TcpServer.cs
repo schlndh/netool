@@ -39,7 +39,7 @@ namespace Netool.Network.Tcp
     public class TcpServerChannel : BaseServerChannel, IServerChannel
     {
         [NonSerialized]
-        protected Socket socket;
+        private Socket socket;
         [NonSerialized]
         private TcpAsyncSender sender;
         public int ReceiveBufferSize { get; set; }
@@ -105,7 +105,13 @@ namespace Netool.Network.Tcp
             }
         }
 
-        private IDataStream processRequest(byte[] data, int length)
+        /// <summary>
+        /// Constructs data stream from given byte array.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        protected virtual IDataStream processRequest(byte[] data, int length)
         {
             byte[] arr = new byte[length];
             Array.Copy(data, arr, length);
@@ -145,7 +151,7 @@ namespace Netool.Network.Tcp
         /// <inheritdoc />
         public object Settings { get { return settings; } }
         [NonSerialized]
-        protected Socket socket;
+        private Socket socket;
         private volatile bool stopped = true;
         private ConcurrentDictionary<int, IServerChannel> channels = new ConcurrentDictionary<int, IServerChannel>();
         [NonSerialized]

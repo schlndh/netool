@@ -119,7 +119,7 @@ namespace Netool.Network
     public interface IChannel
     {
         /// <summary>
-        /// ID uniquely identifying all current and past channels of parent instance, must be consecutive
+        /// ID uniquely identifying all current and past channels of parent instance, must be consecutive, starting from 1
         /// </summary>
         int ID { get; }
         /// <summary>

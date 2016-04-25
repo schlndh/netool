@@ -12,6 +12,12 @@ namespace Netool.Logging
 {
     public class InvalidFileLogException : Exception { }
 
+    /// <summary>
+    /// This class takes care of write operations to a log file.
+    /// </summary>
+    /// <remarks>
+    /// There can only be one (active) FileLog instance per log file.
+    /// </remarks>
     public class FileLog : IDisposable
     {
         /**
@@ -201,6 +207,9 @@ namespace Netool.Logging
             init();
         }
 
+        /// <summary>
+        /// Reopens the log file if it is closed.
+        /// </summary>
         public void Open()
         {
             if (stream == null)
@@ -518,6 +527,13 @@ namespace Netool.Logging
             }
         }
 
+        /// <summary>
+        /// Gets current channel count.
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks>
+        /// This method always returns accurate result, even if the value isn't yet written in the log file.
+        /// </remarks>
         public int GetChannelCount()
         {
             lock(streamLock)
