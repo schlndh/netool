@@ -81,12 +81,6 @@ namespace Netool.Views.Instance
         {
             this.logger = logger;
             this.channels.VirtualListSize = logger.GetChannelCount();
-            logger.ChannelCountChanged += logger_ChannelCountChanged;
-        }
-
-        private void logger_ChannelCountChanged(object sender, int e)
-        {
-            this.channels.BeginInvoke(new Action(() => this.channels.VirtualListSize = e));
         }
 
         public Form GetForm()
@@ -148,6 +142,11 @@ namespace Netool.Views.Instance
         void IInstanceView.Close()
         {
 
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            this.channels.VirtualListSize = logger.GetChannelCount();
         }
     }
 }
