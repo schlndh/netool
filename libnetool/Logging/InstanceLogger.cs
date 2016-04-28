@@ -196,7 +196,7 @@ namespace Netool.Logging
         {
             lock(channelsLock)
             {
-                if (firstID < 1 || firstID + count > GetChannelCount()) throw new ArgumentOutOfRangeException("firstID, count");
+                if (firstID < 1 || firstID - 1 + count > GetChannelCount()) throw new ArgumentOutOfRangeException("firstID, count");
                 return new List<IChannel>(channels.Skip(firstID - 1).Take(count));
             }
         }
