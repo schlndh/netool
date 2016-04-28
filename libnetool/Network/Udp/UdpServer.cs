@@ -200,7 +200,6 @@ namespace Netool.Network.Udp
                 return;
             }
             client = (IPEndPoint)tmpEP;
-            scheduleNextReceive();
 
             if (bytesRead > 0)
             {
@@ -217,6 +216,7 @@ namespace Netool.Network.Udp
                 }
                 channel.InjectRequest(request);
             }
+            scheduleNextReceive();
         }
 
         /// <summary>

@@ -227,7 +227,6 @@ namespace Netool.Network.Tcp
             try
             {
                 client = srv.EndAccept(ar);
-                srv.BeginAccept(new AsyncCallback(acceptRequest), srv);
             }
             catch (ObjectDisposedException)
             {
@@ -246,6 +245,20 @@ namespace Netool.Network.Tcp
             OnChannelCreated(channel);
             channel.raiseChannelReady();
             channel.scheduleNextReceive();
+            try
+            {
+                srv.BeginAccept(new AsyncCallback(acceptRequest), srv);
+            }
+            catch (ObjectDisposedException)
+            {
+                // socket closed
+                return;
+            }
+            catch (Exception e)
+            {
+                OnErrorOccured(e);
+                return;
+            }
         }
 
         private void OnChannelCreated(IServerChannel channel)

@@ -269,7 +269,6 @@ namespace Netool.Network
     /// <remarks>
     /// For example: HTTP's Upgrade option.
     /// </remarks>
-    /// <typeparam name="T">IServerChannel, IClientChannel or IProxyChannel</typeparam>
     public interface IReplaceableChannel : IChannel
     {
         /// <summary>
