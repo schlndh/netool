@@ -58,7 +58,7 @@
             this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel2, 0, 3);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 4;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 49F));
@@ -75,7 +75,7 @@
             this.flowLayoutPanel1.Controls.Add(this.driverName);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(4, 4);
-            this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(4);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Padding = new System.Windows.Forms.Padding(0, 4, 0, 0);
             this.flowLayoutPanel1.Size = new System.Drawing.Size(677, 41);
@@ -96,7 +96,7 @@
             // driverName
             // 
             this.driverName.Location = new System.Drawing.Point(57, 8);
-            this.driverName.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.driverName.Margin = new System.Windows.Forms.Padding(4);
             this.driverName.Name = "driverName";
             this.driverName.Size = new System.Drawing.Size(276, 22);
             this.driverName.TabIndex = 1;
@@ -112,13 +112,13 @@
             this.pluginSelect.FullRowSelect = true;
             this.pluginSelect.HideSelection = false;
             this.pluginSelect.Location = new System.Drawing.Point(4, 78);
-            this.pluginSelect.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.pluginSelect.Margin = new System.Windows.Forms.Padding(4);
             this.pluginSelect.MultiSelect = false;
             this.pluginSelect.Name = "pluginSelect";
             this.pluginSelect.ShowGroups = false;
             this.pluginSelect.Size = new System.Drawing.Size(677, 305);
             this.pluginSelect.Sorting = System.Windows.Forms.SortOrder.Ascending;
-            this.pluginSelect.TabIndex = 1;
+            this.pluginSelect.TabIndex = 2;
             this.pluginSelect.TileSize = new System.Drawing.Size(500, 70);
             this.pluginSelect.UseCompatibleStateImageBehavior = false;
             this.pluginSelect.View = System.Windows.Forms.View.Details;
@@ -147,7 +147,7 @@
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(102, 25);
-            this.label2.TabIndex = 2;
+            this.label2.TabIndex = 1;
             this.label2.Text = "Channel Driver";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
@@ -158,7 +158,7 @@
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel2.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
             this.flowLayoutPanel2.Location = new System.Drawing.Point(4, 391);
-            this.flowLayoutPanel2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.flowLayoutPanel2.Margin = new System.Windows.Forms.Padding(4);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
             this.flowLayoutPanel2.Size = new System.Drawing.Size(677, 41);
             this.flowLayoutPanel2.TabIndex = 3;
@@ -168,10 +168,10 @@
             this.cancelBtn.CausesValidation = false;
             this.cancelBtn.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.cancelBtn.Location = new System.Drawing.Point(573, 4);
-            this.cancelBtn.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.cancelBtn.Margin = new System.Windows.Forms.Padding(4);
             this.cancelBtn.Name = "cancelBtn";
             this.cancelBtn.Size = new System.Drawing.Size(100, 28);
-            this.cancelBtn.TabIndex = 0;
+            this.cancelBtn.TabIndex = 1;
             this.cancelBtn.Text = "Cancel";
             this.cancelBtn.UseVisualStyleBackColor = true;
             // 
@@ -179,10 +179,10 @@
             // 
             this.continueBtn.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.continueBtn.Location = new System.Drawing.Point(465, 4);
-            this.continueBtn.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.continueBtn.Margin = new System.Windows.Forms.Padding(4);
             this.continueBtn.Name = "continueBtn";
             this.continueBtn.Size = new System.Drawing.Size(100, 28);
-            this.continueBtn.TabIndex = 1;
+            this.continueBtn.TabIndex = 0;
             this.continueBtn.Text = "Continue";
             this.continueBtn.UseVisualStyleBackColor = true;
             // 
@@ -197,7 +197,7 @@
             this.AutoValidate = System.Windows.Forms.AutoValidate.Disable;
             this.ClientSize = new System.Drawing.Size(685, 436);
             this.Controls.Add(this.tableLayoutPanel1);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "CreateChannelDriverDialog";
             this.Text = "New Channel Driver";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CreateChannelDriverDialog_FormClosing);
