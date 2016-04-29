@@ -31,18 +31,22 @@ namespace Netool
             channelDrivers.SetController(c);
         }
 
-        private void addPage(string label, Form frm, TabPageTag tag)
+        private void addPage(string label, Form frm, TabPageTag tag, bool useAsCurrentPage = false)
         {
             var page = new TabPage(label);
             page.Tag = tag;
             page.AutoScroll = true;
             page.Embed(frm);
             instances.TabPages.Add(page);
+            if(useAsCurrentPage)
+            {
+                instances.SelectedTab = page;
+            }
         }
 
-        public void AddInstance(int id, string name, IInstanceView view)
+        public void AddInstance(int id, string name, IInstanceView view, bool useAsCurrentPage = false)
         {
-            addPage(name, view.GetForm(), new TabPageTag { IsInstance = true, ID = id });
+            addPage(name, view.GetForm(), new TabPageTag { IsInstance = true, ID = id }, useAsCurrentPage);
         }
 
         public void AddChannelDriver(int id, ChannelDriverPack pack)

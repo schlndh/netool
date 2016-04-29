@@ -330,7 +330,7 @@ namespace Netool.Controllers
                         model.AddDriverToInstance(itemID, driver.Key, driver.Value);
                     }
                     bindInstanceEvents(pack.Controller.Instance);
-                    view.AddInstance(itemID, name, pack.View);
+                    view.AddInstance(itemID, name, pack.View, true);
                 }
             }
             catch (SetupAbortedByUserException)
@@ -354,7 +354,7 @@ namespace Netool.Controllers
                 ++itemID;
                 controllers.Add(itemID, new ControllerData(pack.Controller, false));
                 bindInstanceEvents(pack.Controller.Instance);
-                view.AddInstance(itemID, name ?? "unknown", pack.View);
+                view.AddInstance(itemID, name ?? "unknown", pack.View, true);
             }
             else
             {
