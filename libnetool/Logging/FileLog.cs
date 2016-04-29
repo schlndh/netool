@@ -719,5 +719,17 @@ namespace Netool.Logging
         {
             Close();
         }
+
+        /// <summary>
+        /// Gets logged file count
+        /// </summary>
+        /// <returns></returns>
+        public long GetFileCount()
+        {
+            lock(streamLock)
+            {
+                return fileCount;
+            }
+        }
     }
 }

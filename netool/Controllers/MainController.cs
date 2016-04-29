@@ -191,7 +191,7 @@ namespace Netool.Controllers
                 var cont = kv.Value.Controller;
                 if (!kv.Value.Active) continue;
                 var instanceName = model.OpenInstances[kv.Key].Name;
-                if (cont.Logger != null && cont.Logger.IsTempFile)
+                if (cont.Logger != null && cont.Logger.IsTempFile && !cont.Logger.IsEmpty)
                 {
                     if (toAll)
                     {

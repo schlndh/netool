@@ -20,6 +20,11 @@ namespace Netool.Logging
         public event EventHandler<int> ChannelCountChanged;
 
         /// <summary>
+        /// True if log file has no channels or logged files.
+        /// </summary>
+        public bool IsEmpty { get { return log.GetChannelCount() == 0 && log.GetFileCount() == 0; } }
+
+        /// <summary>
         /// Constructs instance logger with temporary file
         /// </summary>
         public InstanceLogger()
@@ -204,6 +209,12 @@ namespace Netool.Logging
         public LoggedFileBuilder CreateFileBuilder()
         {
             return new LoggedFileBuilder(log);
+        }
+
+        /// <inheritdoc cref="FileLog.GetFileCount"/>
+        public long GetFileCount()
+        {
+            return log.GetFileCount();
         }
     }
 }
