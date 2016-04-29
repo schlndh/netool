@@ -40,7 +40,7 @@ namespace Netool.Views
             this.MinimumSize = this.Size;
             isEditor = dataViewSelection.IsEditor = true;
             dataViewSelection.AddEditors(editors, typeof(Editor.HexView));
-            fallbackView = dataViewSelection.InnerViews.FirstOrDefault((v) => v.GetType() == typeof(Editor.HexView));
+            fallbackView = dataViewSelection.InnerEditors.FirstOrDefault((v) => v.GetType() == typeof(Editor.HexView));
             init();
         }
 
