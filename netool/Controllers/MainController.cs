@@ -236,7 +236,7 @@ namespace Netool.Controllers
                     var instanceName = model.OpenInstances[kv.Key].Name;
                     if (cont.Logger != null && cont.Logger.IsTempFile)
                     {
-                        if (choices[kv.Key])
+                        if (!cont.Logger.IsEmpty && choices[kv.Key])
                         {
                             saveLogFile(cont, instanceName);
                         }
