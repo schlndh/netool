@@ -108,6 +108,31 @@ namespace Netool.Views
             dataViewSelection.Stream = s;
         }
 
+        /// <summary>
+        /// Sets or shows the stream depending on mode
+        /// </summary>
+        /// <param name="s"></param>
+        public void SetValue(IDataStream s)
+        {
+            if (isEditor) ((IEditorView)this).SetValue(s);
+            else ((IEventView)this).Show(s);
+        }
+
+        /// <summary>
+        /// Shows stream and sets wrappers.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="newWrappers"></param>
+        /// <remarks>
+        /// Avoids setting wrappers to the old stream, which may be incompatible with new wrappers.
+        /// </remarks>
+        public void ShowWithNewWrappers(IDataStream s, IEnumerable<IStreamWrapper> newWrappers)
+        {
+            SetValue(null);
+            UsedWrappers = newWrappers;
+            SetValue(s);
+        }
+
         private void wrapperEditBtn_Click(object sender, EventArgs e)
         {
             var dialog = new StreamWrapperViewSetupDialog(wrapperPlugins, usedWrappers);

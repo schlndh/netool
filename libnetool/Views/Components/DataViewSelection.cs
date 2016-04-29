@@ -195,9 +195,14 @@ namespace Netool.Views.Components
         public IList<IEditorView> InnerEditors { get { return !isEditor ? null : innerEditors; } }
 
         /// <summary>
-        /// Get an index of the selected view/editor.
+        /// Gets or sets the index of the selected view/editor.
         /// </summary>
         public int SelectedIndex { get { return innerViewSelect.SelectedIndex; } set { innerViewSelect.SelectedIndex = value; } }
+
+        /// <summary>
+        /// Gets or sets the selected view/editor.
+        /// </summary>
+        public object SelectedItem { get { return innerViewSelect.SelectedItem; } set { innerViewSelect.SelectedItem = value; } }
 
         public DataViewSelection()
         {

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using Netool.Network.DataFormats;
 using Netool.Network.DataFormats.Http;
@@ -19,6 +21,8 @@ namespace Netool.Views
 
         private IReadOnlyDictionary<string, IStreamDecoderPlugin> decoders;
 
+        private object fallbackView = null;
+
         public HttpDataView(IEnumerable<IEventViewPlugin> eventViews, IReadOnlyDictionary<string, IStreamDecoderPlugin> decoders)
         {
             InitializeComponent();
@@ -26,6 +30,7 @@ namespace Netool.Views
             isEditor = dataViewSelection.IsEditor = false;
             this.decoders = decoders;
             dataViewSelection.AddEventViews(eventViews, typeof(Event.HexView));
+            fallbackView = dataViewSelection.InnerViews.FirstOrDefault((v) => v.GetType() == typeof(Event.HexView));
             init();
         }
 
@@ -35,6 +40,7 @@ namespace Netool.Views
             this.MinimumSize = this.Size;
             isEditor = dataViewSelection.IsEditor = true;
             dataViewSelection.AddEditors(editors, typeof(Editor.HexView));
+            fallbackView = dataViewSelection.InnerViews.FirstOrDefault((v) => v.GetType() == typeof(Editor.HexView));
             init();
         }
 
@@ -114,43 +120,76 @@ namespace Netool.Views
                 }
 
                 IDataStream innerData = data.BodyData;
-                if(!isEditor && (data.Headers.ContainsKey("Transfer-Encoding") || data.Headers.ContainsKey("Content-Encoding")))
+                if (!isEditor)
                 {
-                    var usedDecoders = new List<IStreamWrapper>();
-                    List<string> encodings = new List<string>();
-                    addEncodings(data, "Content-Encoding", encodings);
-                    addEncodings(data, "Transfer-Encoding", encodings);
-                    for (int i = encodings.Count - 1; i > -1; --i)
+                    if (data.Headers.ContainsKey("Transfer-Encoding") || data.Headers.ContainsKey("Content-Encoding"))
                     {
-                        IStreamDecoderPlugin decoder = null;
-                        if (decoders.TryGetValue(encodings[i].Trim(), out decoder))
+                        var usedDecoders = new List<IStreamWrapper>();
+                        List<string> encodings = new List<string>();
+                        addEncodings(data, "Content-Encoding", encodings);
+                        addEncodings(data, "Transfer-Encoding", encodings);
+                        for (int i = encodings.Count - 1; i > -1; --i)
                         {
-                            usedDecoders.Add(decoder.CreateWrapper());
-                        }
-                        else break;
-                    }
-                    if(usedDecoders.Count > 0)
-                    {
-                        int i = 0;
-                        foreach (var v in dataViewSelection.InnerViews)
-                        {
-                            var ve = v as Views.Event.EmbeddingEventViewWrapper;
-                            if (ve != null)
+                            IStreamDecoderPlugin decoder = null;
+                            if (decoders.TryGetValue(encodings[i].Trim(), out decoder))
                             {
-                                var vs = ve.View as StreamWrapperView;
-                                if(vs != null)
+                                usedDecoders.Add(decoder.CreateWrapper());
+                            }
+                            else break;
+                        }
+                        if (usedDecoders.Count > 0)
+                        {
+                            int i = -1;
+                            Event.EmbeddingEventViewWrapper ve = null;
+                            StreamWrapperView vs = null;
+                            var res = dataViewSelection.InnerViews.FirstOrDefault(
+                                (v) => (++i >= 0) && (ve = v as Event.EmbeddingEventViewWrapper) != null &&
+                                        (vs = ve.View as StreamWrapperView) != null
+                            );
+                            if(res != null)
+                            {
+                                try
                                 {
-                                    vs.UsedWrappers = usedDecoders;
+                                    dataViewSelection.SelectedItem = fallbackView;
+                                    dataViewSelection.Stream = innerData;
+                                    vs.ShowWithNewWrappers(innerData, usedDecoders);
                                     dataViewSelection.SelectedIndex = i;
-                                    break;
+                                }
+                                catch(Exception e)
+                                {
+                                    Debug.WriteLine("HttpDataView error when using decoders - " + e.Message);
+                                    if (fallbackView != null)
+                                    {
+                                        dataViewSelection.SelectedItem = fallbackView;
+                                    }
+                                    else
+                                    {
+                                        throw e;
+                                    }
                                 }
                             }
-                            ++i;
                         }
                     }
                 }
 
-                dataViewSelection.Stream = innerData;
+                try
+                {
+                    dataViewSelection.Stream = innerData;
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine("HttpDataView error when setting value - " + e.Message);
+                    if (fallbackView == null || dataViewSelection.SelectedItem == fallbackView)
+                    {
+                        throw e;
+                    }
+                    else
+                    {
+                        dataViewSelection.SelectedItem = fallbackView;
+                        dataViewSelection.Stream = innerData;
+                    }
+                }
+
             }
             else
             {
