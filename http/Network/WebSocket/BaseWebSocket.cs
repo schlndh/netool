@@ -52,8 +52,9 @@ namespace Netool.Network.WebSocket
                             var inner = s;
                             if (missing < 0)
                             {
-                                inner = new StreamSegment(s, 0, s.Length + missing);
-                                s = new StreamSegment(s, -missing);
+                                var split = s.Length + missing;
+                                inner = new StreamSegment(s, 0, split);
+                                s = new StreamSegment(s, split);
                             }
                             else
                             {
