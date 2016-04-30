@@ -41,7 +41,7 @@ namespace Netool.Views
         private void init()
         {
             opcodeComboBox.Items.AddRange(Enum.GetNames(typeof(WebSocketMessage.OpcodeType)));
-            opcodeComboBox.SelectedItem = WebSocketMessage.OpcodeType.Binary.ToString();
+            opcodeComboBox.SelectedItem = WebSocketMessage.OpcodeType.Text.ToString();
             maskCheckBox_CheckedChanged(maskCheckBox, null);
             if (!isEditor)
             {
