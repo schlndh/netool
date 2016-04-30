@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="ChannelDrivers\CSScript\ChunkedHttpServerDriver.cs" />
     <Compile Include="ChannelDrivers\CSScript\WebSocketDefaultProxyDriver.cs" />
+    <Compile Include="ChannelDrivers\CSScript\WebSocketUtilityDriver.cs" />
     <Compile Include="ChannelDrivers\CSScript\WebSocketEchoServerDriver.cs" />
     <Compile Include="Network\Calc\CalcServer.cs" />
     <Compile Include="Network\DataFormats\Calc\CalcDataFormats.cs" />
