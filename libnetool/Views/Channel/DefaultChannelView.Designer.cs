@@ -184,6 +184,7 @@
             this.dataView.Margin = new System.Windows.Forms.Padding(5);
             this.dataView.Name = "dataView";
             this.dataView.SelectedIndex = -1;
+            this.dataView.SelectedItem = null;
             this.dataView.Size = new System.Drawing.Size(877, 250);
             this.dataView.Stream = null;
             this.dataView.TabIndex = 4;
@@ -309,6 +310,7 @@
             this.Name = "DefaultChannelView";
             this.Text = "DefaultServerChannelView";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.DefaultChannelView_FormClosing);
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);

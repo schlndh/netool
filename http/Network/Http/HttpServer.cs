@@ -126,6 +126,11 @@ namespace Netool.Network.Http
             }
             channel.Unlock();
         }
+
+        internal LockableServerChannel GetInnerChannel()
+        {
+            return channel;
+        }
     }
 
     [Serializable]

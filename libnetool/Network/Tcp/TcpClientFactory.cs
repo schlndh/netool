@@ -28,7 +28,7 @@ namespace Netool.Network.Tcp
             settings = s;
         }
 
-        public IClient CreateClient()
+        public IClient CreateClient(IServerChannel serverChannel)
         {
             return new TcpClient(
                 new TcpClientSettings

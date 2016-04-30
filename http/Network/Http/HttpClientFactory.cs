@@ -19,7 +19,7 @@ namespace Netool.Network.Http
             this.logger = logger;
         }
 
-        public IClient CreateClient()
+        public IClient CreateClient(IServerChannel serverChannel)
         {
             return new HttpClient(
                 new HttpClientSettings
@@ -31,7 +31,7 @@ namespace Netool.Network.Http
                         Properties = settings.Properties,
                     },
                 },
-                logger);
+                logger, serverChannel);
         }
 
         internal void SetLogger(InstanceLogger logger)

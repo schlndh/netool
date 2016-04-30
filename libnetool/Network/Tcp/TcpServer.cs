@@ -10,18 +10,6 @@ using System.Threading;
 
 namespace Netool.Network.Tcp
 {
-    internal class ReceiveStateObject
-    {
-        public Socket Client;
-        public byte[] Buffer;
-
-        public ReceiveStateObject(Socket client, int bufferSize)
-        {
-            Client = client;
-            Buffer = new byte[bufferSize];
-        }
-    }
-
     [Serializable]
     public class TcpServerSettings
     {
@@ -38,19 +26,14 @@ namespace Netool.Network.Tcp
     [Serializable]
     public class TcpServerChannel : BaseServerChannel, IServerChannel
     {
-        [NonSerialized]
-        private Socket socket;
-        [NonSerialized]
-        private TcpAsyncSender sender;
-        public int ReceiveBufferSize { get; set; }
+        private BaseTcpChannel baseChannel;
+        public int ReceiveBufferSize { get { return baseChannel.ReceiveBufferSize; } set { baseChannel.ReceiveBufferSize = value; } }
 
         public TcpServerChannel(Socket socket, int id, int receiveBufferSize = 8192)
         {
-            this.socket = socket;
+            this.baseChannel = new BaseTcpChannel(socket, OnRequestReceived, OnResponseSent, OnErrorOccured, OnChannelClosed, receiveBufferSize);
             this.id = id;
-            this.sender = new TcpAsyncSender(socket, s => OnResponseSent(s), sendErrorHandler, OnChannelClosed);
             name = socket.RemoteEndPoint.ToString();
-            ReceiveBufferSize = receiveBufferSize;
             // don't call scheduleNextReceive right away, the ChannelCreated event must be raised first
         }
 
@@ -58,84 +41,21 @@ namespace Netool.Network.Tcp
         /// Never call this method directly unless when you're creating a object of this class manually,
         /// then call it after raising a ChannelCreated event
         /// </summary>
-        public void scheduleNextReceive()
+        internal void scheduleNextReceive()
         {
-            // this is purposefully using the private method naming convetion
-            var s = new ReceiveStateObject(socket, ReceiveBufferSize);
-            try
-            {
-                socket.BeginReceive(s.Buffer, 0, s.Buffer.Length, SocketFlags.None, handleRequest, s);
-            }
-            catch (ObjectDisposedException)
-            { }
-            catch (Exception e)
-            {
-                OnErrorOccured(e);
-                Close();
-            }
-        }
-
-        private void handleRequest(IAsyncResult ar)
-        {
-            var stateObject = (ReceiveStateObject)ar.AsyncState;
-            Socket client = stateObject.Client;
-            int bytesRead = 0;
-            try
-            {
-                bytesRead = client.EndReceive(ar);
-            }
-            catch (ObjectDisposedException)
-            {
-                return;
-            }
-            catch (Exception e)
-            {
-                OnErrorOccured(e);
-                Close();
-            }
-            if (bytesRead > 0)
-            {
-                var processed = processRequest(stateObject.Buffer, bytesRead);
-                OnRequestReceived(processed);
-                scheduleNextReceive();
-            }
-            else
-            {
-                Close();
-            }
-        }
-
-        /// <summary>
-        /// Constructs data stream from given byte array.
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="length"></param>
-        /// <returns></returns>
-        protected virtual IDataStream processRequest(byte[] data, int length)
-        {
-            byte[] arr = new byte[length];
-            Array.Copy(data, arr, length);
-            return new ByteArray(arr);
+            baseChannel.scheduleNextReceive();
         }
 
         /// <inheritdoc />
         public void Send(IDataStream response)
         {
-            sender.Send(response);
-        }
-
-        private void sendErrorHandler(Exception e)
-        {
-            if(!(e is ObjectDisposedException))
-            {
-                OnErrorOccured(e);
-            }
+            baseChannel.Send(response);
         }
 
         /// <inheritdoc />
         public void Close()
         {
-            sender.Stop();
+            baseChannel.Close();
         }
     }
 

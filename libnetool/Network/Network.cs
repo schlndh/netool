@@ -44,7 +44,7 @@ namespace Netool.Network
     /// </summary>
     public interface IClientFactory
     {
-        IClient CreateClient();
+        IClient CreateClient(IServerChannel serverChannel);
     }
 
     /// <summary>

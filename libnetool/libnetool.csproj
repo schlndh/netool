@@ -131,10 +131,12 @@
     <Compile Include="Network\DataFormats\ThresholdedDataBuilder.cs" />
     <Compile Include="Network\DataFormats\Utils\ByteCache.cs" />
     <Compile Include="Network\DefaultProxy.cs" />
+    <Compile Include="Network\Helpers\AsyncActionQueue.cs" />
     <Compile Include="Network\Helpers\IPEndPointParser.cs" />
     <Compile Include="Network\Helpers\LockableChannel.cs" />
     <Compile Include="Network\Helpers\SocketProperties.cs" />
     <Compile Include="Network\Network.cs" />
+    <Compile Include="Network\Tcp\BaseTcpChannel.cs" />
     <Compile Include="Network\Tcp\TcpClient.cs" />
     <Compile Include="Network\Tcp\TcpClientFactory.cs" />
     <Compile Include="Network\Tcp\TcpHelpers.cs" />

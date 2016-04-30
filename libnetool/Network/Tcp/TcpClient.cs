@@ -24,21 +24,15 @@ namespace Netool.Network.Tcp
     [Serializable]
     public class TcpClientChannel : BaseClientChannel, IClientChannel
     {
-        [NonSerialized]
-        private Socket socket;
-        [NonSerialized]
-        private TcpAsyncSender sender;
+        private BaseTcpChannel baseChannel;
 
         public int ReceiveBufferSize { get; set; }
 
         public TcpClientChannel(Socket socket, int id, int receiveBufferSize = 8192)
         {
-            this.socket = socket;
+            this.baseChannel = new BaseTcpChannel(socket, OnResponseReceived, OnRequestSent, OnErrorOccured, OnChannelClosed, receiveBufferSize);
             this.id = id;
-            this.sender = new TcpAsyncSender(socket, s => OnRequestSent(s), sendErrorHandler, OnChannelClosed);
             name = socket.LocalEndPoint.ToString();
-            ReceiveBufferSize = receiveBufferSize;
-            Debug.WriteLine("TcpClientChannel created: id {0}, name {1}", id, name);
             // don't call scheduleNextReceive right away, the ChannelCreated event must be raised first
         }
 
@@ -46,83 +40,21 @@ namespace Netool.Network.Tcp
         /// Never call this method directly unless when you're creating a object of this class manually,
         /// then call it after raising a ChannelCreated event
         /// </summary>
-        public void scheduleNextReceive()
+        internal void scheduleNextReceive()
         {
-            // this is purposefully using the private method naming convetion
-            var s = new ReceiveStateObject(socket, ReceiveBufferSize);
-            try
-            {
-                socket.BeginReceive(s.Buffer, 0, s.Buffer.Length, SocketFlags.None, handleResponse, s);
-            }
-            catch (ObjectDisposedException) { }
-            catch (Exception e)
-            {
-                OnErrorOccured(e);
-                Close();
-            }
-        }
-
-        private void handleResponse(IAsyncResult ar)
-        {
-            var s = (ReceiveStateObject)ar.AsyncState;
-            int bytesRead = 0;
-            try
-            {
-                bytesRead = socket.EndReceive(ar);
-            }
-            catch (ObjectDisposedException)
-            {
-                // closed
-                return;
-            }
-            catch(Exception e)
-            {
-                OnErrorOccured(e);
-                Close();
-            }
-            if (bytesRead > 0)
-            {
-                Debug.WriteLine("TcpClientChannel (id: {0}, name: {1}) received {2} bytes", ID, Name, bytesRead);
-                var response = processResponse(s.Buffer, bytesRead);
-                OnResponseReceived(response);
-                scheduleNextReceive();
-            }
-            else
-            {
-                Debug.WriteLine("TcpClientChannel (id: {0}, name: {1}) received 0 bytes - closing", ID, Name);
-                Close();
-            }
-        }
-
-        /// <summary>
-        /// Constructs data stream from given byte array.
-        /// </summary>
-        /// <param name="response"></param>
-        /// <param name="length"></param>
-        /// <returns></returns>
-        protected virtual IDataStream processResponse(byte[] response, int length)
-        {
-            return new ByteArray(response, 0, length);
+            baseChannel.scheduleNextReceive();
         }
 
         /// <inheritdoc />
         public void Send(IDataStream request)
         {
-            sender.Send(request);
+            baseChannel.Send(request);
         }
 
         /// <inheritdoc />
         public void Close()
         {
-            sender.Stop();
-        }
-
-        private void sendErrorHandler(Exception e)
-        {
-            if (!(e is ObjectDisposedException))
-            {
-                OnErrorOccured(e);
-            }
+            baseChannel.Close();
         }
     }
 

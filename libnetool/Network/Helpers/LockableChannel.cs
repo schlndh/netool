@@ -49,8 +49,12 @@ namespace Netool.Network.Helpers
         [NonSerialized]
         protected bool Locked = false;
 
-        public LockableChannel(IChannel innerChannel)
+        public LockableChannel(IChannel innerChannel, LockableChannel channelWithSharedLock = null)
         {
+            if (channelWithSharedLock != null)
+            {
+                EventsLock = channelWithSharedLock.EventsLock;
+            }
             InnerChannel = innerChannel;
             InnerChannel.ChannelReady += InnerChannel_ChannelReady;
             InnerChannel.ChannelClosed += InnerChannel_ChannelClosed;
@@ -92,7 +96,10 @@ namespace Netool.Network.Helpers
         /// <inheritdoc/>
         public void Close()
         {
-            InnerChannel.Close();
+            lock(EventsLock)
+            {
+                InnerChannel.Close();
+            }
         }
 
         /// <summary>
@@ -155,8 +162,8 @@ namespace Netool.Network.Helpers
         /// </remarks>
         public new IServerChannel InnerChannel { get; protected set; }
 
-        public LockableServerChannel(IServerChannel innerChannel)
-            : base(innerChannel)
+        public LockableServerChannel(IServerChannel innerChannel, LockableChannel channelWithSharedLock = null)
+            : base(innerChannel, channelWithSharedLock)
         {
             InnerChannel = innerChannel;
             InnerChannel.RequestReceived += InnerChannel_RequestReceived;
@@ -196,7 +203,10 @@ namespace Netool.Network.Helpers
         /// <inheritdoc/>
         public void Send(DataFormats.IDataStream response)
         {
-            InnerChannel.Send(response);
+            lock(EventsLock)
+            {
+                InnerChannel.Send(response);
+            }
         }
 
         protected override void DispatchEvent(StoredEvent e)
@@ -235,8 +245,8 @@ namespace Netool.Network.Helpers
         /// <inheritdoc cref="LockableServerChannel.InnerChannel"/>
         public new IClientChannel InnerChannel { get; protected set; }
 
-        public LockableClientChannel(IClientChannel innerChannel)
-            : base(innerChannel)
+        public LockableClientChannel(IClientChannel innerChannel, LockableChannel channelWithSharedLock = null)
+            : base(innerChannel, channelWithSharedLock)
         {
             InnerChannel = innerChannel;
             InnerChannel.RequestSent += InnerChannel_RequestSent;
@@ -276,7 +286,10 @@ namespace Netool.Network.Helpers
         /// <inheritdoc/>
         public void Send(DataFormats.IDataStream response)
         {
-            InnerChannel.Send(response);
+            lock(EventsLock)
+            {
+                InnerChannel.Send(response);
+            }
         }
 
         protected override void DispatchEvent(StoredEvent e)
@@ -425,13 +438,20 @@ namespace Netool.Network.Helpers
         /// <inheritdoc/>
         public void SendToServer(DataFormats.IDataStream request)
         {
-            InnerChannel.SendToServer(request);
+            lock(EventsLock)
+            {
+                InnerChannel.SendToServer(request);
+            }
+
         }
 
         /// <inheritdoc/>
         public void SendToClient(DataFormats.IDataStream response)
         {
-            InnerChannel.SendToClient(response);
+            lock(EventsLock)
+            {
+                InnerChannel.SendToClient(response);
+            }
         }
     }
 }

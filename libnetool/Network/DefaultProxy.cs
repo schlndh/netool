@@ -121,7 +121,9 @@ namespace Netool.Network
             {
                 closed = true;
                 clientChannel.Close();
+                clientChannel.UnbindAllEvents(clientHandlers);
                 serverChannel.Close();
+                serverChannel.UnbindAllEvents(serverHandlers);
                 OnChannelClosed();
             }
         }
@@ -237,7 +239,7 @@ namespace Netool.Network
 
         private void connectionCreatedHandler(object sender, IServerChannel channel)
         {
-            var pchannel = new DefaultProxyChannel(clientFactory.CreateClient(), channel);
+            var pchannel = new DefaultProxyChannel(clientFactory.CreateClient(channel), channel);
             pchannel.ChannelClosed += channelClosedHandler;
             channels.TryAdd(pchannel.ID, pchannel);
             OnChannelCreated(pchannel);

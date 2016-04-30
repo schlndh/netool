@@ -88,7 +88,6 @@ namespace Examples.ChannelDrivers.CSScript
                 switch (data.Opcode)
                 {
                     case WebSocketMessage.OpcodeType.Close:
-                        websocket.Send(new WebSocketMessage(true, WebSocketMessage.OpcodeType.Close, randKey, null));
                         websocket.Close();
                         break;
 

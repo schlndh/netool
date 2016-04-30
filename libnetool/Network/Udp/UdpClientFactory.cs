@@ -28,7 +28,7 @@ namespace Netool.Network.Udp
             settings = s;
         }
 
-        public IClient CreateClient()
+        public IClient CreateClient(IServerChannel serverChannel)
         {
             return new UdpClient(new UdpClientSettings { RemoteEndPoint = settings.RemoteEndPoint, LocalEndPoint = new IPEndPoint(settings.LocalIPAddress, 0), Properties = settings.Properties });
         }

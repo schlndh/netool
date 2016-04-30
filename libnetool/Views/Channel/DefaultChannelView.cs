@@ -1,6 +1,7 @@
 ﻿using Netool.Dialogs;
 using Netool.Logging;
 using Netool.Network;
+using Netool.Network.Helpers;
 using Netool.Plugins;
 using System;
 using System.Collections.Generic;
@@ -43,6 +44,7 @@ namespace Netool.Views.Channel
         private Editor.EditorMasterView editor = null;
         private IChannelExtensions.ChannelHandlers handlers;
         private List<IMessageTemplate> messageTemplates = new List<IMessageTemplate>();
+        private AsyncActionQueue actionQueue = new AsyncActionQueue();
 
         public IChannel Channel { get { return logger.channel; } }
 
@@ -181,40 +183,45 @@ namespace Netool.Views.Channel
 
         private void editorSendHandler(object sender, Editor.EditorMasterView.SendEventArgs e)
         {
-            IChannel channel = logger.channel;
-            if(channel != null)
-            {
-                if (channel is IClientChannel)
+            actionQueue.Add(
+                delegate ()
                 {
-                    ((IClientChannel)channel).Send(e.Data);
-                }
-                else if (channel is IServerChannel)
-                {
-                    ((IServerChannel)channel).Send(e.Data);
-                }
-                else if (channel is IProxyChannel)
-                {
-                    if(e.ToClient)
+                    IChannel channel = logger.channel;
+                    if (channel != null)
                     {
-                        ((IProxyChannel)channel).SendToClient(e.Data);
+                        if (channel is IClientChannel)
+                        {
+                            ((IClientChannel)channel).Send(e.Data);
+                        }
+                        else if (channel is IServerChannel)
+                        {
+                            ((IServerChannel)channel).Send(e.Data);
+                        }
+                        else if (channel is IProxyChannel)
+                        {
+                            if (e.ToClient)
+                            {
+                                ((IProxyChannel)channel).SendToClient(e.Data);
+                            }
+                            else
+                            {
+                                ((IProxyChannel)channel).SendToServer(e.Data);
+                            }
+                        }
                     }
-                    else
-                    {
-                        ((IProxyChannel)channel).SendToServer(e.Data);
-                    }
-                }
-            }
+                });
         }
 
         private void editorCloseHandler(object sender)
         {
-            if (logger.channel != null)
-            {
-                var t = new Thread(delegate () {
-                    logger.channel.Close();
+            actionQueue.Add(
+                delegate ()
+                {
+                    if (logger.channel != null)
+                    {
+                            logger.channel.Close();
+                    }
                 });
-                t.Start();
-            }
         }
 
         private void editToolStripMenuItem_Click(object sender, EventArgs e)
@@ -264,6 +271,11 @@ namespace Netool.Views.Channel
         private void timer1_Tick(object sender, EventArgs e)
         {
             this.events.VirtualListSize = logger.GetEventCount();
+        }
+
+        private void DefaultChannelView_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            actionQueue.Stop();
         }
     }
 }
