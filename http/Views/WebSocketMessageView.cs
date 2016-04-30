@@ -25,7 +25,7 @@ namespace Netool.Views
         {
             InitializeComponent();
             isEditor = dataViewSelection.IsEditor = false;
-            dataViewSelection.AddEventViews(eventViews, typeof(Event.HexView));
+            dataViewSelection.AddEventViews(eventViews, typeof(Event.Utf8TextView));
             init();
         }
 
@@ -33,7 +33,7 @@ namespace Netool.Views
         {
             InitializeComponent();
             isEditor = dataViewSelection.IsEditor = true;
-            dataViewSelection.AddEditors(editorViews, typeof(Editor.HexView));
+            dataViewSelection.AddEditors(editorViews, typeof(Editor.Utf8TextEditor));
             payloadLengthLabel.Visible = payloadLengthTextBox.Visible = false;
             init();
         }
