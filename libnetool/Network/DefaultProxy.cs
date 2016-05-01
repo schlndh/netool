@@ -50,6 +50,8 @@ namespace Netool.Network
 
         public DefaultProxyChannel(IClient client, IServerChannel srvChannel)
         {
+            if (client == null) throw new ArgumentNullException("client");
+            if (srvChannel == null) throw new ArgumentNullException("srvChannel");
             clientHandlers = new IChannelExtensions.ChannelHandlers
             {
                 ErrorOccured = errorOccuredHandler,
@@ -67,8 +69,14 @@ namespace Netool.Network
                 RequestReceived = server_RequestReceived,
                 ResponseSent = server_ResponseSent,
             };
-
+            Exception clientException = null;
+            EventHandler<Exception> handler = delegate (object sender, Exception e)
+            {
+                clientException = e;
+            };
+            client.ErrorOccured += handler;
             clientChannel = client.Start();
+            client.ErrorOccured -= handler;
             if(clientChannel != null)
             {
                 clientChannel.BindAllEvents(clientHandlers);
@@ -77,7 +85,9 @@ namespace Netool.Network
             }
             else
             {
-                OnErrorOccured(new DefaultProxyException("Unable to start a client channel."));
+                srvChannel.Close();
+                if (clientException != null) throw clientException;
+                throw new DefaultProxyException("Unable to start a client channel.");
             }
         }
 
@@ -239,11 +249,19 @@ namespace Netool.Network
 
         private void connectionCreatedHandler(object sender, IServerChannel channel)
         {
-            var pchannel = new DefaultProxyChannel(clientFactory.CreateClient(channel), channel);
-            pchannel.ChannelClosed += channelClosedHandler;
-            channels.TryAdd(pchannel.ID, pchannel);
-            OnChannelCreated(pchannel);
-            pchannel.raiseChannelReady();
+            DefaultProxyChannel pchannel;
+            try
+            {
+                pchannel = new DefaultProxyChannel(clientFactory.CreateClient(channel), channel);
+                pchannel.ChannelClosed += channelClosedHandler;
+                channels.TryAdd(pchannel.ID, pchannel);
+                OnChannelCreated(pchannel);
+                pchannel.raiseChannelReady();
+            }
+            catch(Exception e)
+            {
+                OnErrorOccured(e);
+            }
         }
 
         private void channelClosedHandler(object channel)
