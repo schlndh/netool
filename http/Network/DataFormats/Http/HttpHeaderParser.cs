@@ -66,21 +66,6 @@ namespace Netool.Network.DataFormats.Http
         private static string obsTextPt = @"[\x80-\xFF]";
         private static string vcharPt = @"[\x21-\x7E]";
 
-        /*private static string unreservedCharPt = @"[-a-zA-Z0-9._~]";
-        private static string pctEncodedPt = @"(?:%[0-9A-F]{2})";
-        private static string subDelimsPt = @"[!$&'()*+,;=]";
-        private static string schemePt = @"[a-zA-Z](?:[-a-zA-Z0-9+.])*";
-        private static string userInfoPt = @"(?:" + unreservedCharPt + "|" + pctEncodedPt + "|" + subDelimsPt + "|:)*";
-        private static string pcharPt = @"(?:" + unreservedCharPt + "|" + pctEncodedPt + "|" + subDelimsPt + "|[:@])";
-        private static string absolutePathPt = @"(?:/" + pcharPt + "*)+";
-        private static string queryPt = @"(?:" + pcharPt + "|[/?])*";
-        private static string hostPt = ""
-        private static string authorityPt = @"(?:" + userInfoPt + @"@)?" + hostPt + "(?::" + portPt +")?";
-        private static string hierPartPt = @"(?://" + authorityPt + pathAbEmpty + "|" + pathAbsolutePt + "|" + pathRootless + "|" + pathEmptyPt + ")";
-        private static string originFormPt = absolutePathPt + @"(?:\?" + queryPt + @")\?";
-        private static string absoluteURIPt = schemePt + ":" + hierPartPt + @"(?:\?" + queryPt + ")?";
-        private static string absoluteFormPt = absoluteURIPt;
-        private static string requestTargetPt = "@(?:" + originFormPt + "|" + absoluteFormPt + "|" + authorityFormPt + "|" + asteriskFormPt + ")";*/
         private static string statusLinePt = @"^HTTP/(?<Version>\d\.\d) (?<Code>\d{3}) (?<ReasonPhrase>[ " + '\t' + @"\x21-\x7E\x80-\xFF]*)" + "\r\n";
         private static string requestLinePt = @"^(?<Method>" + tokenPt + @") (?<Target>[^ ]+) HTTP/(?<Version>\d\.\d)" + "\r\n";
         private static string fieldVcharPt = "(?:" + vcharPt + "|" + obsTextPt + ")";

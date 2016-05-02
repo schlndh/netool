@@ -75,6 +75,11 @@ namespace Netool.Network.DataFormats.Http
             }
         }
 
+        /// <summary>
+        /// Initializes dechunked stream
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="length">length of dechunked stream or -1 if you don't know</param>
         public DechunkedStream(IDataStream stream, long length = -1)
         {
             this.stream = stream;
