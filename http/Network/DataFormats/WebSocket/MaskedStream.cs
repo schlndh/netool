@@ -60,5 +60,10 @@ namespace Netool.Network.DataFormats.WebSocket
             if (object.ReferenceEquals(c, innerStream)) return this;
             return new MaskedStream(mask, c);
         }
+
+        public override string ToString()
+        {
+            return "websocketMask(" + innerStream.ToString() + ")";
+        }
     }
 }

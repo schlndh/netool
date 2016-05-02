@@ -83,5 +83,10 @@ namespace Netool.Network.DataFormats
             if (start + length > count || start < 0 || length < 0) throw new ArgumentOutOfRangeException("wrong index or length");
             stream.ReadBytesToBuffer(buffer, this.offset + start, length, offset);
         }
+
+        public override string ToString()
+        {
+            return "segment(" + stream.ToString() + ", " + offset + ", " + count + ")";
+        }
     }
 }

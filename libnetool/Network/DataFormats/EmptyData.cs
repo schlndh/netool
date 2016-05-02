@@ -37,5 +37,10 @@ namespace Netool.Network.DataFormats
         {
             return this;
         }
+
+        public override string ToString()
+        {
+            return "EmptyData";
+        }
     }
 }

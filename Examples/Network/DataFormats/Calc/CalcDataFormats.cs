@@ -39,5 +39,14 @@ namespace Examples.Network.DataFormats.Calc
         {
             return this;
         }
+
+        public override string ToString()
+        {
+            if(Operation == '=')
+            {
+                return Operation + Op1.ToString();
+            }
+            return Op1.ToString() + Operation + Op2.ToString();
+        }
     }
 }

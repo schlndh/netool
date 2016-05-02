@@ -21,20 +21,22 @@ namespace Netool.Views.Channel
             c.Add("ID");
             c.Add("Time").Width = -2;
             c.Add("Type").Width = -2;
+            c.Add("Data").Width = -2;
         }
 
         public static ListViewItem DefaultItemFactory(Netool.Logging.Event e)
         {
-            string type;
-            if(e.Type == EventType.ChannelReplaced)
+            string type = e.Type.ToString();
+            string data = "";
+            if (e.Type == EventType.ChannelReplaced)
             {
-                type = e.Type.ToString() + " - " + e.Channel.GetType().Name;
+                data = e.Channel.GetType().Name;
             }
-            else
+            else if(e.Data != null && e.Data.Data != null)
             {
-                type = e.Type.ToString();
+                data = e.Data.Data.ToString();
             }
-            return new ListViewItem(new string[] { e.ID.ToString(), e.Time.ToString("HH:mm:ss.ff"), type });
+            return new ListViewItem(new string[] { e.ID.ToString(), e.Time.ToString("HH:mm:ss.ff"), type, data });
         }
 
         private ChannelLogger logger;

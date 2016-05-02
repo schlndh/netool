@@ -131,5 +131,10 @@ namespace Netool.Network.DataFormats
         {
             streamsLock = new ReaderWriterLockSlim();
         }
+
+        public override string ToString()
+        {
+            return "StreamList(" + Length + ")";
+        }
     }
 }

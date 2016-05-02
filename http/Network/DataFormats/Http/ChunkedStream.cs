@@ -151,5 +151,10 @@ namespace Netool.Network.DataFormats.Http
         {
             init();
         }
+
+        public override string ToString()
+        {
+            return "chunk(" + innerStream.ToString() + ", " + chunkSize + ")";
+        }
     }
 }

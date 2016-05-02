@@ -191,5 +191,10 @@ namespace Netool.Network.DataFormats.Http
             chunkHints = new List<ChunkHint>();
             dataLock = new object();
         }
+
+        public override string ToString()
+        {
+            return "dechunk(" + stream.ToString() + ")";
+        }
     }
 }

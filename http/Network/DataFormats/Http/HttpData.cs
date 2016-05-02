@@ -228,5 +228,10 @@ namespace Netool.Network.DataFormats.Http
         {
             MessageData.ReadBytesToBuffer(buffer, start, length, offset);
         }
+
+        public override string ToString()
+        {
+            return StatusLine;
+        }
     }
 }

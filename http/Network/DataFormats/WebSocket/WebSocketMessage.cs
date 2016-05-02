@@ -210,5 +210,10 @@ namespace Netool.Network.DataFormats.WebSocket
         {
             return this;
         }
+
+        public override string ToString()
+        {
+            return Opcode.ToString() + "(" + PayloadLength + ")";
+        }
     }
 }
