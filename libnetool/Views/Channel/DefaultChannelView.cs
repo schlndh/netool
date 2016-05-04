@@ -236,6 +236,7 @@ namespace Netool.Views.Channel
                     var evt = getEventByPosition(events.SelectedIndices[0]);
                     if(evt.Data != null && evt.Data.Data != null)
                     {
+                        viewsTabControl.SelectedTab = editorTabPage;
                         editor.SetValue(evt.Data.Data);
                     }
                     else
