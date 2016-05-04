@@ -60,7 +60,7 @@ namespace Netool.Controllers
                     }
                 }
 
-                if (active && logger.channel != null && logger.channel.Driver != null && logger.channel.Driver.AllowManualControl)
+                if (active && logger.channel != null && (logger.channel.Driver == null || logger.channel.Driver.AllowManualControl))
                 {
                     var masterEd = new Views.Editor.EditorMasterView();
                     foreach (var pl in editorViewPlugins)

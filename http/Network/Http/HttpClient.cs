@@ -131,6 +131,7 @@ namespace Netool.Network.Http
             channel.Lock();
             channel.UnbindAllEvents(handlers);
             var newChannel = upgrader.UpgradeClientChannel(channel, logger);
+            newChannel.Driver = Driver;
             if (ChannelReplaced != null)
             {
                 ChannelReplaced(this, newChannel);

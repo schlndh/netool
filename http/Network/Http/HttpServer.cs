@@ -120,6 +120,7 @@ namespace Netool.Network.Http
                 channel.Send(switchHeader);
             }
             var newChannel = upgrader.UpgradeServerChannel(channel, logger);
+            newChannel.Driver = Driver;
             if(ChannelReplaced != null)
             {
                 ChannelReplaced(this, newChannel);
