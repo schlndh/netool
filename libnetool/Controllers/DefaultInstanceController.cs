@@ -62,14 +62,7 @@ namespace Netool.Controllers
 
                 if (active && logger.channel != null && (logger.channel.Driver == null || logger.channel.Driver.AllowManualControl))
                 {
-                    var masterEd = new Views.Editor.EditorMasterView();
-                    foreach (var pl in editorViewPlugins)
-                    {
-                        foreach (var ev in pl.CreateEditorViews())
-                        {
-                            masterEd.AddEditorView(ev);
-                        }
-                    }
+                    var masterEd = new Views.Editor.EditorMasterView(editorViewPlugins);
                     v.AllowManualControl(masterEd);
                     v.AddMessageTemplates(templatePlugins);
                 }

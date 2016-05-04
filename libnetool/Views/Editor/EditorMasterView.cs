@@ -1,6 +1,8 @@
-﻿using Netool.Network;
+﻿using Netool.Views.Components;
 using Netool.Network.DataFormats;
+using Netool.Plugins;
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace Netool.Views.Editor
@@ -18,43 +20,39 @@ namespace Netool.Views.Editor
         public delegate void CloseClickedHandler(object sender);
         public event EventHandler<SendEventArgs> SendClicked;
         public event CloseClickedHandler CloseClicked;
+        private float origProxyRowHeight;
 
-        private Form innerForm = null;
-
-        public EditorMasterView()
+        public EditorMasterView(IEnumerable<IEditorViewPlugin> editorPlugins, Type defaultEditor = null)
         {
+            if (editorPlugins == null) throw new ArgumentNullException("editorPlugins");
+            if (defaultEditor == null) defaultEditor = typeof(Editor.HexView);
             InitializeComponent();
-            proxyFlowPanel.Visible = false;
+            this.innerEditors.AddEditors(editorPlugins, defaultEditor);
+            origProxyRowHeight = this.tableLayoutPanel1.RowStyles[0].Height;
+            SetProxy(false);
         }
 
-        public void AddEditorView(IEditorView v)
+        private void InnerEditors_MinimumSizeChanged(object sender, EventArgs e)
         {
-            editorViewSelect.Items.Add(v);
-            if (editorViewSelect.SelectedIndex < 0) editorViewSelect.SelectedIndex = 0;
+            this.AutoScrollMinSize = calculateMinSize();
         }
 
         public void SetValue(IDataStream s)
         {
-            if(editorViewSelect.SelectedIndex > -1)
+            try
             {
-                try
-                {
-                    ((IEditorView)editorViewSelect.SelectedItem).SetValue(s);
-                }
-                catch (UnsupportedDataStreamException)
-                {
-                    ((IEditorView)editorViewSelect.SelectedItem).Clear();
-                    MessageBox.Show("Given data stream is not supported by current view.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                innerEditors.Stream = s;
+            }
+            catch (UnsupportedDataStreamException)
+            {
+                innerEditors.Stream = null;
+                MessageBox.Show("Given data stream is not supported by current view.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         public void Clear()
         {
-            if (editorViewSelect.SelectedIndex > -1)
-            {
-                ((IEditorView)editorViewSelect.SelectedItem).Clear();
-            }
+            innerEditors.Stream = null;
         }
 
         /// <summary>
@@ -64,36 +62,16 @@ namespace Netool.Views.Editor
         public void SetProxy(bool proxy)
         {
             proxyFlowPanel.Visible = proxy;
-        }
-
-        private void editorViewSelect_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (editorViewSelect.SelectedIndex > -1)
-            {
-                editorViewPanel.Controls.Clear();
-                if(innerForm != null)
-                {
-                    innerForm.MinimumSizeChanged -= InnerForm_MinimumSizeChanged;
-                }
-                innerForm = ((IEditorView)editorViewSelect.SelectedItem).GetForm();
-                InnerForm_MinimumSizeChanged(this, EventArgs.Empty);
-                innerForm.MinimumSizeChanged += InnerForm_MinimumSizeChanged;
-                editorViewPanel.Embed(innerForm);
-            }
+            tableLayoutPanel1.RowStyles[0].Height = (proxy) ? origProxyRowHeight : 0F;
         }
 
         private System.Drawing.Size calculateMinSize()
         {
-            var s = innerForm.MinimumSize;
+            var s = innerEditors.MinimumSize;
             s.Height += flowLayoutPanel1.Height + flowLayoutPanel1.Margin.Vertical
-                + flowLayoutPanel2.Height + flowLayoutPanel2.Margin.Vertical
-                + editorViewPanel.Margin.Vertical;
+                + proxyFlowPanel.Height + proxyFlowPanel.Margin.Vertical
+                + innerEditors.Margin.Vertical;
             return s;
-        }
-
-        private void InnerForm_MinimumSizeChanged(object sender, EventArgs e)
-        {
-            this.AutoScrollMinSize = calculateMinSize();
         }
 
         private void clearButton_Click(object sender, EventArgs e)
@@ -103,22 +81,19 @@ namespace Netool.Views.Editor
 
         private void sendButton_Click(object sender, EventArgs e)
         {
-            if (editorViewSelect.SelectedIndex > -1)
+            IDataStream val;
+            try
             {
-                IDataStream val;
-                try
-                {
-                    val = ((IEditorView)editorViewSelect.SelectedItem).GetValue();
-                }
-                catch (ValidationException ex)
-                {
-                    MessageBox.Show(ex.Message, "Validation failed!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                if (SendClicked != null)
-                {
-                    SendClicked(this, new SendEventArgs { Data = val, ToClient = proxyRadioClient.Checked});
-                }
+                val = innerEditors.Stream;
+            }
+            catch (ValidationException ex)
+            {
+                MessageBox.Show(ex.Message, "Validation failed!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            if (SendClicked != null && val != null)
+            {
+                SendClicked(this, new SendEventArgs { Data = val, ToClient = proxyRadioClient.Checked});
             }
         }
 
