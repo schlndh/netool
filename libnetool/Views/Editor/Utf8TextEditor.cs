@@ -35,7 +35,7 @@ namespace Netool.Views.Editor
         /// <inheritdoc/>
         public void SetValue(IDataStream s)
         {
-            UTF8Encoding.UTF8.GetString(s.ReadBytes());
+            textBox1.Text = UTF8Encoding.UTF8.GetString(s.ReadBytes());
         }
     }
 }
