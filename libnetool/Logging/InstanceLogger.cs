@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Netool.Logging
 {
-    public class InstanceLogger
+    public class InstanceLogger : IDisposable
     {
         private ConcurrentDictionary<int, ChannelLogger> channelsInfo = new ConcurrentDictionary<int, ChannelLogger>();
         private object channelsLock = new object();
@@ -215,6 +215,11 @@ namespace Netool.Logging
         public long GetFileCount()
         {
             return log.GetFileCount();
+        }
+
+        public void Dispose()
+        {
+            ((IDisposable)log).Dispose();
         }
     }
 }
