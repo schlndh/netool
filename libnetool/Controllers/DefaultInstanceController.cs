@@ -4,6 +4,7 @@ using Netool.Network;
 using Netool.Plugins;
 using Netool.Plugins.Helpers;
 using Netool.Views;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
@@ -30,6 +31,8 @@ namespace Netool.Controllers
             private CachedPluginEnumerable<IEditorViewPlugin> editorViewPlugins = new CachedPluginEnumerable<IEditorViewPlugin>();
             private CachedPluginEnumerable<IEventViewPlugin> eventViewPlugins = new CachedPluginEnumerable<IEventViewPlugin>();
             private CachedPluginEnumerable<IMessageTemplatePlugin> templatePlugins = new CachedPluginEnumerable<IMessageTemplatePlugin>();
+            private Type defaultEventView = null;
+            private Type defaultEditorView = null;
 
             public DefaultChannelViewFactory(PluginLoader loader)
             {
@@ -43,26 +46,32 @@ namespace Netool.Controllers
             /// </summary>
             /// <param name="loader"></param>
             /// <param name="c">callback that will be called before returning channel view from factory</param>
-            public DefaultChannelViewFactory(PluginLoader loader, ChannelViewCallback c) : this(loader)
+            public DefaultChannelViewFactory(PluginLoader loader, ChannelViewCallback c) : this(loader, null, null, c)
+            { }
+
+            /// <summary>
+            /// Initializes factory with additional callback and default event view and editor.
+            /// </summary>
+            /// <param name="loader"></param>
+            /// <param name="defaultEventView">default event view type or null</param>
+            /// <param name="defaultEditorView">default editor view type or null</param>
+            /// <param name="c"></param>
+            public DefaultChannelViewFactory(PluginLoader loader, Type defaultEventView, Type defaultEditorView, ChannelViewCallback c = null) : this(loader)
             {
                 callback = c;
+                this.defaultEventView = defaultEventView;
+                this.defaultEditorView = defaultEditorView;
             }
 
             /// <inheritdoc/>
             public IChannelView CreateChannelView(ChannelLogger logger, bool active)
             {
                 var v = new Views.Channel.DefaultChannelView(logger);
-                foreach(var pl in eventViewPlugins)
-                {
-                    foreach(var ev in pl.CreateEventViews())
-                    {
-                        v.AddEventView(ev);
-                    }
-                }
+                v.AddEventViews(eventViewPlugins, defaultEventView);
 
                 if (active && logger.channel != null && (logger.channel.Driver == null || logger.channel.Driver.AllowManualControl))
                 {
-                    var masterEd = new Views.Editor.EditorMasterView(editorViewPlugins);
+                    var masterEd = new Views.Editor.EditorMasterView(editorViewPlugins, defaultEditorView);
                     v.AllowManualControl(masterEd);
                     v.AddMessageTemplates(templatePlugins);
                 }

@@ -80,6 +80,13 @@ namespace Netool.Views.Channel
             e.BindAllEvents(handlers);
         }
 
+        /// <summary>
+        /// Allow user to manually control the channel.
+        /// </summary>
+        /// <param name="editor">editor to display</param>
+        /// <remarks>
+        /// Note: control will be shared with channel's driver.
+        /// </remarks>
         public void AllowManualControl(Editor.EditorMasterView editor)
         {
             editorTabPage.Embed(editor);
@@ -104,10 +111,9 @@ namespace Netool.Views.Channel
             templatesToolStripMenuItem.Visible = editor != null && messageTemplates.Count > 0;
         }
 
-        public void AddEventView(IEventView v)
+        public void AddEventViews(IEnumerable<IEventViewPlugin> viewPlugins, Type defaultView = null)
         {
-            dataView.InnerViews.Add(v);
-            if (dataView.SelectedIndex < 0) dataView.SelectedIndex = 0;
+            dataView.AddEventViews(viewPlugins, defaultView ?? typeof(Event.HexView));
         }
 
         public Form GetForm()

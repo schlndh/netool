@@ -4,19 +4,19 @@
     /// Use this class as a wrapper for event views that embed other event views,
     /// to prevent infinite embedding.
     /// </summary>
-    public class EmbeddingEventViewWrapper : IEventView
+    public class EmbeddingWrapper<T> : IEventView where T : IEventView
     {
-        public delegate IEventView EventViewFactory();
+        public delegate T EventViewFactory();
 
         /// <inheritdoc/>
         public string ID { get; private set; }
 
-        private IEventView view;
-        public IEventView View { get { if (view == null) view = factory(); return view; } }
+        private T view;
+        public T View { get { if (view == null) view = factory(); return view; } }
 
         private EventViewFactory factory;
 
-        public EmbeddingEventViewWrapper(EventViewFactory factory, string id)
+        public EmbeddingWrapper(EventViewFactory factory, string id)
         {
             ID = id;
             this.factory = factory;

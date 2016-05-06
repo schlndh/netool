@@ -36,7 +36,7 @@ namespace Netool.Plugins.Helpers
 
         public static StatusStrip Factory(Type instanceType, object settings, bool isLogTemp, string filename)
         {
-            return DefaultStatusStripFactory(instanceType.Name, GetLogField(isLogTemp, filename), settings.ToString());
+            return DefaultStatusStripFactory(instanceType.Name, GetLogField(isLogTemp, filename), settings != null ? settings.ToString() : "null");
         }
 
         public static string GetLogField(bool isLogTemp, string filename)

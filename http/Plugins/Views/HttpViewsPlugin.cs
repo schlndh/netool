@@ -31,8 +31,8 @@ namespace Netool.Plugins.Views
         {
             return new IEditorView[]
             {
-                new EmbeddingEditorViewWrapper(() => (new HttpDataView(editors)), HttpDataView.StaticID),
-                new EmbeddingEditorViewWrapper(() => (new WebSocketMessageView(editors)), WebSocketMessageView.StaticID),
+                new Netool.Views.Editor.EmbeddingWrapper<HttpDataView>(() => new HttpDataView(editors), HttpDataView.StaticID),
+                new Netool.Views.Editor.EmbeddingWrapper<WebSocketMessageView>((() => new WebSocketMessageView(editors)), WebSocketMessageView.StaticID),
             };
         }
 
@@ -41,8 +41,8 @@ namespace Netool.Plugins.Views
         {
             return new IEventView[]
             {
-                new EmbeddingEventViewWrapper(() => new HttpDataView(eventViews, streamDecoders), HttpDataView.StaticID),
-                new EmbeddingEventViewWrapper(() => new WebSocketMessageView(eventViews), WebSocketMessageView.StaticID),
+                new Netool.Views.Event.EmbeddingWrapper<HttpDataView>(() => new HttpDataView(eventViews, streamDecoders), HttpDataView.StaticID),
+                new Netool.Views.Event.EmbeddingWrapper<WebSocketMessageView>(() => new WebSocketMessageView(eventViews), WebSocketMessageView.StaticID),
             };
         }
 

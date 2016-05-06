@@ -190,7 +190,7 @@
     <Compile Include="Views\Editor\EditorMasterView.Designer.cs">
       <DependentUpon>EditorMasterView.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\Editor\EmbeddingEditorViewWrapper.cs" />
+    <Compile Include="Views\Editor\EmbeddingWrapper.cs" />
     <Compile Include="Views\Editor\FileEditor.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -209,7 +209,7 @@
     <Compile Include="Views\Editor\Utf8TextEditor.Designer.cs">
       <DependentUpon>Utf8TextEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Views\Event\EmbeddingEventViewWrapper.cs" />
+    <Compile Include="Views\Event\EmbeddingWrapper.cs" />
     <Compile Include="Views\Event\HexView.cs">
       <SubType>Form</SubType>
     </Compile>

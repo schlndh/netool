@@ -36,14 +36,6 @@ namespace Netool.Views
 
     public interface IChannelView : IFormView
     {
-        void AddEventView(IEventView v);
-
-        /// <summary>
-        /// Allow user to manually control the channel (note: control will be shared with channel's driver)
-        /// </summary>
-        /// <param name="v"></param>
-        void AllowManualControl(Editor.EditorMasterView v);
-
         /// <summary>
         /// Close the view and all its subviews
         /// </summary>

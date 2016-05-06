@@ -139,21 +139,17 @@ namespace Netool.Views
                         }
                         if (usedDecoders.Count > 0)
                         {
-                            int i = -1;
-                            Event.EmbeddingEventViewWrapper ve = null;
-                            StreamWrapperView vs = null;
-                            var res = dataViewSelection.InnerViews.FirstOrDefault(
-                                (v) => (++i >= 0) && (ve = v as Event.EmbeddingEventViewWrapper) != null &&
-                                        (vs = ve.View as StreamWrapperView) != null
-                            );
-                            if(res != null)
+                            var v = dataViewSelection.InnerViews.FirstOrDefault(
+                                (ev) => ev.GetType() == typeof(Event.EmbeddingWrapper<StreamWrapperView>)
+                            ) as Event.EmbeddingWrapper<StreamWrapperView>;
+                            if(v != null)
                             {
                                 try
                                 {
                                     dataViewSelection.SelectedItem = fallbackView;
                                     dataViewSelection.Stream = innerData;
-                                    vs.ShowWithNewWrappers(innerData, usedDecoders);
-                                    dataViewSelection.SelectedIndex = i;
+                                    v.View.ShowWithNewWrappers(innerData, usedDecoders);
+                                    dataViewSelection.SelectedItem = v;
                                 }
                                 catch(Exception e)
                                 {

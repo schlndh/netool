@@ -64,7 +64,7 @@ namespace Netool.Plugins.Protocols
             }
             if (instance == null) throw new SetupAbortedByUserException();
             var view = new DefaultInstanceView();
-            var cont = new DefaultInstanceController(view, instance, logger, new DefaultInstanceController.DefaultChannelViewFactory(loader, channelViewCallback));
+            var cont = new DefaultInstanceController(view, instance, logger, createChannelViewFactory());
             view.SetController(cont);
             return new InstancePack(view, cont, type);
         }
@@ -99,7 +99,7 @@ namespace Netool.Plugins.Protocols
                     break;
             }
             var view = new DefaultInstanceView();
-            var cont = new DefaultInstanceController(view, instance, logger, new DefaultInstanceController.DefaultChannelViewFactory(loader, channelViewCallback));
+            var cont = new DefaultInstanceController(view, instance, logger, createChannelViewFactory());
             view.SetController(cont);
             return new InstancePack(view, cont, type);
         }
@@ -108,7 +108,7 @@ namespace Netool.Plugins.Protocols
         public InstancePack RestoreInstance(InstanceLogger logger)
         {
             var view = new DefaultInstanceView();
-            var cont = new DefaultInstanceController(view, logger, loader);
+            var cont = new DefaultInstanceController(view, logger, createChannelViewFactory(true));
             view.SetController(cont);
             return new InstancePack(view, cont, cont.GetInstanceType());
         }
@@ -148,6 +148,17 @@ namespace Netool.Plugins.Protocols
                 return new DefaultProxy(new DefaultProxySettings { Server = srv, ClientFactory = clFactory });
             }
             return null;
+        }
+
+        private DefaultInstanceController.DefaultChannelViewFactory createChannelViewFactory(bool restoreInstance = false)
+        {
+            var eventView = typeof(Netool.Views.Event.EmbeddingWrapper<HttpDataView>);
+            var editorView = typeof(Netool.Views.Editor.EmbeddingWrapper<HttpDataView>);
+            if (restoreInstance)
+            {
+                return new DefaultInstanceController.DefaultChannelViewFactory(loader, eventView, editorView);
+            }
+            return new DefaultInstanceController.DefaultChannelViewFactory(loader, eventView, editorView, channelViewCallback);
         }
 
         private IChannelView channelViewCallback(DefaultChannelView v)

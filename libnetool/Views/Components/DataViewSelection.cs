@@ -255,6 +255,25 @@ namespace Netool.Views.Components
             }
         }
 
+        /// <summary>
+        /// Selects the first view/editor of exactly the given type.
+        /// </summary>
+        /// <param name="typeToSelect"></param>
+        /// <remarks>
+        /// Does nothing if view/editor of given type is not found.
+        /// </remarks>
+        public void SelectViewByType(Type typeToSelect)
+        {
+            foreach(var item in innerViewSelect.Items)
+            {
+                if(item.GetType() == typeToSelect)
+                {
+                    innerViewSelect.SelectedItem = item;
+                    return;
+                }
+            }
+        }
+
         private void exportBtn_Click(object sender, EventArgs e)
         {
             var btn = (Button)sender;

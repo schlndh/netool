@@ -10,6 +10,12 @@ using System.Windows.Forms;
 
 namespace Netool.Views.Instance
 {
+    /// <summary>
+    /// Default implementation of IInstanceView interface
+    /// </summary>
+    /// <remarks>
+    /// Don't forget to call <see cref="DefaultInstanceView.SetController" autoUpgrade="true">SetController</see>.
+    /// </remarks>
     public partial class DefaultInstanceView : Form, IInstanceView
     {
         public delegate void ColumnFiller(ListView.ColumnHeaderCollection c);

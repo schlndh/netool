@@ -29,7 +29,7 @@ namespace Netool.Plugins
             {
                 new Views.Editor.HexView(),
                 new Views.Editor.Utf8TextEditor(),
-                new Views.Editor.EmbeddingEditorViewWrapper(createEditorViewStreamWrapper, "StreamWrapper"),
+                new Views.Editor.EmbeddingWrapper<StreamWrapperView>(createEditorViewStreamWrapper, "StreamWrapper"),
                 new Views.Editor.FileEditor(),
             };
         }
@@ -41,7 +41,7 @@ namespace Netool.Plugins
             {
                 new Views.Event.HexView(),
                 new Views.Event.Utf8TextView(),
-                new Views.Event.EmbeddingEventViewWrapper(createEventViewStreamWrapper, "StreamWrapper"),
+                new Views.Event.EmbeddingWrapper<StreamWrapperView>(createEventViewStreamWrapper, "StreamWrapper"),
             };
         }
 
@@ -50,7 +50,7 @@ namespace Netool.Plugins
             streamWrapperPlugins.Loader = editorViewPlugins.Loader = eventViewPlugins.Loader = loader;
         }
 
-        private IEventView createEventViewStreamWrapper()
+        private StreamWrapperView createEventViewStreamWrapper()
         {
             var inner = new List<IEventView>();
             foreach(var p in eventViewPlugins)
@@ -60,7 +60,7 @@ namespace Netool.Plugins
             return new StreamWrapperView(streamWrapperPlugins, inner);
         }
 
-        private IEditorView createEditorViewStreamWrapper()
+        private StreamWrapperView createEditorViewStreamWrapper()
         {
             var inner = new List<IEditorView>();
             foreach (var p in editorViewPlugins)

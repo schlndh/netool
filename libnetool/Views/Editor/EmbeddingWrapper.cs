@@ -4,19 +4,19 @@
     /// Use this class as a wrapper for editor views that embed other editor views,
     /// to prevent infinite embedding.
     /// </summary>
-    public class EmbeddingEditorViewWrapper : IEditorView
+    public class EmbeddingWrapper<T> : IEditorView where T: IEditorView
     {
-        public delegate IEditorView EditorViewFactory();
+        public delegate T EditorViewFactory();
 
         /// <inheritdoc/>
         public string ID { get; private set; }
 
-        private IEditorView view;
-        public IEditorView View { get { if (view == null) view = factory(); return view; } }
+        private T view;
+        public T View { get { if (view == null) view = factory(); return view; } }
 
         private EditorViewFactory factory;
 
-        public EmbeddingEditorViewWrapper(EditorViewFactory factory, string id)
+        public EmbeddingWrapper(EditorViewFactory factory, string id)
         {
             ID = id;
             this.factory = factory;
