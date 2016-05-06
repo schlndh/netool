@@ -13,6 +13,7 @@ namespace Netool.Network.Http
 
     public class HttpMessageParser
     {
+        private enum ParsingState { Header, Body, CheckingChunedTrailer, ParsingChunkedTrailer };
         private object contentLock = new object();
         private StreamList contentData = new StreamList();
         private ThresholdedDataBuilder dataBuilder;
@@ -21,7 +22,7 @@ namespace Netool.Network.Http
 
         private HttpHeaderParser parser = new HttpHeaderParser();
         private HttpBodyLengthInfo info;
-        private bool readingBody = false;
+        private ParsingState state = ParsingState.Header;
         public HttpRequestMethod LastRequestMethod = HttpRequestMethod.Null;
         private InstanceLogger logger;
         private bool isResponse;
@@ -41,13 +42,13 @@ namespace Netool.Network.Http
             {
                 if(useContentData) contentData.Add(s);
                 dataBuilder.Append(s);
-                if (!readingBody)
+                if (state == ParsingState.Header)
                 {
                     try
                     {
                         if (parser.Parse(contentData, isResponse))
                         {
-                            readingBody = true;
+                            state = ParsingState.Body;
                             try
                             {
                                 var code = parser.StatusCode;
@@ -89,7 +90,7 @@ namespace Netool.Network.Http
                         throw new HttpInvalidMessageException();
                     }
                 }
-                if (readingBody)
+                if (state == ParsingState.Body)
                 {
                     if (info.Type == HttpBodyLengthInfo.LengthType.Exact && info.Length <= dataBuilder.Length - headerLength)
                     {
@@ -98,49 +99,36 @@ namespace Netool.Network.Http
                     }
                     else if (info.Type == HttpBodyLengthInfo.LengthType.Chunked)
                     {
-                        if (contentData.Length == 0)
-                        {
-                            // wait for some data
-                            return null;
-                        }
-
-                        var seg = new StreamSegment(contentData);
-                        while(seg.Length > 0)
-                        {
-                            ChunkedDecoder.DecodeOneInfo chunkInfo;
-                            try
-                            {
-                                chunkInfo = ChunkedDecoder.DecodeOneChunk(seg);
-                            }
-                            catch (PartialChunkException)
-                            {
-                                // wait for more data
-                                contentData = new StreamList();
-                                if (seg.Length > 0)
-                                {
-                                    contentData.Add(new ByteArray(seg));
-                                }
-                                return null;
-                            }
-                            catch
-                            {
-                                throw new HttpInvalidMessageException();
-                            }
-                            // finished
-                            if(chunkInfo.DataLength == 0)
-                            {
-                                contentData = new StreamList();
-                                var resStream = dataBuilder.Close();
-                                return parser.Create(new StreamSegment(resStream, 0, headerLength), new StreamSegment(resStream, headerLength), resStream);
-                            }
-                            else
-                            {
-                                dechunkedLength += chunkInfo.DataLength;
-                                seg = new StreamSegment(contentData, seg.Offset + chunkInfo.ChunkLength, seg.Length - chunkInfo.ChunkLength);
-                            }
-                        }
-                        contentData = new StreamList();
+                        parseChunkedBody();
                     }
+                }
+            }
+            if(state == ParsingState.CheckingChunedTrailer)
+            {
+                if(contentData.Length >= 2)
+                {
+                    // check CRLF
+                    bool chunkedEnd = contentData.ReadByte(0) == 13 && contentData.ReadByte(1) == 10;
+                    if (chunkedEnd)
+                    {
+                        contentData = new StreamList();
+                        var resStream = dataBuilder.Close();
+                        return parser.Create(new StreamSegment(resStream, 0, headerLength), new StreamSegment(resStream, headerLength), resStream);
+                    }
+                    else
+                    {
+                        parser.ParseChunkedTrailer();
+                        state = ParsingState.ParsingChunkedTrailer;
+                    }
+                }
+            }
+            if(state == ParsingState.ParsingChunkedTrailer)
+            {
+                if(parser.Parse(contentData, isResponse))
+                {
+                    contentData = new StreamList();
+                    var resStream = dataBuilder.Close();
+                    return parser.Create(new StreamSegment(resStream, 0, headerLength), new StreamSegment(resStream, headerLength), resStream);
                 }
             }
             return null;
@@ -150,7 +138,7 @@ namespace Netool.Network.Http
         {
             lock (contentLock)
             {
-                if (readingBody && info.Type == HttpBodyLengthInfo.LengthType.CloseConnection)
+                if (state == ParsingState.Body && info.Type == HttpBodyLengthInfo.LengthType.CloseConnection)
                 {
                     var resStream = dataBuilder.Close();
                     return parser.Create(new StreamSegment(resStream, 0, headerLength), new StreamSegment(resStream, headerLength), resStream);
@@ -173,6 +161,55 @@ namespace Netool.Network.Http
             {
                 return dataBuilder.Close();
             }
+        }
+
+        private void parseChunkedBody()
+        {
+            if (contentData.Length == 0)
+            {
+                // wait for some data
+                return;
+            }
+
+            var seg = new StreamSegment(contentData);
+            while (seg.Length > 0)
+            {
+                ChunkedDecoder.DecodeOneInfo chunkInfo;
+                try
+                {
+                    chunkInfo = ChunkedDecoder.DecodeOneChunk(seg);
+                }
+                catch (PartialChunkException)
+                {
+                    // wait for more data
+                    contentData = new StreamList();
+                    if (seg.Length > 0)
+                    {
+                        contentData.Add(new ByteArray(seg));
+                    }
+                    return;
+                }
+                catch
+                {
+                    throw new HttpInvalidMessageException();
+                }
+                // finished
+                if (chunkInfo.DataLength == 0)
+                {
+                    seg = new StreamSegment(seg, chunkInfo.ChunkLength);
+                    contentData = new StreamList();
+                    contentData.Add(new ByteArray(seg));
+                    state = ParsingState.CheckingChunedTrailer;
+                    return;
+                }
+                else
+                {
+                    dechunkedLength += chunkInfo.DataLength;
+                    seg = new StreamSegment(contentData, seg.Offset + chunkInfo.ChunkLength, seg.Length - chunkInfo.ChunkLength);
+                }
+            }
+            contentData = new StreamList();
+            return;
         }
     }
 }

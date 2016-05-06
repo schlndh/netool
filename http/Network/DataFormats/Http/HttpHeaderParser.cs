@@ -193,6 +193,19 @@ namespace Netool.Network.DataFormats.Http
         }
 
         /// <summary>
+        /// Switches state back to parsing headers.
+        /// </summary>
+        public void ParseChunkedTrailer()
+        {
+            if(stage != ParsingStage.Finished)
+            {
+                throw new ParsingNotFinishedException();
+            }
+            stage = ParsingStage.Headers;
+            nextRead = 0;
+        }
+
+        /// <summary>
         /// Creates a response from current parser
         /// </summary>
         /// <param name="headerData"></param>

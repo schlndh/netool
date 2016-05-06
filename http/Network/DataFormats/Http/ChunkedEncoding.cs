@@ -40,6 +40,7 @@ namespace Netool.Network.DataFormats.Http
 
         private static int findFirst(IDataStream stream, string needle, int offset)
         {
+            if (needle.Length == 0) throw new ArgumentOutOfRangeException();
             int endIndex = -1;
             while (offset < stream.Length)
             {
@@ -70,6 +71,9 @@ namespace Netool.Network.DataFormats.Http
         /// <exception cref="ArgumentNullException">stream is null</exception>
         /// <exception cref="InvalidChunkException">chunk is invalid</exception>
         /// <exception cref="PartialChunkException">not enough data in the stream to decode the whole chunk</exception>
+        /// <remarks>
+        /// Last chunk info's ChunkLength doesn't include trailer and final CRLF.
+        /// </remarks>
         public static DecodeOneInfo DecodeOneChunk(IDataStream stream)
         {
             if (stream == null) throw new ArgumentNullException();
@@ -102,17 +106,14 @@ namespace Netool.Network.DataFormats.Http
                     }
                     else
                     {
-                        len = findFirst(stream, "\r\n", len);
+                        // \r can already be matched
+                        len = findFirst(stream, "\r\n", Math.Max(0, len-1));
                     }
                     // len points to the beggining of chunk data
                     long dataStart = len;
                     // last chunk
                     if(size == 0)
                     {
-                        // rewind len back to include \r\n again, in case there is no trailer
-                        len -= 2;
-                        // skip over the trailer part
-                        len = findFirst(stream, "\r\n\r\n", len);
                         return new DecodeOneInfo(dataStart, 0, len);
                     }
                     // size > 0

@@ -23,10 +23,11 @@ namespace Tests.Http.Network.DataFormats.Http
         [Fact]
         public void TestDecodeOneLast()
         {
-            var str = "0;aa=\"bb\"\r\nheader: value\r\nheader2: value2\r\n\r\n";
+            var chunkHeader = "0;aa=\"bb\"\r\n";
+            var str = chunkHeader + "header: value\r\nheader2: value2\r\n\r\n";
             var stream = new ByteArray(ASCIIEncoding.ASCII.GetBytes(str));
             var info = ChunkedDecoder.DecodeOneChunk(stream);
-            Assert.Equal(str.Length, info.ChunkLength);
+            Assert.Equal(chunkHeader.Length, info.ChunkLength);
             Assert.Equal(0, info.DataLength);
         }
 
@@ -56,7 +57,7 @@ namespace Tests.Http.Network.DataFormats.Http
             Assert.Throws(typeof(PartialChunkException), delegate() { ChunkedDecoder.DecodeOneChunk(stream); });
 
             // last chunk without end
-            str = "0\r\nheader: value\r\n";
+            str = "0\r";
             stream = new ByteArray(ASCIIEncoding.ASCII.GetBytes(str));
             Assert.Throws(typeof(PartialChunkException), delegate() { ChunkedDecoder.DecodeOneChunk(stream); });
         }
