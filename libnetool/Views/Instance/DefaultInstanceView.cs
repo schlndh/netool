@@ -63,12 +63,18 @@ namespace Netool.Views.Instance
         }
 
         /// <summary>
-        /// Attaches view to controller without creating instance status strip
+        /// Attaches view to controller with custom status strip
         /// </summary>
         /// <param name="c"></param>
-        public void SetControllerWithoutInfoStrip(IInstanceController c)
+        /// <param name="statusStrip">status strip to display or null</param>
+        public void SetController(IInstanceController c, StatusStrip statusStrip)
         {
             controller = c;
+            if(statusStrip != null)
+            {
+                instanceInfoStrip = statusStrip;
+                Controls.Add(statusStrip);
+            }
         }
 
         public void SetInstance(IInstance s)
