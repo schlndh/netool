@@ -24,7 +24,7 @@ namespace Netool.Network.DataFormats
         ///
         /// </summary>
         /// <param name="logger"></param>
-        /// <param name="lengthThreshold">how long the stream must be to switch to LoggedFile (default 5 Mib)</param>
+        /// <param name="lengthThreshold">how long the stream must be to switch to LoggedFile (default 5 MiB)</param>
         /// <exception cref="ArgumentNullException">log</exception>
         /// <exception cref="ArgumentOutOfRangeException">lengthThreshold</exception>
         public ThresholdedDataBuilder(InstanceLogger logger, long lengthThreshold = 5*1024*1024)

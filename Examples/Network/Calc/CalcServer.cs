@@ -91,9 +91,10 @@ namespace Examples.Network.Calc
         private void server_ChannelCreated(object sender, IServerChannel e)
         {
             var channel = new CalcServerChannel(e);
-            if (ChannelCreated != null)
+            var ev = ChannelCreated;
+            if (ev != null)
             {
-                ChannelCreated(this, channel);
+                ev(this, channel);
             }
         }
 

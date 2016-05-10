@@ -121,9 +121,10 @@ namespace Netool.Network.Http
             }
             var newChannel = upgrader.UpgradeServerChannel(channel, logger);
             newChannel.Driver = Driver;
-            if(ChannelReplaced != null)
+            var ev = ChannelReplaced;
+            if (ev != null)
             {
-                ChannelReplaced(this, newChannel);
+                ev(this, newChannel);
             }
             channel.Unlock();
         }
@@ -175,7 +176,8 @@ namespace Netool.Network.Http
         private void channelCreatedHandler(object sender, IServerChannel e)
         {
             var channel = new HttpServerChannel(e, logger);
-            if (ChannelCreated != null) ChannelCreated(this, channel);
+            var ev = ChannelCreated;
+            if (ev != null) ev(this, channel);
         }
 
         /// <inheritdoc/>

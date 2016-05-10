@@ -31,7 +31,8 @@ namespace Netool.Network.WebSocket
 
         private void onMessageParsed(WebSocketMessage m)
         {
-            if (MessageParsed != null) MessageParsed(this, m);
+            var ev = MessageParsed;
+            if (ev != null) ev(this, m);
         }
 
         /// <summary>

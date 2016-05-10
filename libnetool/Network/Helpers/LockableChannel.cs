@@ -64,12 +64,14 @@ namespace Netool.Network.Helpers
         private void InnerChannel_ErrorOccured(object sender, Exception e)
         {
             // forward this event directly, because it's not logged anyway
-            if (ErrorOccured != null) ErrorOccured(this, e);
+            var ev = ErrorOccured;
+            if (ev != null) ev(this, e);
         }
 
         protected void OnChannelClosed()
         {
-            if (ChannelClosed != null) ChannelClosed(this);
+            var ev = ChannelClosed;
+            if (ev != null) ev(this);
         }
 
         protected void InnerChannel_ChannelClosed(object sender)
@@ -90,7 +92,8 @@ namespace Netool.Network.Helpers
         private void InnerChannel_ChannelReady(object sender)
         {
             // forward this event directly, because it's not logged anyway
-            if (ChannelReady != null) ChannelReady(this);
+            var ev = ChannelReady;
+            if (ev != null) ev(this);
         }
 
         /// <inheritdoc/>
@@ -174,13 +177,14 @@ namespace Netool.Network.Helpers
         {
             lock (EventsLock)
             {
+                var ev = ResponseSent;
                 if (Locked)
                 {
                     Events.Enqueue(new StoredEvent { Type = EventType.ResponseSent, Data = e });
                 }
-                else if (ResponseSent != null)
+                else if (ev != null)
                 {
-                    ResponseSent(this, e);
+                    ev(this, e);
                 }
             }
         }
@@ -189,13 +193,14 @@ namespace Netool.Network.Helpers
         {
             lock (EventsLock)
             {
+                var ev = RequestReceived;
                 if (Locked)
                 {
                     Events.Enqueue(new StoredEvent { Type = EventType.RequestReceived, Data = e });
                 }
-                else if (RequestReceived != null)
+                else if (ev != null)
                 {
-                    RequestReceived(this, e);
+                    ev(this, e);
                 }
             }
         }
@@ -218,11 +223,13 @@ namespace Netool.Network.Helpers
                     break;
 
                 case EventType.RequestReceived:
-                    if (RequestReceived != null) RequestReceived(this, e.Data);
+                    var ev = RequestReceived;
+                    if (ev != null) ev(this, e.Data);
                     break;
 
                 case EventType.ResponseSent:
-                    if (ResponseSent != null) ResponseSent(this, e.Data);
+                    var ev1 = ResponseSent;
+                    if (ev1 != null) ev1(this, e.Data);
                     break;
 
                 default:
@@ -257,13 +264,14 @@ namespace Netool.Network.Helpers
         {
             lock (EventsLock)
             {
+                var ev = ResponseReceived;
                 if (Locked)
                 {
                     Events.Enqueue(new StoredEvent { Type = EventType.ResponseReceived, Data = e });
                 }
-                else if (ResponseReceived != null)
+                else if (ev != null)
                 {
-                    ResponseReceived(this, e);
+                    ev(this, e);
                 }
             }
         }
@@ -272,13 +280,14 @@ namespace Netool.Network.Helpers
         {
             lock (EventsLock)
             {
+                var ev = RequestSent;
                 if (Locked)
                 {
                     Events.Enqueue(new StoredEvent { Type = EventType.RequestSent, Data = e });
                 }
-                else if (RequestSent != null)
+                else if (ev != null)
                 {
-                    RequestSent(this, e);
+                    ev(this, e);
                 }
             }
         }
@@ -301,11 +310,13 @@ namespace Netool.Network.Helpers
                     break;
 
                 case EventType.RequestSent:
-                    if (RequestSent != null) RequestSent(this, e.Data);
+                    var ev = RequestSent;
+                    if (ev != null) ev(this, e.Data);
                     break;
 
                 case EventType.ResponseReceived:
-                    if (ResponseReceived != null) ResponseReceived(this, e.Data);
+                    var ev1 = ResponseReceived;
+                    if (ev1 != null) ev1(this, e.Data);
                     break;
 
                 default:
@@ -350,13 +361,14 @@ namespace Netool.Network.Helpers
         {
             lock (EventsLock)
             {
+                var ev = ResponseSent;
                 if (Locked)
                 {
                     Events.Enqueue(new StoredEvent { Type = EventType.ResponseSent, Data = e });
                 }
-                else if (ResponseSent != null)
+                else if (ev != null)
                 {
-                    ResponseSent(this, e);
+                    ev(this, e);
                 }
             }
         }
@@ -365,13 +377,14 @@ namespace Netool.Network.Helpers
         {
             lock (EventsLock)
             {
+                var ev = RequestReceived;
                 if (Locked)
                 {
                     Events.Enqueue(new StoredEvent { Type = EventType.RequestReceived, Data = e });
                 }
-                else if (RequestReceived != null)
+                else if (ev != null)
                 {
-                    RequestReceived(this, e);
+                    ev(this, e);
                 }
             }
         }
@@ -380,13 +393,14 @@ namespace Netool.Network.Helpers
         {
             lock (EventsLock)
             {
+                var ev = ResponseReceived;
                 if (Locked)
                 {
                     Events.Enqueue(new StoredEvent { Type = EventType.ResponseReceived, Data = e });
                 }
-                else if (ResponseReceived != null)
+                else if (ev != null)
                 {
-                    ResponseReceived(this, e);
+                    ev(this, e);
                 }
             }
         }
@@ -395,13 +409,14 @@ namespace Netool.Network.Helpers
         {
             lock (EventsLock)
             {
+                var ev = RequestSent;
                 if (Locked)
                 {
                     Events.Enqueue(new StoredEvent { Type = EventType.RequestSent, Data = e });
                 }
-                else if (RequestSent != null)
+                else if (ev != null)
                 {
-                    RequestSent(this, e);
+                    ev(this, e);
                 }
             }
         }
@@ -415,19 +430,23 @@ namespace Netool.Network.Helpers
                     break;
 
                 case EventType.RequestSent:
-                    if (RequestSent != null) RequestSent(this, e.Data);
+                    var ev = RequestSent;
+                    if (ev != null) ev(this, e.Data);
                     break;
 
                 case EventType.ResponseReceived:
-                    if (ResponseReceived != null) ResponseReceived(this, e.Data);
+                    var ev1 = ResponseReceived;
+                    if (ev1 != null) ev1(this, e.Data);
                     break;
 
                 case EventType.RequestReceived:
-                    if (RequestReceived != null) RequestReceived(this, e.Data);
+                    var ev2 = RequestReceived;
+                    if (ev2 != null) ev2(this, e.Data);
                     break;
 
                 case EventType.ResponseSent:
-                    if (ResponseSent != null) ResponseSent(this, e.Data);
+                    var ev3 = ResponseSent;
+                    if (ev3 != null) ev3(this, e.Data);
                     break;
 
                 default:

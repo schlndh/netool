@@ -171,22 +171,26 @@ namespace Netool.Network
 
         protected virtual void OnRequestReceived(IDataStream request, ICloneable state)
         {
-            if (RequestReceived != null) RequestReceived(this, new DataEventArgs { Data = request, State = state });
+            var ev = RequestReceived;
+            if (ev != null) ev(this, new DataEventArgs { Data = request, State = state });
         }
 
         protected virtual void OnRequestSent(IDataStream request, ICloneable state)
         {
-            if (RequestSent != null) RequestSent(this, new DataEventArgs { Data = request, State = state });
+            var ev = RequestSent;
+            if (ev != null) ev(this, new DataEventArgs { Data = request, State = state });
         }
 
         protected virtual void OnResponseReceived(IDataStream response, ICloneable state)
         {
-            if (ResponseReceived != null) ResponseReceived(this, new DataEventArgs { Data = response, State = state });
+            var ev = ResponseReceived;
+            if (ev != null) ev(this, new DataEventArgs { Data = response, State = state });
         }
 
         protected virtual void OnResponseSent(IDataStream response, ICloneable state)
         {
-            if (ResponseSent != null) ResponseSent(this, new DataEventArgs { Data = response, State = state });
+            var ev = ResponseSent;
+            if (ev != null) ev(this, new DataEventArgs { Data = response, State = state });
         }
     }
 

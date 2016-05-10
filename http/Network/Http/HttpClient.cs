@@ -196,7 +196,8 @@ namespace Netool.Network.Http
         private void channelCreatedHandler(object sender, IClientChannel e)
         {
             channel = new HttpClientChannel(e, logger, serverChannel);
-            if (ChannelCreated != null) ChannelCreated(this, channel);
+            var ev = ChannelCreated;
+            if (ev != null) ev(this, channel);
         }
 
         /// <inheritdoc/>

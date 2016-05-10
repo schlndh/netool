@@ -116,7 +116,8 @@ namespace Netool.Views.Components
             {
                 var oldMinSize = minSize;
                 minSize = value;
-                if (MinimumSizeChanged != null && oldMinSize != minSize) MinimumSizeChanged(this, EventArgs.Empty);
+                var ev = MinimumSizeChanged;
+                if (ev != null && oldMinSize != minSize) ev(this, EventArgs.Empty);
             }
         }
 

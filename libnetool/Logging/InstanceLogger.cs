@@ -164,7 +164,8 @@ namespace Netool.Logging
 
         private void OnChannelCountChanged(int c)
         {
-            if (ChannelCountChanged != null) ChannelCountChanged(this, c);
+            var ev = ChannelCountChanged;
+            if (ev != null) ev(this, c);
         }
 
         public int GetChannelCount()

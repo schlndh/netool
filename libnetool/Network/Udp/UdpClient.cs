@@ -210,7 +210,8 @@ namespace Netool.Network.Udp
 
         private void OnChannelCreated(IClientChannel channel)
         {
-            if (ChannelCreated != null) ChannelCreated(this, channel);
+            var ev = ChannelCreated;
+            if (ev != null) ev(this, channel);
         }
     }
 }

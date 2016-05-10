@@ -172,7 +172,8 @@ namespace Netool.Logging
 
         private void OnEventCountChanged(int count, Event e)
         {
-            if (EventCountChanged != null) EventCountChanged(this, count, e);
+            var ev = EventCountChanged;
+            if (ev != null) ev(this, count, e);
         }
     }
 }

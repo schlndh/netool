@@ -91,17 +91,19 @@ namespace Netool.Views.Editor
                 MessageBox.Show(ex.Message, "Validation failed!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            if (SendClicked != null && val != null)
+            var ev = SendClicked;
+            if (ev != null && val != null)
             {
-                SendClicked(this, new SendEventArgs { Data = val, ToClient = proxyRadioClient.Checked});
+                ev(this, new SendEventArgs { Data = val, ToClient = proxyRadioClient.Checked});
             }
         }
 
         private void closeButton_Click(object sender, EventArgs e)
         {
-            if (CloseClicked != null)
+            var ev = CloseClicked;
+            if (ev != null)
             {
-                CloseClicked(this);
+                ev(this);
             }
         }
     }

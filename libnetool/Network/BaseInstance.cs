@@ -11,7 +11,8 @@ namespace Netool.Network
 
         protected virtual void OnErrorOccured(Exception e)
         {
-            if (ErrorOccured != null) ErrorOccured(this, e);
+            var ev = ErrorOccured;
+            if (ev != null) ev(this, e);
         }
     }
 }

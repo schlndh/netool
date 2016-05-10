@@ -38,7 +38,8 @@ namespace Netool.Network
 
         protected virtual void OnChannelClosed()
         {
-            if (ChannelClosed != null) ChannelClosed(this);
+            var ev = ChannelClosed;
+            if (ev != null) ev(this);
         }
 
         /// <summary>
@@ -54,13 +55,15 @@ namespace Netool.Network
             if (!channelReadyCalled)
             {
                 channelReadyCalled = true;
-                if (ChannelReady != null) ChannelReady(this);
+                var ev = ChannelReady;
+                if (ev != null) ev(this);
             }
         }
 
         protected virtual void OnErrorOccured(Exception e)
         {
-            if (ErrorOccured != null) ErrorOccured(this, e);
+            var ev = ErrorOccured;
+            if (ev != null) ev(this, e);
         }
 
         [OnDeserialized]

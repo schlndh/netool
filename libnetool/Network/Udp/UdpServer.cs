@@ -240,7 +240,8 @@ namespace Netool.Network.Udp
 
         private void OnChannelCreated(IServerChannel channel)
         {
-            if (ChannelCreated != null) ChannelCreated(this, channel);
+            var ev = ChannelCreated;
+            if (ev != null) ev(this, channel);
         }
 
         private void channelClosedHandler(object channel)

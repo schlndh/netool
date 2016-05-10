@@ -122,7 +122,8 @@ namespace Netool.Plugins
 
         private void onPluginLoaded(IPlugin plugin)
         {
-            if (PluginLoaded != null) PluginLoaded(this, plugin);
+            var ev = PluginLoaded;
+            if (ev != null) ev(this, plugin);
             lock(pluginsCacheLock)
             {
                 if(pluginsByTypeCache.Count > 0) pluginsByTypeCache.Clear();
