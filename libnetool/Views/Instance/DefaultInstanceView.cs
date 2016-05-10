@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Netool.Views.Instance
@@ -102,14 +103,14 @@ namespace Netool.Views.Instance
 
         private void stop_Click(object sender, EventArgs e)
         {
-            controller.Stop();
+            Task.Run(() => controller.Stop());
             start.Enabled = true;
             stop.Enabled = false;
         }
 
         private void start_Click(object sender, EventArgs e)
         {
-            controller.Start();
+            Task.Run(() => controller.Start());
             start.Enabled = false;
             stop.Enabled = true;
         }

@@ -177,10 +177,7 @@ namespace Netool.Controllers
             if(Active)
             {
                 logger.Open();
-                var t = new Thread(delegate () {
-                    instance.Start();
-                });
-                t.Start();
+                instance.Start();
             }
         }
 
