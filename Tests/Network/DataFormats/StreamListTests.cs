@@ -59,5 +59,16 @@ namespace Tests.Network.DataFormats
             Assert.Equal(4, list.Length);
             Assert.Equal(5, list.ReadByte(2));
         }
+
+        [Fact]
+        public void TestFreeze()
+        {
+            var list = new StreamList();
+            list.Add(EmptyData.Instance);
+            Assert.False(list.IsFrozen);
+            list.Freeze();
+            Assert.True(list.IsFrozen);
+            Assert.Throws<InvalidOperationException>(() => list.Add(EmptyData.Instance));
+        }
     }
 }

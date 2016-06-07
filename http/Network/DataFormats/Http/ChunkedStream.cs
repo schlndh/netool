@@ -118,6 +118,7 @@ namespace Netool.Network.DataFormats.Http
                 tmpData.Add(chunkEnd);
             }
             tmpData.Add(streamEnd);
+            tmpData.Freeze();
         }
 
         /// <inheritdoc/>

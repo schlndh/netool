@@ -13,6 +13,8 @@ namespace Netool.Network.DataFormats
     {
         private List<IDataStream> streams = new List<IDataStream>();
         private long length;
+        private volatile bool frozen = false;
+        public bool IsFrozen { get { return frozen; } }
         [NonSerialized]
         private ReaderWriterLockSlim streamsLock = new ReaderWriterLockSlim();
         /// <inheritdoc/>
@@ -24,6 +26,7 @@ namespace Netool.Network.DataFormats
         /// <param name="s">stream</param>
         public void Add(IDataStream s)
         {
+            if (frozen) throw new InvalidOperationException("StreamList is frozen!");
             s = (IDataStream)s.Clone();
             streamsLock.EnterWriteLock();
             try
@@ -35,6 +38,14 @@ namespace Netool.Network.DataFormats
             {
                 streamsLock.ExitWriteLock();
             }
+        }
+
+        /// <summary>
+        /// Makes the object immutable
+        /// </summary>
+        public void Freeze()
+        {
+            frozen = true;
         }
 
         /// <inheritdoc/>
@@ -110,6 +121,7 @@ namespace Netool.Network.DataFormats
         /// <inheritdoc/>
         public object Clone()
         {
+            if (frozen) return this;
             streamsLock.EnterReadLock();
             try
             {

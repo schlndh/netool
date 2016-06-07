@@ -159,6 +159,7 @@ namespace Netool.Network.DataFormats.Http
                 var list = new StreamList();
                 list.Add(HeaderData);
                 list.Add(BodyData);
+                list.Freeze();
                 MessageData = list;
             }
             else

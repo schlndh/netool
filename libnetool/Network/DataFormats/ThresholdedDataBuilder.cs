@@ -72,6 +72,7 @@ namespace Netool.Network.DataFormats
         {
             logger = null;
             if (length >= threshold) return fileBuilder.Close();
+            list.Freeze();
             return list;
         }
     }

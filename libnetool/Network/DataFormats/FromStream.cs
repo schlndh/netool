@@ -51,6 +51,7 @@ namespace Netool.Network.DataFormats
                         list.Add(new ByteArray(buffer, 0, bytesRead));
                     }
                 } while (bytesRead > 0);
+                list.Freeze();
                 return list;
             }
         }

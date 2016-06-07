@@ -23,6 +23,7 @@ namespace Examples.Network.DataFormats.Calc
             stream.Add(new ByteArray(BitConverter.GetBytes(operation)));
             stream.Add(new ByteArray(BitConverter.GetBytes(op1)));
             stream.Add(new ByteArray(BitConverter.GetBytes(op2)));
+            stream.Freeze();
         }
 
         public byte ReadByte(long index)
