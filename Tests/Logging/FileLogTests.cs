@@ -155,7 +155,7 @@ namespace Tests.Logging
         [Fact]
         public void TestManyAddChannel()
         {
-            long hint = 0;
+            FileLog.ChannelInfo hint = new FileLog.ChannelInfo();
             for (int i = 0; i <= FileLog.ChannelsPerBlock; ++i )
             {
                 hint = log.AddChannel();
@@ -169,7 +169,7 @@ namespace Tests.Logging
                 Assert.Equal(FileLog.ChannelsPerBlock + 1, binReader.ReadInt64());
                 // the last channel will be first in the second table
                 stream.Position = binReader.ReadInt64() + sizeof(long);
-                Assert.Equal(hint, binReader.ReadInt64());
+                Assert.Equal(hint.Hint, binReader.ReadInt64());
                 binReader.Close();
             }
 
@@ -214,13 +214,13 @@ namespace Tests.Logging
                 BinaryFormatter formatter = new BinaryFormatter();
                 stream.Position = 3 * sizeof(long);
                 // check that pointers are properly stored in the table
-                Assert.Equal(hint, binReader.ReadInt64());
-                Assert.Equal(hint2, binReader.ReadInt64());
-                stream.Position = hint + sizeof(long);
+                Assert.Equal(hint.Hint, binReader.ReadInt64());
+                Assert.Equal(hint2.Hint, binReader.ReadInt64());
+                stream.Position = hint.Hint + sizeof(long);
                 // check that eventcount is properly written
                 Assert.Equal(5, binReader.ReadInt64());
                 // check that object can be properly deserialized
-                stream.Position = hint;
+                stream.Position = hint.Hint;
                 stream.Position = binReader.ReadInt64();
                 object res = formatter.Deserialize(stream);
                 Assert.IsType(typeof(TestChannel), res);
@@ -229,7 +229,7 @@ namespace Tests.Logging
                 Assert.Equal(1, c.id);
 
                 // second channel
-                stream.Position = hint2;
+                stream.Position = hint2.Hint;
                 stream.Position = binReader.ReadInt64();
                 res = formatter.Deserialize(stream);
                 Assert.IsType(typeof(TestChannel), res);
@@ -298,7 +298,7 @@ namespace Tests.Logging
             {
                 BinaryFormatter formatter = new BinaryFormatter();
                 // jump to channel info
-                stream.Position = hint;
+                stream.Position = hint.Hint;
                 // skip channel data pointer and eventCount (is only written with WriteChannelData method)
                 stream.Position += 2*sizeof(long);
                 // move to the next table, first event
@@ -433,8 +433,8 @@ namespace Tests.Logging
         public void TestCreateAndAppendFile_OneBlock()
         {
             var file1 = log.CreateFile();
-            log.AppendDataToFile(file1.Hint, new ByteArray(new byte[] { 1, 2, 3, 4 }));
-            log.AppendDataToFile(file1.Hint, new ByteArray(new byte[] { 5, 6, 7, 8 }));
+            log.AppendDataToFile(file1, new ByteArray(new byte[] { 1, 2, 3, 4 }));
+            log.AppendDataToFile(file1, new ByteArray(new byte[] { 5, 6, 7, 8 }));
             log.Close();
             FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
             using (BinaryReader binReader = new BinaryReader(stream))
@@ -481,8 +481,8 @@ namespace Tests.Logging
             var newFileSize = FileLogTestsHelper.CreateBigLogFile(file1.Hint, stream);
             log = new FileLog(filename, FileMode.Open);
             // Don't use hint from previously open log file
-            log.AppendDataToFile(file1.Hint, new ByteArray(new byte[] { 233, 234, 235, 236 }));
-            log.AppendDataToFile(file1.Hint, new ByteArray(new byte[] { 237, 238, 239 }));
+            log.AppendDataToFile(file1, new ByteArray(new byte[] { 233, 234, 235, 236 }));
+            log.AppendDataToFile(file1, new ByteArray(new byte[] { 237, 238, 239 }));
             log.Close();
             stream = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite);
             using (BinaryReader binReader = new BinaryReader(stream))
@@ -541,8 +541,8 @@ namespace Tests.Logging
             var newFileSize = FileLogTestsHelper.CreateBigLogFile(file1.Hint, stream, true);
             log = new FileLog(filename, FileMode.Open);
             // Don't use hint from previously open log file
-            log.AppendDataToFile(file1.Hint, new ByteArray(new byte[] { 233, 234, 235, 236 }));
-            log.AppendDataToFile(file1.Hint, new ByteArray(new byte[] { 237, 238, 239 }));
+            log.AppendDataToFile(file1, new ByteArray(new byte[] { 233, 234, 235, 236 }));
+            log.AppendDataToFile(file1, new ByteArray(new byte[] { 237, 238, 239 }));
             log.Close();
             stream = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite);
             using (BinaryReader binReader = new BinaryReader(stream))
@@ -592,8 +592,8 @@ namespace Tests.Logging
         public void TestCreateAndAppendFile_Empty()
         {
             var file1 = log.CreateFile();
-            log.AppendDataToFile(file1.Hint, EmptyData.Instance);
-            log.AppendDataToFile(file1.Hint, EmptyData.Instance);
+            log.AppendDataToFile(file1, EmptyData.Instance);
+            log.AppendDataToFile(file1, EmptyData.Instance);
             log.Close();
             FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
             using (BinaryReader binReader = new BinaryReader(stream))

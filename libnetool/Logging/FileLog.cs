@@ -62,6 +62,19 @@ namespace Netool.Logging
          * - FileLog.blockSize bytes (must be a power of 2)
          * 8B (long) pointers to data blocks (FileLog.blockSize bytes)
          **/
+
+        [Serializable]
+        public struct ChannelInfo
+        {
+            public long Hint { get; private set; }
+
+            public ChannelInfo(long hint)
+            {
+                Hint = hint;
+            }
+        }
+
+        [Serializable]
         public struct LoggedFileInfo
         {
             public long ID { get; private set; }
@@ -385,7 +398,7 @@ namespace Netool.Logging
         /// Initializes channel info for new channel
         /// </summary>
         /// <returns>hint - pointer to the beginnig of the channel info</returns>
-        public long AddChannel()
+        public ChannelInfo AddChannel()
         {
             long hint = 0;
             lock (streamLock)
@@ -419,7 +432,7 @@ namespace Netool.Logging
                 stream.Flush();
                 stream.Position = initialPos;
             }
-            return hint;
+            return new ChannelInfo(hint);
         }
 
         /// <summary>
@@ -428,13 +441,13 @@ namespace Netool.Logging
         /// <param name="hint">pointer to channel info as returned from AddChannel</param>
         /// <param name="eventCount">channel's eventCount</param>
         /// <param name="channel"></param>
-        public void WriteChannelData(long hint, int eventCount, IChannel channel)
+        public void WriteChannelData(ChannelInfo hint, int eventCount, IChannel channel)
         {
             lock (streamLock)
             {
                 var initialPos = stream.Position;
                 Debug.WriteLine("FileLog ({0}) writing channel data (type: {1}, id: {2}, name: {3})", filename, channel.GetType(), channel.ID, channel.Name);
-                stream.Position = hint;
+                stream.Position = hint.Hint;
                 // write the pointer to serialized channel data
                 binWriter.Write(stream.Length);
                 binWriter.Write((long)eventCount);
@@ -475,15 +488,15 @@ namespace Netool.Logging
         /// To save IO operations this method doesn't update channel's event count field.
         /// Final count will be written when WriteChannelData is called.
         /// </remarks>
-        public void LogEvent(long hint, Event e)
+        public void LogEvent(ChannelInfo hint, Event e)
         {
             lock (streamLock)
             {
                 var initialPos = stream.Position;
                 Debug.WriteLine("FileLog ({0}) logging event (id: {1}, type: {2})", filename, e.ID, e.Type);
                 // move the hint to the beginning of the event table
-                hint += 2*sizeof(long);
-                logEventHelper(hint, e.ID, e);
+                var hintPtr = hint.Hint + 2 * sizeof(long);
+                logEventHelper(hintPtr, e.ID, e);
                 stream.Flush();
                 stream.Position = initialPos;
             }
@@ -616,7 +629,7 @@ namespace Netool.Logging
         /// Note that this function only appends data, eg. be careful not to pass more data into it.
         /// For example if you incrementaly add data to a StreamList don't pass the whole list each time, but only new data.
         /// </remarks>
-        public void AppendDataToFile(long hint, IDataStream input)
+        public void AppendDataToFile(LoggedFileInfo hint, IDataStream input)
         {
             long remaining = input.Length;
             if (remaining == 0) return;
@@ -628,7 +641,7 @@ namespace Netool.Logging
                 {
                     blockBuffer = new byte[BlockSize];
                 }
-                stream.Position = hint;
+                stream.Position = hint.Hint;
                 long size = binReader.ReadInt64();
                 // stream position is now the beginning of FBT
                 long blockOffset = size % BlockSize;
@@ -683,7 +696,7 @@ namespace Netool.Logging
                             remaining -= bytesRead;
                             if (remaining == 0)
                             {
-                                stream.Position = hint;
+                                stream.Position = hint.Hint;
                                 binWriter.Write(size + input.Length);
                                 stream.Flush();
                                 stream.Position = initialPos;

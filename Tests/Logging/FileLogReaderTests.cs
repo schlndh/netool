@@ -92,8 +92,8 @@ namespace Tests.Logging
         {
             var hint1 = log.AddChannel();
             var hint2 = log.AddChannel();
-            Assert.Equal(hint1, logReader.GetChannelInfoHintByID(1));
-            Assert.Equal(hint2, logReader.GetChannelInfoHintByID(2));
+            Assert.Equal(hint1, logReader.GetChannelInfoByID(1));
+            Assert.Equal(hint2, logReader.GetChannelInfoByID(2));
         }
 
         [Fact]
@@ -165,19 +165,19 @@ namespace Tests.Logging
         public void TestGetFileHint_Ok()
         {
             var file = log.CreateFile();
-            Assert.Equal(file.Hint, logReader.GetFileHint(file.ID));
+            Assert.Equal(file, logReader.GetFileHint(file.ID));
         }
 
         [Fact]
         public void TestGetFileHint_BadId()
         {
-            Assert.Equal(0, logReader.GetFileHint(1));
+            Assert.Equal(0, logReader.GetFileHint(1).Hint);
         }
 
         [Fact]
         public void TestGetFileLength()
         {
-            var hint = log.CreateFile().Hint;
+            var hint = log.CreateFile();
             Assert.Equal(0, logReader.GetFileLength(hint));
             log.AppendDataToFile(hint, new ByteArray(new byte[] { 1, 2, 3, 4 }));
             Assert.Equal(4, logReader.GetFileLength(hint));
@@ -188,7 +188,7 @@ namespace Tests.Logging
         [Fact]
         public void TestReadFileDataToBuffer_Normal()
         {
-            var hint = log.CreateFile().Hint;
+            var hint = log.CreateFile();
             byte[] buffer = new byte[128];
             buffer[0] = 15;
             Assert.Throws(typeof(IndexOutOfRangeException), () => logReader.ReadFileDataToBuffer(hint, buffer, 0, 1, 0));
@@ -208,7 +208,7 @@ namespace Tests.Logging
         [Fact]
         public void TestReadFileDataToBuffer_ReadAcrossFBT2()
         {
-            var hint = log.CreateFile().Hint;
+            var hint = log.CreateFile();
             byte[] data = new byte[256];
             for(int i = 0; i < 256; ++i)
             {
@@ -233,11 +233,11 @@ namespace Tests.Logging
         [Fact]
         public void TestReadFileDataToBuffer_Big()
         {
-            var hint = log.CreateFile().Hint;
+            var hint = log.CreateFile();
             logReader.Close();
             log.Close();
             var stream = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
-            var newFileSize = FileLogTestsHelper.CreateBigLogFile(hint, stream);
+            var newFileSize = FileLogTestsHelper.CreateBigLogFile(hint.Hint, stream);
             stream.Close();
             log = new FileLog(filename, FileMode.Open);
             log.AppendDataToFile(hint, new ByteArray(new byte[] { 1, 2, 3, 4 }));

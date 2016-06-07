@@ -76,7 +76,7 @@ namespace Netool.Logging
                 using (var reader = log.ReaderPool.Get())
                 {
                     var channel = GetChannelByID(id);
-                    var hint = reader.GetChannelInfoHintByID(id);
+                    var hint = reader.GetChannelInfoByID(id);
                     var eventCount = reader.GetEventCount(hint);
                     logger = new ChannelLogger(log, hint, channel, eventCount);
                 }

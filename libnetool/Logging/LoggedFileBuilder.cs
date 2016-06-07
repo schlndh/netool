@@ -10,8 +10,7 @@ namespace Netool.Logging
     public class LoggedFileBuilder
     {
         private FileLog log;
-        private long id;
-        private long hint;
+        private FileLog.LoggedFileInfo info;
 
         /// <summary>
         /// Creates new file inside the passed FileLog
@@ -22,9 +21,7 @@ namespace Netool.Logging
         {
             if (log == null) throw new ArgumentNullException("log");
             this.log = log;
-            var file = log.CreateFile();
-            id = file.ID;
-            hint = file.Hint;
+            info = log.CreateFile();
         }
 
         /// <summary>
@@ -33,7 +30,7 @@ namespace Netool.Logging
         /// <param name="data">data to be appended</param>
         public void Append(IDataStream data)
         {
-            log.AppendDataToFile(hint, data);
+            log.AppendDataToFile(info, data);
         }
 
         /// <summary>
@@ -42,8 +39,8 @@ namespace Netool.Logging
         /// <returns></returns>
         public LoggedFile Close()
         {
-            var ret = new LoggedFile(id, log);
-            id = -1;
+            var ret = new LoggedFile(info.ID, log);
+            info = new FileLog.LoggedFileInfo();
             log = null;
             return ret;
         }

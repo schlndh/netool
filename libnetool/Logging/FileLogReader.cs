@@ -244,7 +244,7 @@ namespace Netool.Logging
         /// </summary>
         /// <param name="id">1-based channel id</param>
         /// <returns>hint - a pointer to channel info structure</returns>
-        public long GetChannelInfoHintByID(int id)
+        public FileLog.ChannelInfo GetChannelInfoByID(int id)
         {
             lock (streamLock)
             {
@@ -255,7 +255,7 @@ namespace Netool.Logging
                 stream.Position = table + off * sizeof(long);
                 var ret = binReader.ReadInt64();
                 stream.Position = initialPos;
-                return ret;
+                return new FileLog.ChannelInfo(ret);
             }
         }
 
@@ -264,13 +264,13 @@ namespace Netool.Logging
         /// </summary>
         /// <param name="hint">a pointer to correct channelInfo structure</param>
         /// <returns>channel's event count</returns>
-        public int GetEventCount(long hint)
+        public int GetEventCount(FileLog.ChannelInfo hint)
         {
             lock (streamLock)
             {
                 var initialPos = stream.Position;
                 // first (long) is a pointer to channel data
-                stream.Position = hint + sizeof(long);
+                stream.Position = hint.Hint + sizeof(long);
                 var ret = binReader.ReadInt64();
                 stream.Position = initialPos;
                 return (int)ret;
@@ -283,14 +283,14 @@ namespace Netool.Logging
         /// <param name="hint">a pointer to channel info structure</param>
         /// <param name="id">1-based Event ID</param>
         /// <returns>Event</returns>
-        public Event ReadEvent(long hint, int id)
+        public Event ReadEvent(FileLog.ChannelInfo hint, int id)
         {
             lock (streamLock)
             {
                 var initialPos = stream.Position;
                 int off;
                 // + 2*sizeof(long) to skip the pointer to channel data and event count
-                var table = getEventTableByIndex(hint + 2 * sizeof(long), id, out off);
+                var table = getEventTableByIndex(hint.Hint + 2 * sizeof(long), id, out off);
                 stream.Position = table + off * sizeof(long);
                 var ret = readEventByPointer(binReader.ReadInt64());
                 stream.Position = initialPos;
@@ -306,11 +306,11 @@ namespace Netool.Logging
         /// <param name="firstID">ID of the first required event</param>
         /// <param name="count">number of consecutive events to return</param>
         /// <returns></returns>
-        public IList<Event> ReadEvents(long hint, int firstID, int count)
+        public IList<Event> ReadEvents(FileLog.ChannelInfo hint, int firstID, int count)
         {
             var ret = new List<Event>(count);
             int off;
-            var table = getEventTableByIndex(hint + 2*sizeof(long), firstID, out off);
+            var table = getEventTableByIndex(hint.Hint + 2*sizeof(long), firstID, out off);
             lock (streamLock)
             {
                 var initialPos = stream.Position;
@@ -366,9 +366,10 @@ namespace Netool.Logging
         /// Get file hint by file ID
         /// </summary>
         /// <param name="fileID"></param>
-        /// <returns>a hint which can be used to access data from file. Returns 0 if ID is invalid.</returns>
-        public long GetFileHint(long fileID)
+        /// <returns>a hint which can be used to access data from file. Returns Hint=0 if ID is invalid.</returns>
+        public FileLog.LoggedFileInfo GetFileHint(long fileID)
         {
+            long origID = fileID;
             lock(streamLock)
             {
                 var initialPos = stream.Position;
@@ -381,7 +382,7 @@ namespace Netool.Logging
                     if (fileTable == 0)
                     {
                         stream.Position = initialPos;
-                        return 0;
+                        new FileLog.LoggedFileInfo(origID, 0);
                     }
                 }
                 stream.Position = fileTable;
@@ -395,14 +396,14 @@ namespace Netool.Logging
                     {
                         // file not found
                         stream.Position = initialPos;
-                        return 0;
+                        new FileLog.LoggedFileInfo(origID, 0);
                     }
                     stream.Position = currentFBT;
                 }
                 stream.Position += fileID * sizeof(long);
                 var ret = binReader.ReadInt64();
                 stream.Position = initialPos;
-                return ret;
+                return new FileLog.LoggedFileInfo(origID, ret);
             }
         }
 
@@ -411,12 +412,12 @@ namespace Netool.Logging
         /// </summary>
         /// <param name="hint">file hint as returned from GetFileHint</param>
         /// <returns>file length</returns>
-        public long GetFileLength(long hint)
+        public long GetFileLength(FileLog.LoggedFileInfo hint)
         {
             lock(streamLock)
             {
                 var initialPos = stream.Position;
-                stream.Position = hint;
+                stream.Position = hint.Hint;
                 var ret = binReader.ReadInt64();
                 stream.Position = initialPos;
                 return ret;
@@ -435,14 +436,14 @@ namespace Netool.Logging
         /// <exception cref="BufferNotLargeEnoughException"></exception>
         /// <exception cref="IndexOutOfRangeException">Data outside the file requested.</exception>
         /// <exception cref="LoggedFileCorruptedException">The logged file is somehow corrupted - eg. invalid pointers, missing data, ...</exception>
-        public void ReadFileDataToBuffer(long hint, byte[] buffer, long start, int length, int offset)
+        public void ReadFileDataToBuffer(FileLog.LoggedFileInfo hint, byte[] buffer, long start, int length, int offset)
         {
             if (buffer == null) throw new ArgumentNullException("buffer");
             if (buffer.Length - offset < length) throw new BufferNotLargeEnoughException();
             lock (streamLock)
             {
                 var initialPos = stream.Position;
-                stream.Position = hint;
+                stream.Position = hint.Hint;
                 long size = binReader.ReadInt64();
                 if(size < start + length)
                 {

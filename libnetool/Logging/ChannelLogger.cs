@@ -15,7 +15,7 @@ namespace Netool.Logging
         private object eventsLock = new object();
         private int eventCount = 0;
         private FileLog log;
-        private long hint = 0;
+        private FileLog.ChannelInfo hint;
         private IChannelExtensions.ChannelHandlers handlers;
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace Netool.Logging
         /// <param name="log"></param>
         /// <param name="hint"></param>
         /// <param name="channel"></param>
-        public ChannelLogger(FileLog log, long hint, IChannel channel): this()
+        public ChannelLogger(FileLog log, FileLog.ChannelInfo hint, IChannel channel): this()
         {
             this.log = log;
             this.hint = hint;
@@ -62,7 +62,7 @@ namespace Netool.Logging
         /// <param name="hint"></param>
         /// <param name="channel"></param>
         /// <param name="eventCount"></param>
-        public ChannelLogger(FileLog log, long hint, IChannel channel, int eventCount)
+        public ChannelLogger(FileLog log, FileLog.ChannelInfo hint, IChannel channel, int eventCount)
         {
             this.log = log;
             this.hint = hint;

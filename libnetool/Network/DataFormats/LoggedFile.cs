@@ -33,7 +33,7 @@ namespace Netool.Network.DataFormats
         }
         private long id;
         [NonSerialized]
-        private long hint;
+        private FileLog.LoggedFileInfo hint;
         [NonSerialized]
         private long length = -1;
         [NonSerialized]
@@ -113,7 +113,7 @@ namespace Netool.Network.DataFormats
                 {
                     var info = log.CreateFile();
                     otherLogFiles[log] = id = info.ID;
-                    log.AppendDataToFile(info.Hint, this);
+                    log.AppendDataToFile(info, this);
                 }
             }
         }
